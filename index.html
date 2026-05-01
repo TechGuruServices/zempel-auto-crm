@@ -16,6 +16,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
@@ -293,7 +295,55 @@
         padding-bottom: 80px;
       }
     }
-  </style>
+
+      /* ── Light Mode Theme ───────────────────────────────────────────────── */
+      html.light-mode body { background: #f1f5f9 !important; color: #0f172a !important; }
+      html.light-mode aside#sidebar { background: #ffffff !important; border-color: #e2e8f0 !important; }
+      html.light-mode #mobileNavOverlay > div { background: #ffffff !important; border-color: #e2e8f0 !important; }
+      html.light-mode header { background: rgba(255,255,255,0.93) !important; border-color: #e2e8f0 !important; }
+      html.light-mode nav.mobile-nav { background: rgba(255,255,255,0.97) !important; border-color: #e2e8f0 !important; }
+      html.light-mode .glass-card {
+        background: linear-gradient(135deg,rgba(255,255,255,0.97) 0%,rgba(248,250,252,0.99) 100%) !important;
+        border-color: rgba(203,213,225,0.7) !important;
+      }
+      html.light-mode .glass-input { background: rgba(241,245,249,0.95) !important; border-color: rgba(203,213,225,0.9) !important; color: #0f172a !important; }
+      html.light-mode .glass-input::placeholder { color: #94a3b8 !important; }
+      html.light-mode .glass-input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
+      html.light-mode #modalContent { background: #ffffff !important; border-color: #e2e8f0 !important; }
+      html.light-mode .text-white { color: #0f172a !important; }
+      html.light-mode .text-slate-100, html.light-mode .text-slate-200 { color: #1e293b !important; }
+      html.light-mode .text-slate-300 { color: #334155 !important; }
+      html.light-mode .text-slate-400 { color: #475569 !important; }
+      html.light-mode .text-slate-500 { color: #64748b !important; }
+      html.light-mode .bg-slate-950 { background-color: #f1f5f9 !important; }
+      html.light-mode .bg-slate-900 { background-color: #ffffff !important; }
+      html.light-mode .bg-slate-800\/50 { background-color: rgba(241,245,249,0.85) !important; }
+      html.light-mode .border-slate-800 { border-color: #e2e8f0 !important; }
+      html.light-mode .border-slate-700, html.light-mode .border-slate-700\/50 { border-color: rgba(203,213,225,0.8) !important; }
+      html.light-mode .nav-item:hover:not(.active) { background: rgba(241,245,249,0.9) !important; }
+      html.light-mode .nav-item.active { background: linear-gradient(90deg,rgba(59,130,246,0.1) 0%,transparent 100%) !important; }
+      html.light-mode .table-row:hover { background: rgba(59,130,246,0.05) !important; }
+      html.light-mode ::-webkit-scrollbar-track { background: #f1f5f9 !important; }
+      html.light-mode ::-webkit-scrollbar-thumb { background: #cbd5e1 !important; }
+      html.light-mode ::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
+      html.light-mode select option { background: #ffffff; color: #0f172a; }
+      html.light-mode .metric-card::before { opacity: 0.8; }
+
+      /* ── Toggle switch ──────────────────────────────────────────────────── */
+      .toggle-track {
+        width: 48px; height: 26px; border-radius: 13px; position: relative;
+        cursor: pointer; transition: background 0.25s ease; background: #334155;
+        display: inline-flex; align-items: center; flex-shrink: 0; border: none; outline: none;
+      }
+      .toggle-track.on { background: #3b82f6; }
+      .toggle-thumb {
+        position: absolute; top: 3px; left: 3px;
+        width: 20px; height: 20px; border-radius: 50%;
+        background: #ffffff; transition: transform 0.25s ease;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none;
+      }
+      .toggle-track.on .toggle-thumb { transform: translateX(22px); }
+    </style>
 </head>
 
 <body class="min-h-screen bg-slate-950">
@@ -347,6 +397,12 @@
         <a href="#" onclick="navigate('audit')"
           class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="audit">
           <i class="ph ph-clock-counter-clockwise text-lg"></i> Audit Logs
+        </a>
+
+        <div class="px-4 mt-6 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">System</div>
+        <a href="#" onclick="navigate('settings')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="settings">
+          <i class="ph ph-gear text-lg"></i> Settings
         </a>
       </nav>
 
@@ -639,6 +695,7 @@
         case 'sales': renderSales(main); break;
         case 'comparison': renderComparison(main); break;
         case 'audit': renderAudit(main); break;
+        case 'settings': renderSettings(main); break;
       }
 
       updateNotificationBadge();
@@ -3124,13 +3181,740 @@
       updateNotificationBadge();
     }
 
-    // Close modal on overlay click
+
+      // ==================== THEME ====================
+      function initTheme() {
+        const saved = localStorage.getItem('pc_theme') || 'dark';
+        applyTheme(saved);
+      }
+
+      function applyTheme(theme) {
+        if (theme === 'light') {
+          document.documentElement.classList.add('light-mode');
+        } else {
+          document.documentElement.classList.remove('light-mode');
+        }
+        localStorage.setItem('pc_theme', theme);
+        const track = document.getElementById('themeTrack');
+        if (track) {
+          if (theme === 'light') track.classList.add('on');
+          else track.classList.remove('on');
+        }
+      }
+
+      function toggleTheme() {
+        const current = localStorage.getItem('pc_theme') || 'dark';
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+      }
+
+      // ==================== SETTINGS PAGE ====================
+      function renderSettings(el) {
+        const settings = getAppSettings();
+        const currentTheme = localStorage.getItem('pc_theme') || 'dark';
+        const db = getDB();
+        const invCount   = db.inventory.length;
+        const custCount  = db.customers.length;
+        const vehCount   = db.vehicles.length;
+        const salesCount = db.sales.length;
+        const logCount   = db.auditLogs.length;
+        const invValue   = db.inventory.reduce((t, i) => t + (i.stock * i.cost), 0);
+
+        el.innerHTML = `
+      <div class="animate-slide-in">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-white">Settings</h2>
+            <p class="text-sm text-slate-400">Manage preferences, exports, and app configuration</p>
+          </div>
+          <span class="text-xs text-slate-500 font-mono bg-slate-800/50 px-3 py-1 rounded-full">v2.0</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+          <!-- Appearance -->
+          <div class="glass-card rounded-2xl p-6">
+            <h3 class="text-base font-bold text-white mb-5 flex items-center gap-2">
+              <i class="ph-bold ph-paint-brush text-purple-400"></i> Appearance
+            </h3>
+            <div class="space-y-1">
+              <div class="flex items-center justify-between py-3 border-b border-slate-700/40">
+                <div>
+                  <p class="text-sm font-medium text-white">Dark / Light Mode</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Toggle the application colour theme</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="ph ph-moon text-slate-400 text-sm"></i>
+                  <button id="themeTrack" class="toggle-track ${currentTheme === 'light' ? 'on' : ''}" onclick="toggleTheme()">
+                    <div class="toggle-thumb"></div>
+                  </button>
+                  <i class="ph ph-sun text-amber-400 text-sm"></i>
+                </div>
+              </div>
+              <div class="flex items-center justify-between py-3 border-b border-slate-700/40">
+                <div>
+                  <p class="text-sm font-medium text-white">Compact Table Rows</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Reduce row padding for more data density</p>
+                </div>
+                <button id="compactTrack" class="toggle-track ${settings.compactTables ? 'on' : ''}" onclick="toggleSetting('compactTables','compactTrack')">
+                  <div class="toggle-thumb"></div>
+                </button>
+              </div>
+              <div class="flex items-center justify-between py-3 border-b border-slate-700/40">
+                <div>
+                  <p class="text-sm font-medium text-white">Low-Stock Notifications</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Show alert toasts on app load</p>
+                </div>
+                <button id="notifsTrack" class="toggle-track ${settings.notifications !== false ? 'on' : ''}" onclick="toggleSetting('notifications','notifsTrack')">
+                  <div class="toggle-thumb"></div>
+                </button>
+              </div>
+              <div class="flex items-center justify-between py-3">
+                <div>
+                  <p class="text-sm font-medium text-white">Auto-load Competitor Prices</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Fetch prices when opening part detail</p>
+                </div>
+                <button id="autoPricesTrack" class="toggle-track ${settings.autoPrices ? 'on' : ''}" onclick="toggleSetting('autoPrices','autoPricesTrack')">
+                  <div class="toggle-thumb"></div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Business Profile -->
+          <div class="glass-card rounded-2xl p-6">
+            <h3 class="text-base font-bold text-white mb-5 flex items-center gap-2">
+              <i class="ph-bold ph-building-office text-blue-400"></i> Business Profile
+            </h3>
+            <div class="space-y-3">
+              <div>
+                <label class="text-xs text-slate-400 mb-1 block">Shop Name</label>
+                <input type="text" id="biz_name" value="${settings.bizName || 'Zempel Auto'}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="Your shop name">
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-slate-400 mb-1 block">Phone</label>
+                  <input type="tel" id="biz_phone" value="${settings.bizPhone || ''}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="(555) 000-0000">
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 mb-1 block">Email</label>
+                  <input type="email" id="biz_email" value="${settings.bizEmail || ''}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="shop@email.com">
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 mb-1 block">Address</label>
+                <input type="text" id="biz_address" value="${settings.bizAddress || ''}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="123 Main St, City, State">
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs text-slate-400 mb-1 block">Default Tax Rate (%)</label>
+                  <input type="number" id="biz_tax" value="${settings.defaultTax !== undefined ? settings.defaultTax : 8}" step="0.5" min="0" max="30" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+                </div>
+                <div>
+                  <label class="text-xs text-slate-400 mb-1 block">Labor Rate ($ per hr)</label>
+                  <input type="number" id="biz_labor" value="${settings.defaultLaborRate || 95}" step="5" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 mb-1 block">Low-Stock Alert Threshold (units)</label>
+                <input type="number" id="biz_lowstock" value="${settings.lowStockThreshold || 5}" min="1" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              </div>
+              <div>
+                <label class="text-xs text-slate-400 mb-1 block">Currency Symbol</label>
+                <input type="text" id="biz_currency" value="${settings.currency || 'USD'}" maxlength="3" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="USD">
+              </div>
+              <button onclick="saveBusinessProfile()" class="btn-primary w-full py-2.5 rounded-lg text-sm font-semibold text-white">
+                <i class="ph-bold ph-floppy-disk"></i> Save Business Profile
+              </button>
+            </div>
+          </div>
+
+          <!-- Export Data -->
+          <div class="glass-card rounded-2xl p-6">
+            <h3 class="text-base font-bold text-white mb-5 flex items-center gap-2">
+              <i class="ph-bold ph-export text-green-400"></i> Export Data
+            </h3>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">PDF Reports</p>
+            <div class="space-y-2 mb-5">
+              <button onclick="exportInventoryPDF()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-red-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-pdf text-red-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Inventory Report PDF</p>
+                    <p class="text-xs text-slate-500">${invCount} parts</p>
+                  </div>
+                </div>
+                <i class="ph ph-download-simple text-slate-400 group-hover:text-red-400 transition-colors"></i>
+              </button>
+              <button onclick="exportSalesPDF()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-red-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-pdf text-red-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Sales Report PDF</p>
+                    <p class="text-xs text-slate-500">${salesCount} records</p>
+                  </div>
+                </div>
+                <i class="ph ph-download-simple text-slate-400 group-hover:text-red-400 transition-colors"></i>
+              </button>
+              <button onclick="exportFullReportPDF()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-red-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-pdf text-red-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Full Business Report PDF</p>
+                    <p class="text-xs text-slate-500">All data combined</p>
+                  </div>
+                </div>
+                <i class="ph ph-download-simple text-slate-400 group-hover:text-red-400 transition-colors"></i>
+              </button>
+            </div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">CSV Spreadsheet</p>
+            <div class="space-y-2 mb-5">
+              <button onclick="exportInventoryCSV()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-green-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-csv text-green-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Inventory CSV</p>
+                    <p class="text-xs text-slate-500">${invCount} parts, all fields</p>
+                  </div>
+                </div>
+                <i class="ph ph-download-simple text-slate-400 group-hover:text-green-400 transition-colors"></i>
+              </button>
+              <button onclick="exportCustomersCSV()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-green-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-csv text-green-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Customers CSV</p>
+                    <p class="text-xs text-slate-500">${custCount} customers</p>
+                  </div>
+                </div>
+                <i class="ph ph-download-simple text-slate-400 group-hover:text-green-400 transition-colors"></i>
+              </button>
+              <button onclick="exportSalesCSV()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-green-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-csv text-green-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Sales CSV</p>
+                    <p class="text-xs text-slate-500">${salesCount} records</p>
+                  </div>
+                </div>
+                <i class="ph ph-download-simple text-slate-400 group-hover:text-green-400 transition-colors"></i>
+              </button>
+            </div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">Google Sheets</p>
+            <div class="space-y-2">
+              <button onclick="exportToGoogleSheets('inventory')" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-blue-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-table text-blue-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Inventory to Google Sheets</p>
+                    <p class="text-xs text-slate-500">Downloads CSV then opens Sheets</p>
+                  </div>
+                </div>
+                <i class="ph ph-arrow-square-out text-slate-400 group-hover:text-blue-400 transition-colors"></i>
+              </button>
+              <button onclick="exportToGoogleSheets('sales')" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-blue-400/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-table text-blue-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Sales to Google Sheets</p>
+                    <p class="text-xs text-slate-500">Downloads CSV then opens Sheets</p>
+                  </div>
+                </div>
+                <i class="ph ph-arrow-square-out text-slate-400 group-hover:text-blue-400 transition-colors"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Data Management -->
+          <div class="glass-card rounded-2xl p-6">
+            <h3 class="text-base font-bold text-white mb-5 flex items-center gap-2">
+              <i class="ph-bold ph-database text-cyan-400"></i> Data Management
+            </h3>
+            <div class="grid grid-cols-3 gap-2 mb-5">
+              <div class="glass-card rounded-xl p-3 text-center">
+                <p class="text-xl font-bold text-white">${invCount}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Parts</p>
+              </div>
+              <div class="glass-card rounded-xl p-3 text-center">
+                <p class="text-xl font-bold text-white">${custCount}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Customers</p>
+              </div>
+              <div class="glass-card rounded-xl p-3 text-center">
+                <p class="text-xl font-bold text-white">${salesCount}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Sales</p>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <button onclick="exportFullBackup()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-cyan-500/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-cyan-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-cloud-arrow-down text-cyan-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Full Backup (JSON)</p>
+                    <p class="text-xs text-slate-500">All inventory, customers, sales, logs</p>
+                  </div>
+                </div>
+                <i class="ph ph-download-simple text-slate-400 group-hover:text-cyan-400 transition-colors"></i>
+              </button>
+              <label class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-amber-500/40 transition-all cursor-pointer group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-cloud-arrow-up text-amber-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Restore from Backup</p>
+                    <p class="text-xs text-slate-500">Import a .json backup file</p>
+                  </div>
+                </div>
+                <i class="ph ph-upload-simple text-slate-400 group-hover:text-amber-400 transition-colors"></i>
+                <input type="file" accept=".json" class="hidden" onchange="importBackup(event)">
+              </label>
+              <button onclick="forceSyncCloud()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-blue-500/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-arrows-clockwise text-blue-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Force Cloud Sync</p>
+                    <p class="text-xs text-slate-500">Push all local data to Neon Postgres now</p>
+                  </div>
+                </div>
+                <i class="ph ph-cloud text-slate-400 group-hover:text-blue-400 transition-colors"></i>
+              </button>
+              <button onclick="clearAuditLogs()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-amber-500/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-eraser text-amber-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Clear Audit Logs</p>
+                    <p class="text-xs text-slate-500">${logCount} entries</p>
+                  </div>
+                </div>
+                <i class="ph ph-trash text-slate-400 group-hover:text-amber-400 transition-colors"></i>
+              </button>
+              <button onclick="confirmResetAllData()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 border border-red-500/25 hover:border-red-500/50 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-trash text-red-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-red-400">Factory Reset</p>
+                    <p class="text-xs text-slate-500">Delete ALL local data - cannot be undone</p>
+                  </div>
+                </div>
+                <i class="ph ph-warning text-red-400"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- About -->
+          <div class="glass-card rounded-2xl p-6 lg:col-span-2">
+            <h3 class="text-base font-bold text-white mb-5 flex items-center gap-2">
+              <i class="ph-bold ph-info text-slate-400"></i> About PartsCommand
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
+              <div class="glass-card rounded-xl p-4 text-center metric-card blue">
+                <p class="text-2xl font-bold text-white">${invCount + custCount + vehCount + salesCount}</p>
+                <p class="text-xs text-slate-400 mt-1">Total Records</p>
+              </div>
+              <div class="glass-card rounded-xl p-4 text-center metric-card green">
+                <p class="text-2xl font-bold text-white">${Math.round(invValue)}</p>
+                <p class="text-xs text-slate-400 mt-1">Inventory Value</p>
+              </div>
+              <div class="glass-card rounded-xl p-4 text-center metric-card amber">
+                <p class="text-2xl font-bold text-white">${logCount}</p>
+                <p class="text-xs text-slate-400 mt-1">Audit Entries</p>
+              </div>
+              <div class="glass-card rounded-xl p-4 text-center metric-card purple">
+                <p class="text-2xl font-bold text-white">PWA</p>
+                <p class="text-xs text-slate-400 mt-1">App Type</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-3 text-sm">
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Application</span><span class="text-white font-medium">PartsCommand CRM</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Version</span><span class="text-white font-mono">2.0</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Built for</span><span class="text-white">Zempel Auto</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Backend</span><span class="text-white font-mono text-xs">Cloudflare Workers</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Database</span><span class="text-white font-mono text-xs">Neon PostgreSQL</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">PDF Engine</span><span class="text-white font-mono text-xs">jsPDF + autoTable</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Hosting</span><span class="text-white font-mono text-xs">Cloudflare Pages</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">License</span><span class="text-white">Proprietary</span></div>
+            </div>
+            <p class="text-xs text-slate-500 text-center mt-5">2026 Zempel Auto. All rights reserved.</p>
+          </div>
+
+        </div>
+      </div>
+    `;
+      }
+
+      // ==================== SETTINGS HELPERS ====================
+      const SETTINGS_KEY = 'pc_app_settings';
+
+      function getAppSettings() {
+        try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; }
+        catch(e) { return {}; }
+      }
+
+      function saveAppSettings(updates) {
+        const s = getAppSettings();
+        Object.assign(s, updates);
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+      }
+
+      function toggleSetting(key, trackId) {
+        const s = getAppSettings();
+        s[key] = !s[key];
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+        const el = document.getElementById(trackId);
+        if (el) { if (s[key]) el.classList.add('on'); else el.classList.remove('on'); }
+        const label = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+        showToast(label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (s[key] ? 'enabled' : 'disabled'), 'info');
+      }
+
+      function saveBusinessProfile() {
+        saveAppSettings({
+          bizName:           (document.getElementById('biz_name') || {}).value || 'Zempel Auto',
+          bizPhone:          (document.getElementById('biz_phone') || {}).value || '',
+          bizEmail:          (document.getElementById('biz_email') || {}).value || '',
+          bizAddress:        (document.getElementById('biz_address') || {}).value || '',
+          defaultTax:        parseFloat((document.getElementById('biz_tax') || {}).value) || 8,
+          defaultLaborRate:  parseFloat((document.getElementById('biz_labor') || {}).value) || 95,
+          lowStockThreshold: parseInt((document.getElementById('biz_lowstock') || {}).value) || 5,
+          currency:          (document.getElementById('biz_currency') || {}).value || 'USD',
+        });
+        showToast('Business profile saved', 'success');
+      }
+
+      // ==================== EXPORT - PDF ====================
+      function buildPDFHeader(doc, title) {
+        const s = getAppSettings();
+        const shopName = s.bizName || 'Zempel Auto';
+        const W = doc.internal.pageSize.width;
+        doc.setFillColor(15, 23, 42); doc.rect(0, 0, W, 30, 'F');
+        doc.setFillColor(59, 130, 246); doc.rect(0, 28, W, 2, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+        doc.text(shopName + '  -  ' + title, 14, 13);
+        doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+        doc.setTextColor(148, 163, 184);
+        doc.text('PartsCommand CRM v2.0  |  Generated: ' + new Date().toLocaleString(), 14, 22);
+        if (s.bizPhone) doc.text(s.bizPhone, W - 14, 17, { align: 'right' });
+        if (s.bizAddress) doc.text(s.bizAddress, W - 14, 23, { align: 'right' });
+      }
+
+      function exportInventoryPDF() {
+        const db = getDB();
+        if (!db.inventory.length) { showToast('No inventory data to export', 'warning'); return; }
+        showToast('Generating inventory PDF...', 'info');
+        setTimeout(function() {
+          try {
+            const jsPDF = window.jspdf.jsPDF;
+            const doc = new jsPDF({ orientation: 'landscape' });
+            buildPDFHeader(doc, 'Inventory Report');
+            const rows = db.inventory.map(function(i) {
+              return [i.partNumber, i.name, i.category, i.brand, i.supplier,
+                '$' + Number(i.cost).toFixed(2), '$' + Number(i.price).toFixed(2),
+                i.stock, i.minStock, i.location || '-', i.barcode || '-'];
+            });
+            doc.autoTable({
+              head: [['Part #','Name','Category','Brand','Supplier','Cost','Price','Stock','Min','Location','Barcode']],
+              body: rows, startY: 34,
+              styles: { fontSize: 7.5, cellPadding: 2.5 },
+              headStyles: { fillColor: [30,41,59], textColor: [226,232,240], fontStyle: 'bold', fontSize: 8 },
+              alternateRowStyles: { fillColor: [248,250,252] },
+              didParseCell: function(data) {
+                if (data.section === 'body' && data.column.index === 7) {
+                  var stk = parseInt(data.cell.raw), min = parseInt(data.row.raw[8]);
+                  data.cell.styles.textColor = stk <= 3 ? [239,68,68] : stk <= min ? [245,158,11] : [16,185,129];
+                  data.cell.styles.fontStyle = 'bold';
+                }
+              }
+            });
+            var y = doc.lastAutoTable.finalY + 8;
+            var invVal = db.inventory.reduce(function(t,i) { return t + i.stock * i.cost; }, 0);
+            var lowCnt = db.inventory.filter(function(i) { return i.stock <= i.minStock; }).length;
+            doc.setFontSize(9); doc.setTextColor(100,116,139);
+            doc.text('Total Parts: ' + db.inventory.length + '  |  Low-Stock: ' + lowCnt + '  |  Cost Value: $' + invVal.toFixed(2), 14, y);
+            doc.save('inventory-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+            showToast('Inventory PDF downloaded', 'success');
+          } catch(err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
+        }, 80);
+      }
+
+      function exportSalesPDF() {
+        const db = getDB();
+        if (!db.sales.length) { showToast('No sales data to export', 'warning'); return; }
+        showToast('Generating sales PDF...', 'info');
+        setTimeout(function() {
+          try {
+            const jsPDF = window.jspdf.jsPDF;
+            const doc = new jsPDF();
+            buildPDFHeader(doc, 'Sales Report');
+            const rows = db.sales.slice().reverse().map(function(s) {
+              const cu = db.customers.find(function(c) { return c.id === s.customerId; });
+              const vh = db.vehicles.find(function(v) { return v.id === s.vehicleId; });
+              return [s.id, s.date, cu ? cu.name : 'Unknown',
+                vh ? vh.year + ' ' + vh.make + ' ' + vh.model : '-',
+                s.status, s.lineItems.length + ' item(s)',
+                '$' + Number(s.total).toFixed(2), Number(s.margin).toFixed(1) + '%'];
+            });
+            doc.autoTable({
+              head: [['Sale ID','Date','Customer','Vehicle','Status','Items','Total','Margin']],
+              body: rows, startY: 34,
+              styles: { fontSize: 8.5, cellPadding: 3 },
+              headStyles: { fillColor: [30,41,59], textColor: [226,232,240], fontStyle: 'bold' },
+              alternateRowStyles: { fillColor: [248,250,252] },
+              didParseCell: function(data) {
+                if (data.section === 'body' && data.column.index === 4) {
+                  data.cell.styles.textColor = data.cell.raw === 'Completed' ? [16,185,129] : [245,158,11];
+                  data.cell.styles.fontStyle = 'bold';
+                }
+              }
+            });
+            var completed = db.sales.filter(function(s) { return s.status === 'Completed'; });
+            var totalRev = completed.reduce(function(t,s) { return t + Number(s.total); }, 0);
+            var avgMgn = db.sales.length ? (db.sales.reduce(function(t,s) { return t + Number(s.margin); }, 0) / db.sales.length).toFixed(1) : 0;
+            var y = doc.lastAutoTable.finalY + 8;
+            doc.setFontSize(9); doc.setTextColor(100,116,139);
+            doc.text('Total: ' + db.sales.length + '  |  Completed Revenue: $' + totalRev.toFixed(2) + '  |  Avg Margin: ' + avgMgn + '%', 14, y);
+            doc.save('sales-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+            showToast('Sales PDF downloaded', 'success');
+          } catch(err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
+        }, 80);
+      }
+
+      function exportFullReportPDF() {
+        const db = getDB();
+        showToast('Building full report...', 'info');
+        setTimeout(function() {
+          try {
+            const jsPDF = window.jspdf.jsPDF;
+            const s = getAppSettings();
+            const doc = new jsPDF();
+            const W = doc.internal.pageSize.width;
+            const H = doc.internal.pageSize.height;
+            doc.setFillColor(10,15,26); doc.rect(0,0,W,H,'F');
+            doc.setFillColor(59,130,246); doc.rect(0,H-4,W,4,'F');
+            doc.setTextColor(59,130,246); doc.setFontSize(32); doc.setFont('helvetica','bold');
+            doc.text('PartsCommand', W/2, 90, {align:'center'});
+            doc.setFontSize(13); doc.setFont('helvetica','normal'); doc.setTextColor(148,163,184);
+            doc.text('Business Report', W/2, 103, {align:'center'});
+            doc.setFontSize(11); doc.setTextColor(255,255,255);
+            doc.text(s.bizName || 'Zempel Auto', W/2, 120, {align:'center'});
+            doc.setFontSize(9); doc.setTextColor(100,116,139);
+            doc.text('Generated: ' + new Date().toLocaleString(), W/2, 130, {align:'center'});
+
+            doc.addPage(); buildPDFHeader(doc, 'Business Overview');
+            var totalRev = db.sales.filter(function(sl) { return sl.status === 'Completed'; }).reduce(function(t,sl) { return t + Number(sl.total); }, 0);
+            var avgMgn = db.sales.length ? (db.sales.reduce(function(t,sl) { return t + Number(sl.margin); }, 0) / db.sales.length).toFixed(1) : 0;
+            var invVal = db.inventory.reduce(function(t,i) { return t + i.stock * i.cost; }, 0);
+            doc.autoTable({
+              head:[['Category','Metric','Value']],
+              body:[
+                ['Inventory','Total SKUs', db.inventory.length],
+                ['Inventory','Total Units', db.inventory.reduce(function(t,i){return t+i.stock;},0)],
+                ['Inventory','Inventory Value (Cost)', '$' + invVal.toFixed(2)],
+                ['Inventory','Low-Stock Items', db.inventory.filter(function(i){return i.stock<=i.minStock;}).length],
+                ['Customers','Total Customers', db.customers.length],
+                ['Customers','Total Vehicles', db.vehicles.length],
+                ['Sales','Total Records', db.sales.length],
+                ['Sales','Completed Revenue', '$' + totalRev.toFixed(2)],
+                ['Sales','Avg Margin', avgMgn + '%'],
+                ['Sales','Pending Estimates', db.sales.filter(function(sl){return sl.status==='Pending';}).length],
+              ],
+              startY:34, styles:{fontSize:9,cellPadding:3},
+              headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
+              alternateRowStyles:{fillColor:[248,250,252]},
+            });
+
+            doc.addPage(); buildPDFHeader(doc, 'Inventory');
+            doc.autoTable({
+              head:[['Part #','Name','Category','Brand','Cost','Price','Stock','Location']],
+              body:db.inventory.map(function(i){return [i.partNumber,i.name,i.category,i.brand,'$'+Number(i.cost).toFixed(2),'$'+Number(i.price).toFixed(2),i.stock,i.location||'-'];}),
+              startY:34, styles:{fontSize:8,cellPadding:2.5},
+              headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
+              alternateRowStyles:{fillColor:[248,250,252]},
+            });
+
+            doc.addPage(); buildPDFHeader(doc, 'Sales Records');
+            doc.autoTable({
+              head:[['ID','Date','Customer','Status','Total','Margin']],
+              body:db.sales.slice().reverse().map(function(sl){
+                var cu=db.customers.find(function(c){return c.id===sl.customerId;});
+                return [sl.id,sl.date,cu?cu.name:'Unknown',sl.status,'$'+Number(sl.total).toFixed(2),Number(sl.margin).toFixed(1)+'%'];
+              }),
+              startY:34, styles:{fontSize:8.5,cellPadding:2.5},
+              headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
+              alternateRowStyles:{fillColor:[248,250,252]},
+            });
+
+            if (db.customers.length) {
+              doc.addPage(); buildPDFHeader(doc, 'Customers');
+              doc.autoTable({
+                head:[['Name','Phone','Email','Address','Total Spent','Loyalty Pts']],
+                body:db.customers.map(function(cu){return [cu.name,cu.phone||'-',cu.email||'-',cu.address||'-','$'+Number(cu.totalSpent||0).toFixed(2),cu.loyaltyPoints||0];}),
+                startY:34, styles:{fontSize:8.5,cellPadding:2.5},
+                headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
+                alternateRowStyles:{fillColor:[248,250,252]},
+              });
+            }
+
+            doc.save('full-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+            showToast('Full report PDF downloaded', 'success');
+          } catch(err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
+        }, 80);
+      }
+
+      // ==================== EXPORT - CSV ====================
+      function csvRow(arr) {
+        return arr.map(function(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
+      }
+      function downloadCSV(filename, content) {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = filename; a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function exportInventoryCSV() {
+        const db = getDB();
+        if (!db.inventory.length) { showToast('No inventory to export', 'warning'); return; }
+        var csv = csvRow(['Part Number','Name','Category','Brand','Supplier','Cost','Price','Stock','Min Stock','Location','Barcode','Added Date','Last Updated']) + '\n';
+        db.inventory.forEach(function(i) {
+          csv += csvRow([i.partNumber,i.name,i.category,i.brand,i.supplier,i.cost,i.price,i.stock,i.minStock,i.location,i.barcode,i.addedDate,i.lastUpdated]) + '\n';
+        });
+        downloadCSV('inventory-' + new Date().toISOString().split('T')[0] + '.csv', csv);
+        showToast('Inventory CSV downloaded', 'success');
+      }
+
+      function exportCustomersCSV() {
+        const db = getDB();
+        if (!db.customers.length) { showToast('No customers to export', 'warning'); return; }
+        var csv = csvRow(['ID','Name','Phone','Email','Address','Notes','Total Spent','Loyalty Points']) + '\n';
+        db.customers.forEach(function(c) {
+          csv += csvRow([c.id,c.name,c.phone,c.email,c.address,c.notes,c.totalSpent,c.loyaltyPoints]) + '\n';
+        });
+        downloadCSV('customers-' + new Date().toISOString().split('T')[0] + '.csv', csv);
+        showToast('Customers CSV downloaded', 'success');
+      }
+
+      function exportSalesCSV() {
+        const db = getDB();
+        if (!db.sales.length) { showToast('No sales to export', 'warning'); return; }
+        var csv = csvRow(['Sale ID','Date','Customer','Vehicle','Status','Line Items','Labor Hrs','Labor Rate','Subtotal','Tax','Total','Margin %']) + '\n';
+        db.sales.forEach(function(s) {
+          var cu = db.customers.find(function(c) { return c.id === s.customerId; });
+          var vh = db.vehicles.find(function(v) { return v.id === s.vehicleId; });
+          csv += csvRow([s.id,s.date,cu?cu.name:'Unknown',vh?vh.year+' '+vh.make+' '+vh.model:'-',s.status,s.lineItems.length,s.laborHours,s.laborRate,s.subtotal,s.tax,s.total,s.margin]) + '\n';
+        });
+        downloadCSV('sales-' + new Date().toISOString().split('T')[0] + '.csv', csv);
+        showToast('Sales CSV downloaded', 'success');
+      }
+
+      // ==================== GOOGLE SHEETS ====================
+      function exportToGoogleSheets(type) {
+        if (type === 'inventory') exportInventoryCSV();
+        else exportSalesCSV();
+        setTimeout(function() {
+          window.open('https://sheets.new', '_blank');
+          showToast('CSV downloaded! In Google Sheets: File > Import > Upload your CSV.', 'info');
+        }, 700);
+      }
+
+      // ==================== DATA MANAGEMENT ====================
+      function exportFullBackup() {
+        const db = getDB();
+        const backup = Object.assign({}, db, { exportedAt: new Date().toISOString(), version: '2.0' });
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = 'partscommand-backup-' + new Date().toISOString().split('T')[0] + '.json'; a.click();
+        URL.revokeObjectURL(url);
+        showToast('Full backup downloaded', 'success');
+      }
+
+      function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (!data.inventory && !data.customers) { showToast('Invalid backup file', 'danger'); return; }
+            if (!confirm('Replace ALL current local data with this backup?')) return;
+            const clean = {
+              inventory:      data.inventory      || [],
+              customers:      data.customers      || [],
+              vehicles:       data.vehicles       || [],
+              sales:          data.sales          || [],
+              retailerPrices: data.retailerPrices || [],
+              auditLogs:      data.auditLogs      || []
+            };
+            windowDB = clean;
+            localStorage.setItem(DB_KEY, JSON.stringify(clean));
+            showToast('Backup restored - reloading dashboard', 'success');
+            setTimeout(function() { navigate('dashboard'); }, 800);
+          } catch(e2) { showToast('Failed to parse backup file', 'danger'); }
+        };
+        reader.readAsText(file);
+      }
+
+      function clearAuditLogs() {
+        if (!confirm('Clear all audit logs? This cannot be undone.')) return;
+        const db = getDB(); db.auditLogs = [];
+        saveDB(db);
+        showToast('Audit logs cleared', 'success');
+        navigate('settings');
+      }
+
+      function forceSyncCloud() {
+        showToast('Syncing to cloud...', 'info');
+        const db = getDB();
+        fetch(API_URL + '/sync', {
+          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(db)
+        }).then(function(r) {
+          if (r.ok) showToast('Cloud sync complete', 'success');
+          else showToast('Sync failed', 'danger');
+        }).catch(function() { showToast('Cloud unreachable - data safe locally', 'warning'); });
+      }
+
+      function confirmResetAllData() {
+        if (!confirm('WARNING: This permanently deletes ALL local data.\n\nInventory, customers, vehicles, sales, and logs will all be erased. Continue?')) return;
+        const code = prompt('Type RESET to confirm factory reset:');
+        if (code !== 'RESET') { showToast('Reset cancelled', 'info'); return; }
+        windowDB = null;
+        localStorage.removeItem(DB_KEY);
+        showToast('All data cleared. Reloading...', 'warning');
+        setTimeout(function() { location.reload(); }, 1400);
+      }
+
+      // Close modal on overlay click
     document.getElementById('modalContainer').addEventListener('click', function (e) {
       if (e.target === this) closeModal();
     });
 
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
       // 1. First render with whatever is in localStorage or defaults (fast visual load)
       renderDashboard(document.getElementById('mainContent'));
 
