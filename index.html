@@ -15,9 +15,9 @@
   <meta name="description" content="PartsCommand CRM — Auto parts inventory, customer, and sales management for Zempel Auto.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="/assets/html5-qrcode.min.js"></script>
+    <script src="/assets/jspdf.umd.min.js"></script>
+    <script src="/assets/jspdf.plugin.autotable.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
@@ -551,6 +551,8 @@
     // ==================== DATA STORE ====================
     const DB_KEY = 'partscommand_db';
     const API_URL = 'https://parts-command-api.techguruofficial.workers.dev';
+    // Only attempt cloud sync when running on the actual production domain
+    const IS_PROD = location.hostname.endsWith('.pages.dev') || location.hostname.endsWith('techguruofficial.workers.dev') || (!location.hostname.includes('replit') && !location.hostname.includes('localhost') && !location.hostname.includes('127.0.0.1'));
 
     const defaultData = {
       inventory: [],
@@ -602,12 +604,17 @@
         console.error("Save error", e);
       }
 
-      // Sync changes to Cloudflare Worker + Neon Postgres Database
-      fetch(`${API_URL}/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      }).catch(err => console.error("Failed to sync to cloud database:", err));
+      // Sync to cloud only in production (avoids ERR_FAILED noise in dev)
+      if (IS_PROD && navigator.onLine) {
+        const _c2 = new AbortController();
+        setTimeout(() => _c2.abort(), 5000);
+        fetch(`${API_URL}/sync`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+          signal: _c2.signal
+        }).catch(() => {}); // localStorage is source of truth; ignore cloud failures
+      }
     }
 
     // ==================== STATE ====================
@@ -3918,9 +3925,13 @@
       // 1. First render with whatever is in localStorage or defaults (fast visual load)
       renderDashboard(document.getElementById('mainContent'));
 
-      try {
+      if (IS_PROD) try {
         // 2. Fetch fresh data from Neon Postgres Database via Cloudflare Worker
-        const response = await fetch(`${API_URL}/sync`);
+        const _ctrl = new AbortController();
+        const _tid = setTimeout(() => _ctrl.abort(), 4000);
+        let response;
+        try { response = await fetch(`${API_URL}/sync`, { signal: _ctrl.signal }); } finally { clearTimeout(_tid); }
+        if (!response) throw new Error('Worker unreachable');
         if (response.ok) {
           const cloudData = await response.json();
 

@@ -1,33 +1,49 @@
 /**
- * PartsCommand CRM — Service Worker
+ * PartsCommand CRM — Service Worker v2.1
  * Offline-first strategy: Cache Shell on install, Network-first for API,
  * Cache-first for static assets.
  */
 
-const CACHE_NAME = 'partscommand-v2.0.0';
+const CACHE_NAME = 'partscommand-v2.1.0';
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
-const PRECACHE_URLS = [
+// Same-origin assets that MUST be cached (hard fail is acceptable)
+const PRECACHE_CORE = [
   '/',
   '/index.html',
   '/manifest.json',
   '/assets/z-auto-7.PNG',
   '/assets/z-auto-8.png',
   '/assets/favicon-cropped.png',
+  '/assets/jspdf.umd.min.js',
+  '/assets/jspdf.plugin.autotable.min.js',
+];
+
+// External CDN assets — cached opportunistically, failures are ignored
+const PRECACHE_OPTIONAL = [
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/@phosphor-icons/web',
   'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap'
+  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap',
 ];
 
 // ── Install: precache app shell ───────────────────────────────────────────────
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_URLS.map(url => new Request(url, { mode: 'no-cors' })))
-        .catch((err) => {
-          console.warn('[SW] Precache partial failure (external CDN URLs expected):', err);
-        });
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // 1. Cache core same-origin assets (must succeed)
+      try {
+        await cache.addAll(PRECACHE_CORE);
+      } catch (err) {
+        console.warn('[SW] Core precache failed:', err);
+      }
+
+      // 2. Cache external CDN assets individually — ignore any failures
+      await Promise.allSettled(
+        PRECACHE_OPTIONAL.map(url =>
+          cache.add(new Request(url, { mode: 'no-cors' })).catch(() => {})
+        )
+      );
     }).then(() => self.skipWaiting())
   );
 });
@@ -60,7 +76,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Google Fonts / CDN assets — Cache first
+  // Google Fonts / CDN assets — Cache first (no-cors opaque response)
   if (
     url.hostname === 'fonts.googleapis.com' ||
     url.hostname === 'fonts.gstatic.com' ||
