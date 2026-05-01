@@ -1,0 +1,53 @@
+{
+  "name": "PartsCommand CRM — Zempel Auto",
+  "short_name": "PartsCommand",
+  "description": "Full-stack auto parts inventory, customer, and sales management PWA for Zempel Auto.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0a0f1a",
+  "theme_color": "#3b82f6",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "assets/favicon-cropped.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/z-auto-8.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/z-auto-8.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "PartsCommand CRM Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Inventory",
+      "short_name": "Parts",
+      "description": "Open Inventory Management",
+      "url": "/?view=inventory",
+      "icons": [{ "src": "assets/favicon-cropped.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "New Sale",
+      "short_name": "Sale",
+      "description": "Create a New Estimate or Sale",
+      "url": "/?view=sales",
+      "icons": [{ "src": "assets/favicon-cropped.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "lang": "en-US",
+  "dir": "ltr"
+}

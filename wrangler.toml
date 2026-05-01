@@ -1,0 +1,43 @@
+# =============================================================
+# PartsCommand CRM — Cloudflare Wrangler Configuration
+# =============================================================
+# Deployment targets:
+#   1. Cloudflare Pages  — hosts the static PWA (index.html, sw.js, etc.)
+#   2. Cloudflare Worker — powers the API (worker.js)
+#
+# SETUP:
+#   1. npm install -g wrangler
+#   2. wrangler login
+#   3. Set secret: wrangler secret put DATABASE_URL
+#      (paste your Neon Postgres connection string when prompted)
+#   4. Deploy API worker: wrangler deploy
+#   5. Deploy Pages:      wrangler pages deploy . --project-name parts-command-crm
+# =============================================================
+
+# ── API Worker ────────────────────────────────────────────────
+name                = "parts-command-api"
+main                = "worker.js"
+compatibility_date  = "2026-04-30"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+
+# Neon DATABASE_URL — set via: wrangler secret put DATABASE_URL
+# Never hardcode credentials here.
+
+[[routes]]
+pattern = "parts-command-api.techguruofficial.workers.dev/*"
+zone_name = "techguruofficial.workers.dev"
+
+[observability]
+enabled = true
+
+# ── Cloudflare Pages (static PWA) ────────────────────────────
+# Run separately:
+#   wrangler pages deploy . --project-name parts-command-crm
+#
+# Or configure in the Cloudflare dashboard:
+#   Pages → New Project → Connect to Git → select repo
+#   Build command:   (none — no build step needed)
+#   Output directory: .  (root)

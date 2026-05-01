@@ -1,0 +1,3205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zempel Auto CRM</title>
+  <link rel="icon" type="image/png" href="assets/z-auto-7.PNG">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PartsCommand">
+  <link rel="apple-touch-icon" href="assets/favicon-cropped.png">
+  <meta name="description" content="PartsCommand CRM — Auto parts inventory, customer, and sales management for Zempel Auto.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#172033',
+              900: '#0f172a',
+              950: '#0a0f1a',
+            },
+            accent: {
+              blue: '#3b82f6',
+              cyan: '#06b6d4',
+              amber: '#f59e0b',
+              green: '#10b981',
+              red: '#ef4444',
+              purple: '#8b5cf6'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0f1a;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #172033;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    .glass-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .glass-input {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      transition: all 0.2s ease;
+    }
+
+    .glass-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-amber {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      transition: all 0.2s ease;
+    }
+
+    .btn-amber:hover {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      transition: all 0.2s ease;
+    }
+
+    .nav-item {
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
+      border-left: 3px solid #3b82f6;
+    }
+
+    .nav-item:hover:not(.active) {
+      background: rgba(30, 41, 59, 0.5);
+    }
+
+    .metric-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .metric-card.blue::before {
+      background: linear-gradient(90deg, #3b82f6, #06b6d4);
+    }
+
+    .metric-card.amber::before {
+      background: linear-gradient(90deg, #f59e0b, #ef4444);
+    }
+
+    .metric-card.green::before {
+      background: linear-gradient(90deg, #10b981, #06b6d4);
+    }
+
+    .metric-card.purple::before {
+      background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+    }
+
+    .table-row {
+      transition: all 0.15s ease;
+    }
+
+    .table-row:hover {
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes pulse-glow {
+
+      0%,
+      100% {
+        box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+      }
+    }
+
+    .pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes scan-line {
+      0% {
+        top: 0;
+      }
+
+      50% {
+        top: 100%;
+      }
+
+      100% {
+        top: 0;
+      }
+    }
+
+    .scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      animation: scan-line 2s linear infinite;
+    }
+
+    .modal-overlay {
+      background: rgba(0, 0, 0, 0.7);
+      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: blur(4px);
+    }
+
+    .sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    /* ---- Logo rendering ---- */
+    .brand-logo {
+      display: block;
+      width: 100%;
+      max-height: 120px;
+      object-fit: contain;
+      object-position: center center;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      filter: brightness(1.15) contrast(1.1);
+      transform: scale(1.3) translateZ(0);
+      margin: 12px 0;
+    }
+
+    .brand-logo-overlay {
+      display: block;
+      width: 100%;
+      max-height: 130px;
+      object-fit: contain;
+      object-position: center center;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      filter: brightness(1.15) contrast(1.1);
+      transform: scale(1.3) translateZ(0);
+      margin: 12px 0;
+    }
+
+    .mobile-nav-safe-bottom {
+      padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      .main-content {
+        padding-bottom: 80px;
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-slate-950">
+
+  <!-- App Container -->
+  <div id="app" class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside id="sidebar" class="hidden lg:flex flex-col w-64 bg-slate-900 border-r border-slate-800 flex-shrink-0">
+      <div class="px-5 py-4 border-b border-slate-800 text-center">
+        <a href="#" onclick="navigate('dashboard')" title="Zempel Auto – PartsCommand CRM" class="inline-block">
+          <img src="assets/z-auto-7.PNG" alt="Zempel Auto logo" class="brand-logo" width="260" height="80"
+            loading="eager" decoding="sync" />
+        </a>
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
+        </p>
+      </div>
+
+      <nav class="flex-1 py-4 overflow-y-auto">
+        <div class="px-4 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Main</div>
+        <a href="#" onclick="navigate('dashboard')"
+          class="nav-item active flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="dashboard">
+          <i class="ph ph-squares-four text-lg"></i> Dashboard
+        </a>
+        <a href="#" onclick="navigate('inventory')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="inventory">
+          <i class="ph ph-package text-lg"></i> Inventory
+        </a>
+        <a href="#" onclick="navigate('customers')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="customers">
+          <i class="ph ph-users text-lg"></i> Customers
+        </a>
+        <a href="#" onclick="navigate('vehicles')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="vehicles">
+          <i class="ph ph-car text-lg"></i> Vehicles
+        </a>
+
+        <div class="px-4 mt-6 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
+          Operations</div>
+        <a href="#" onclick="navigate('sales')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="sales">
+          <i class="ph ph-receipt text-lg"></i> Sales & Estimates
+        </a>
+        <a href="#" onclick="navigate('comparison')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="comparison">
+          <i class="ph ph-arrows-left-right text-lg"></i> Price Comparison
+        </a>
+
+        <div class="px-4 mt-6 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Logs
+        </div>
+        <a href="#" onclick="navigate('audit')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="audit">
+          <i class="ph ph-clock-counter-clockwise text-lg"></i> Audit Logs
+        </a>
+      </nav>
+
+      <div class="p-4 border-t border-slate-800">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">
+            ZA</div>
+          <div>
+            <p class="text-sm font-medium text-white">Zempel Auto</p>
+            <p class="text-[10px] text-slate-400">Admin</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+      <!-- Top Bar -->
+      <header
+        class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 lg:px-6 py-3 flex items-center justify-between sticky-header z-20">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleMobileNav()" class="lg:hidden p-2 text-slate-400 hover:text-white"
+            title="Open navigation menu" aria-label="Open navigation menu">
+            <i class="ph ph-list text-xl"></i>
+          </button>
+          <div class="relative">
+            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+            <input type="text" id="globalSearch" placeholder="Search parts, customers, vehicles..."
+              class="glass-input w-48 lg:w-80 pl-9 pr-4 py-2 rounded-lg text-sm text-white placeholder-slate-500"
+              oninput="globalSearchHandler(this.value)">
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="openQuickAdd()"
+            class="btn-primary px-4 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2">
+            <i class="ph ph-plus"></i>
+            <span class="hidden sm:inline">Quick Add</span>
+          </button>
+          <button onclick="toggleNotifications()" class="relative p-2 text-slate-400 hover:text-white transition-colors"
+            title="Notifications" aria-label="Notifications">
+            <i class="ph ph-bell text-xl"></i>
+            <span id="notifBadge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mobile Bottom Navigation -->
+      <nav
+        class="lg:hidden mobile-nav mobile-nav-safe-bottom fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 flex justify-around items-center py-2 px-1 z-30">
+        <button onclick="navigate('dashboard')"
+          class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400" data-nav="dashboard">
+          <i class="ph ph-squares-four text-xl"></i>
+          <span class="text-[9px] font-medium">Home</span>
+        </button>
+        <button onclick="navigate('inventory')"
+          class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400" data-nav="inventory">
+          <i class="ph ph-package text-xl"></i>
+          <span class="text-[9px] font-medium">Parts</span>
+        </button>
+        <button onclick="openQuickAdd()" class="flex flex-col items-center justify-center -mt-5" title="Quick Add"
+          aria-label="Quick Add">
+          <div
+            class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30 pulse-glow">
+            <i class="ph-bold ph-plus text-white text-2xl"></i>
+          </div>
+        </button>
+        <button onclick="navigate('customers')"
+          class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400" data-nav="customers">
+          <i class="ph ph-users text-xl"></i>
+          <span class="text-[9px] font-medium">Clients</span>
+        </button>
+        <button onclick="navigate('sales')" class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400"
+          data-nav="sales">
+          <i class="ph ph-receipt text-xl"></i>
+          <span class="text-[9px] font-medium">Sales</span>
+        </button>
+      </nav>
+
+      <!-- Scrollable Content -->
+      <main class="main-content flex-1 overflow-y-auto p-4 lg:p-6" id="mainContent">
+        <!-- Content rendered here by JS -->
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile Nav Overlay -->
+  <div id="mobileNavOverlay" class="hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+    onclick="toggleMobileNav()">
+    <div class="w-72 h-full bg-slate-900 border-r border-slate-800 p-4" onclick="event.stopPropagation()">
+      <div class="mb-6 text-center">
+        <a href="#" onclick="navigate('dashboard');toggleMobileNav()" title="Zempel Auto – PartsCommand CRM" class="inline-block">
+          <img src="assets/z-auto-7.PNG" alt="Zempel Auto logo" class="brand-logo-overlay" width="280" height="85"
+            loading="eager" decoding="sync" />
+        </a>
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
+        </p>
+      </div>
+      <nav>
+        <a href="#" onclick="navigate('dashboard');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-squares-four text-lg"></i> Dashboard
+        </a>
+        <a href="#" onclick="navigate('inventory');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-package text-lg"></i> Inventory
+        </a>
+        <a href="#" onclick="navigate('customers');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-users text-lg"></i> Customers
+        </a>
+        <a href="#" onclick="navigate('vehicles');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-car text-lg"></i> Vehicles
+        </a>
+        <a href="#" onclick="navigate('sales');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-receipt text-lg"></i> Sales & Estimates
+        </a>
+        <a href="#" onclick="navigate('comparison');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-arrows-left-right text-lg"></i> Price Comparison
+        </a>
+        <a href="#" onclick="navigate('audit');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-clock-counter-clockwise text-lg"></i> Audit Logs
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Modal Container -->
+  <div id="modalContainer" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay">
+    <div
+      class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col animate-slide-in"
+      id="modalContent">
+      <!-- Modal content injected here -->
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    // ==================== DATA STORE ====================
+    const DB_KEY = 'partscommand_db';
+    const API_URL = 'https://parts-command-api.techguruofficial.workers.dev';
+
+    const defaultData = {
+      inventory: [],
+      customers: [],
+      vehicles: [],
+      sales: [],
+      retailerPrices: [],
+      auditLogs: []
+    };
+
+    let windowDB = null;
+
+    function getDB() {
+      if (windowDB) return JSON.parse(JSON.stringify(windowDB));
+      try {
+        const stored = localStorage.getItem(DB_KEY);
+        if (!stored) {
+          windowDB = JSON.parse(JSON.stringify(defaultData));
+          return JSON.parse(JSON.stringify(windowDB));
+        }
+        windowDB = JSON.parse(stored);
+
+        // Ensure all decimals are parsed back to numbers in case they were saved as strings
+        if (windowDB.inventory) {
+          windowDB.inventory.forEach(item => {
+            item.cost = Number(item.cost || 0);
+            item.price = Number(item.price || 0);
+          });
+        }
+        if (windowDB.sales) {
+          windowDB.sales.forEach(sale => {
+            sale.total = Number(sale.total || 0);
+            sale.margin = Number(sale.margin || 0);
+          });
+        }
+
+        return JSON.parse(JSON.stringify(windowDB));
+      } catch (e) {
+        console.error("Storage error, using defaults", e);
+        return JSON.parse(JSON.stringify(defaultData));
+      }
+    }
+
+    function saveDB(data) {
+      windowDB = JSON.parse(JSON.stringify(data));
+      try {
+        localStorage.setItem(DB_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error("Save error", e);
+      }
+
+      // Sync changes to Cloudflare Worker + Neon Postgres Database
+      fetch(`${API_URL}/sync`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(err => console.error("Failed to sync to cloud database:", err));
+    }
+
+    // ==================== STATE ====================
+    let currentView = 'dashboard';
+    let searchQuery = '';
+
+    // ==================== NAVIGATION ====================
+    function navigate(view) {
+      currentView = view;
+      document.querySelectorAll('.nav-item, .mobile-nav-btn').forEach(el => {
+        el.classList.remove('active', 'text-white');
+        el.classList.add('text-slate-400');
+      });
+      document.querySelectorAll(`[data-nav="${view}"]`).forEach(el => {
+        el.classList.add('active', 'text-white');
+        el.classList.remove('text-slate-400');
+      });
+      renderView();
+    }
+
+    function toggleMobileNav() {
+      document.getElementById('mobileNavOverlay').classList.toggle('hidden');
+    }
+
+    // ==================== GLOBAL SEARCH ====================
+    function globalSearchHandler(query) {
+      searchQuery = query.toLowerCase().trim();
+      if (searchQuery.length === 0) {
+        renderView();
+        return;
+      }
+      const db = getDB();
+      const results = [];
+      db.inventory.forEach(item => {
+        if (item.name.toLowerCase().includes(searchQuery) || item.partNumber.toLowerCase().includes(searchQuery) || item.barcode.includes(searchQuery)) {
+          results.push({ type: 'Part', name: `${item.partNumber} - ${item.name}`, view: 'inventory', id: item.id });
+        }
+      });
+      db.customers.forEach(c => {
+        if (c.name.toLowerCase().includes(searchQuery) || c.phone.includes(searchQuery) || c.email.toLowerCase().includes(searchQuery)) {
+          results.push({ type: 'Customer', name: c.name, view: 'customers', id: c.id });
+        }
+      });
+      db.vehicles.forEach(v => {
+        if (v.make.toLowerCase().includes(searchQuery) || v.model.toLowerCase().includes(searchQuery) || v.vin.toLowerCase().includes(searchQuery)) {
+          results.push({ type: 'Vehicle', name: `${v.year} ${v.make} ${v.model}`, view: 'vehicles', id: v.id });
+        }
+      });
+
+      const main = document.getElementById('mainContent');
+      main.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-white">Search Results</h2>
+        <span class="text-sm text-slate-400">${results.length} results for "${query}"</span>
+      </div>
+      <div class="space-y-2">
+        ${results.length === 0 ? '<p class="text-slate-400 text-center py-12">No results found</p>' :
+          results.map(r => `
+            <div class="glass-card rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-blue-500/30 transition-all" onclick="navigate('${r.view}')">
+              <div class="flex items-center gap-3">
+                <span class="badge ${r.type === 'Part' ? 'bg-blue-500/20 text-blue-400' : r.type === 'Customer' ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}">${r.type}</span>
+                <span class="text-sm text-white">${r.name}</span>
+              </div>
+              <i class="ph ph-caret-right text-slate-500"></i>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+  `;
+    }
+
+    // ==================== VIEW RENDERERS ====================
+    function renderView() {
+      const main = document.getElementById('mainContent');
+      searchQuery = '';
+      const searchInput = document.getElementById('globalSearch');
+      if (searchInput) searchInput.value = '';
+
+      switch (currentView) {
+        case 'dashboard': renderDashboard(main); break;
+        case 'inventory': renderInventory(main); break;
+        case 'customers': renderCustomers(main); break;
+        case 'vehicles': renderVehicles(main); break;
+        case 'sales': renderSales(main); break;
+        case 'comparison': renderComparison(main); break;
+        case 'audit': renderAudit(main); break;
+      }
+
+      updateNotificationBadge();
+    }
+
+    // ==================== DASHBOARD ====================
+    function renderDashboard(el) {
+      const db = getDB();
+      const totalInventory = db.inventory.reduce((s, i) => s + i.stock, 0);
+      const lowStockItems = db.inventory.filter(i => i.stock <= i.minStock);
+      const totalSales = db.sales.reduce((s, sale) => s + sale.total, 0);
+      const avgMargin = db.sales.length > 0 ? (db.sales.reduce((s, sale) => s + sale.margin, 0) / db.sales.length).toFixed(1) : 0;
+
+      el.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Dashboard</h2>
+          <p class="text-sm text-slate-400">Shop overview at a glance</p>
+        </div>
+        <span class="text-xs text-slate-500 font-mono">${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+      </div>
+
+      <!-- Metrics Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
+        <div class="metric-card blue glass-card rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <i class="ph ph-package text-blue-400 text-xl"></i>
+            <span class="text-[10px] text-slate-500 font-mono">INVENTORY</span>
+          </div>
+          <p class="text-2xl font-bold text-white">${totalInventory}</p>
+          <p class="text-xs text-slate-400 mt-1">total units in stock</p>
+        </div>
+        <div class="metric-card amber glass-card rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <i class="ph ph-warning text-amber-400 text-xl"></i>
+            <span class="text-[10px] text-slate-500 font-mono">LOW STOCK</span>
+          </div>
+          <p class="text-2xl font-bold text-white">${lowStockItems.length}</p>
+          <p class="text-xs text-slate-400 mt-1">items below minimum</p>
+        </div>
+        <div class="metric-card green glass-card rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <i class="ph ph-currency-dollar text-green-400 text-xl"></i>
+            <span class="text-[10px] text-slate-500 font-mono">REVENUE</span>
+          </div>
+          <p class="text-2xl font-bold text-white">$${totalSales.toLocaleString()}</p>
+          <p class="text-xs text-slate-400 mt-1">all-time sales</p>
+        </div>
+        <div class="metric-card purple glass-card rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <i class="ph ph-trend-up text-purple-400 text-xl"></i>
+            <span class="text-[10px] text-slate-500 font-mono">AVG MARGIN</span>
+          </div>
+          <p class="text-2xl font-bold text-white">${avgMargin}%</p>
+          <p class="text-xs text-slate-400 mt-1">profit margin</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+        <!-- Low Stock Alerts -->
+        <div class="glass-card rounded-xl p-5">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <i class="ph ph-warning text-amber-400"></i> Low Stock Alerts
+          </h3>
+          <div class="space-y-2 max-h-60 overflow-y-auto">
+            ${lowStockItems.length === 0 ? '<p class="text-slate-500 text-sm text-center py-4">All stock levels healthy ✓</p>' :
+          lowStockItems.map(item => `
+                <div class="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                  <div>
+                    <p class="text-sm font-medium text-white">${item.partNumber}</p>
+                    <p class="text-xs text-slate-400">${item.name}</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-bold ${item.stock <= 3 ? 'text-red-400' : 'text-amber-400'}">${item.stock} left</p>
+                    <p class="text-[10px] text-slate-500">min: ${item.minStock}</p>
+                  </div>
+                </div>
+              `).join('')}
+          </div>
+        </div>
+
+        <!-- Recent Sales -->
+        <div class="glass-card rounded-xl p-5">
+          <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <i class="ph ph-receipt text-green-400"></i> Recent Sales
+          </h3>
+          <div class="space-y-2 max-h-60 overflow-y-auto">
+            ${db.sales.slice().reverse().map(sale => {
+            const cust = db.customers.find(c => c.id === sale.customerId);
+            return `
+                <div class="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                  <div>
+                    <p class="text-sm font-medium text-white">${cust ? cust.name : 'Unknown'}</p>
+                    <p class="text-xs text-slate-400">${sale.date} • ${sale.status}</p>
+                  </div>
+                  <p class="text-sm font-bold text-green-400">$${sale.total.toFixed(2)}</p>
+                </div>
+              `;
+          }).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    // ==================== INVENTORY ====================
+    function renderInventory(el) {
+      const db = getDB();
+      const filtered = searchQuery ?
+        db.inventory.filter(i => i.name.toLowerCase().includes(searchQuery) || i.partNumber.toLowerCase().includes(searchQuery) || i.barcode.includes(searchQuery)) :
+        db.inventory;
+
+      const categories = [...new Set(db.inventory.map(i => i.category))];
+      const suppliers = [...new Set(db.inventory.map(i => i.supplier))];
+
+      el.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Inventory</h2>
+          <p class="text-sm text-slate-400">${filtered.length} of ${db.inventory.length} parts</p>
+        </div>
+        <div class="flex gap-2 w-full sm:w-auto">
+          <button onclick="openBarcodeScanner()" class="btn-amber px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+            <i class="ph-bold ph-barcode"></i> Scan
+          </button>
+          <button onclick="openAddPartModal()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+            <i class="ph-bold ph-plus"></i> Add Part
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="glass-card rounded-xl p-4 mb-4">
+        <div class="flex flex-wrap gap-2">
+          <select id="catFilter" onchange="filterInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-white">
+            <option value="">All Categories</option>
+            ${categories.map(c => `<option value="${c}">${c}</option>`).join('')}
+          </select>
+          <select id="supplierFilter" onchange="filterInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-white">
+            <option value="">All Suppliers</option>
+            ${suppliers.map(s => `<option value="${s}">${s}</option>`).join('')}
+          </select>
+          <select id="stockFilter" onchange="filterInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-white">
+            <option value="">All Stock</option>
+            <option value="low">Low Stock</option>
+            <option value="ok">In Stock</option>
+          </select>
+          <button onclick="exportInventory()" class="ml-auto glass-input px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-1">
+            <i class="ph ph-download-simple"></i> Export
+          </button>
+        </div>
+      </div>
+
+      <!-- Parts Table -->
+      <div class="glass-card rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-slate-700/50">
+                <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Part #</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Name</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:table-cell">Category</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden md:table-cell">Location</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Cost</th>
+                <th class="text-right px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Price</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Stock</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(item => {
+        const stockStatus = item.stock <= item.minStock ? (item.stock <= 3 ? 'text-red-400 bg-red-400/10' : 'text-amber-400 bg-amber-400/10') : 'text-green-400 bg-green-400/10';
+        return `
+                  <tr class="table-row border-b border-slate-800/50 cursor-pointer" onclick="openPartDetail('${item.id}')">
+                    <td class="px-4 py-3 font-mono text-xs text-blue-400">${item.partNumber}</td>
+                    <td class="px-4 py-3">
+                      <p class="text-sm text-white font-medium">${item.name}</p>
+                      <p class="text-xs text-slate-500">${item.brand} • ${item.supplier}</p>
+                    </td>
+                    <td class="px-4 py-3 text-slate-300 hidden sm:table-cell">${item.category}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-slate-400 hidden md:table-cell">${item.location}</td>
+                    <td class="px-4 py-3 text-right text-slate-300">$${item.cost.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right text-white font-medium">$${item.price.toFixed(2)}</td>
+                    <td class="px-4 py-3 text-center">
+                      <span class="badge ${stockStatus}">${item.stock}</span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                      <div class="flex items-center justify-center gap-1">
+                        <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', 1)" class="p-1.5 text-green-400 hover:bg-green-400/10 rounded" title="Add Stock">
+                          <i class="ph-bold ph-plus text-xs"></i>
+                        </button>
+                        <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', -1)" class="p-1.5 text-red-400 hover:bg-red-400/10 rounded" title="Remove Stock">
+                          <i class="ph-bold ph-minus text-xs"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+      }).join('')}
+            </tbody>
+          </table>
+        </div>
+        ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-8">No parts found</p>' : ''}
+      </div>
+    </div>
+  `;
+    }
+
+    function filterInventory() {
+      const cat = document.getElementById('catFilter').value;
+      const sup = document.getElementById('supplierFilter').value;
+      const stk = document.getElementById('stockFilter').value;
+      const db = getDB();
+      let filtered = db.inventory;
+      if (cat) filtered = filtered.filter(i => i.category === cat);
+      if (sup) filtered = filtered.filter(i => i.supplier === sup);
+      if (stk === 'low') filtered = filtered.filter(i => i.stock <= i.minStock);
+      if (stk === 'ok') filtered = filtered.filter(i => i.stock > i.minStock);
+
+      const tbody = document.querySelector('tbody');
+      if (!tbody) return;
+
+      const rows = filtered.map(item => {
+        const stockStatus = item.stock <= item.minStock ? (item.stock <= 3 ? 'text-red-400 bg-red-400/10' : 'text-amber-400 bg-amber-400/10') : 'text-green-400 bg-green-400/10';
+        return `
+      <tr class="table-row border-b border-slate-800/50 cursor-pointer" onclick="openPartDetail('${item.id}')">
+        <td class="px-4 py-3 font-mono text-xs text-blue-400">${item.partNumber}</td>
+        <td class="px-4 py-3">
+          <p class="text-sm text-white font-medium">${item.name}</p>
+          <p class="text-xs text-slate-500">${item.brand} • ${item.supplier}</p>
+        </td>
+        <td class="px-4 py-3 text-slate-300 hidden sm:table-cell">${item.category}</td>
+        <td class="px-4 py-3 font-mono text-xs text-slate-400 hidden md:table-cell">${item.location}</td>
+        <td class="px-4 py-3 text-right text-slate-300">$${item.cost.toFixed(2)}</td>
+        <td class="px-4 py-3 text-right text-white font-medium">$${item.price.toFixed(2)}</td>
+        <td class="px-4 py-3 text-center"><span class="badge ${stockStatus}">${item.stock}</span></td>
+        <td class="px-4 py-3 text-center">
+          <div class="flex items-center justify-center gap-1">
+            <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', 1)" class="p-1.5 text-green-400 hover:bg-green-400/10 rounded"><i class="ph-bold ph-plus text-xs"></i></button>
+            <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', -1)" class="p-1.5 text-red-400 hover:bg-red-400/10 rounded"><i class="ph-bold ph-minus text-xs"></i></button>
+          </div>
+        </td>
+      </tr>
+    `;
+      });
+      tbody.innerHTML = rows.join('') || '<tr><td colspan="8" class="text-center text-slate-500 py-8">No parts match filters</td></tr>';
+    }
+
+    function quickStockAdjust(partId, delta) {
+      const db = getDB();
+      const part = db.inventory.find(p => p.id === partId);
+      if (!part) return;
+      const newStock = Math.max(0, part.stock + delta);
+      const oldStock = part.stock;
+      part.stock = newStock;
+      part.lastUpdated = new Date().toISOString().split('T')[0];
+
+      db.auditLogs.unshift({
+        id: 'LOG' + Date.now(),
+        timestamp: new Date().toISOString(),
+        action: 'STOCK_UPDATE',
+        detail: `${part.partNumber} stock adjusted: ${oldStock} → ${newStock}`,
+        user: 'Admin'
+      });
+      saveDB(db);
+      showToast(delta > 0 ? `+${delta} stock added to ${part.partNumber}` : `${delta} stock removed from ${part.partNumber}`, delta > 0 ? 'success' : 'warning');
+      renderView();
+    }
+
+    function exportInventory() {
+      const db = getDB();
+      let csv = 'Part Number,Name,Category,Brand,Supplier,Cost,Price,Stock,Location,Barcode\n';
+      db.inventory.forEach(i => {
+        csv += `"${i.partNumber}","${i.name}","${i.category}","${i.brand}","${i.supplier}",${i.cost},${i.price},${i.stock},"${i.location}","${i.barcode}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'inventory_export.csv'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('Inventory exported successfully', 'success');
+    }
+
+    // ==================== BARCODE SCANNER ====================
+    let html5QrCode = null;
+    let addPartQrCode = null;
+
+    function toggleAddPartScanner() {
+      const container = document.getElementById('add-part-scanner-container');
+      if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        startAddPartScanner();
+      } else {
+        stopAddPartScanner();
+        container.classList.add('hidden');
+      }
+    }
+
+    function startAddPartScanner() {
+      addPartQrCode = new Html5Qrcode("add-part-qr-reader");
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 150 },
+        aspectRatio: 1.7,
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ]
+      };
+
+      addPartQrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          document.getElementById('addPartBarcode').value = decodedText;
+          const statusEl = document.getElementById('add-part-scan-status');
+          if (statusEl) {
+            statusEl.textContent = `✓ Scanned: ${decodedText}`;
+            statusEl.className = 'absolute bottom-2 left-0 right-0 text-center text-xs text-green-400 bg-black/70 py-1';
+          }
+          setTimeout(() => {
+            toggleAddPartScanner();
+          }, 800);
+        },
+        (errorMessage) => {}
+      ).then(() => {
+        const statusEl = document.getElementById('add-part-scan-status');
+        if (statusEl) {
+          statusEl.textContent = 'Point camera at barcode';
+          statusEl.className = 'absolute bottom-2 left-0 right-0 text-center text-xs text-white bg-black/70 py-1';
+        }
+      }).catch((err) => {
+        const statusEl = document.getElementById('add-part-scan-status');
+        if (statusEl) {
+          statusEl.textContent = 'Camera access denied.';
+          statusEl.className = 'absolute bottom-2 left-0 right-0 text-center text-xs text-red-400 bg-black/70 py-1';
+        }
+      });
+    }
+
+    function stopAddPartScanner() {
+      if (addPartQrCode && addPartQrCode.isScanning) {
+        addPartQrCode.stop().then(() => {
+          addPartQrCode.clear();
+          addPartQrCode = null;
+        }).catch(() => {
+          addPartQrCode = null;
+        });
+      } else if (addPartQrCode) {
+        try { addPartQrCode.clear(); } catch(e){}
+        addPartQrCode = null;
+      }
+    }
+
+    function openBarcodeScanner() {
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-barcode text-amber-400"></i> Barcode Scanner
+        </h3>
+        <button onclick="stopScannerAndClose()" class="p-2 text-slate-400 hover:text-white">
+          <i class="ph ph-x text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Camera viewport — html5-qrcode mounts into this div by ID -->
+      <div id="qr-reader" class="rounded-xl overflow-hidden mb-4" style="width:100%;"></div>
+
+      <!-- Status message -->
+      <div id="scan-status" class="text-center text-sm text-slate-400 mb-4">
+        Initializing camera...
+      </div>
+
+      <div class="flex items-center gap-2 mb-4">
+        <div class="flex-1 h-px bg-slate-700"></div>
+        <span class="text-xs text-slate-500">OR ENTER MANUALLY</span>
+        <div class="flex-1 h-px bg-slate-700"></div>
+      </div>
+
+      <div class="flex gap-2">
+        <input type="text" id="manualBarcode" placeholder="Enter barcode or part number..."
+          class="glass-input flex-1 px-4 py-3 rounded-lg text-sm text-white"
+          onkeypress="if(event.key==='Enter')lookupBarcode()">
+        <button onclick="lookupBarcode()" class="btn-primary px-6 py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-magnifying-glass"></i>
+        </button>
+      </div>
+    </div>
+  `;
+
+      // Start scanner after DOM is painted
+      setTimeout(() => startScanner(), 100);
+    }
+
+    function startScanner() {
+      html5QrCode = new Html5Qrcode("qr-reader");
+
+      const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 150 },
+        aspectRatio: 1.7,
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.CODE_128,
+          Html5QrcodeSupportedFormats.CODE_39,
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ]
+      };
+
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+          // SUCCESS — barcode detected
+          const statusEl = document.getElementById('scan-status');
+          if (statusEl) {
+            statusEl.textContent = `✓ Scanned: ${decodedText}`;
+            statusEl.className = 'text-center text-sm text-green-400 mb-4';
+          }
+
+          // Stop scanning immediately — don't keep firing
+          html5QrCode.stop().then(() => {
+            html5QrCode = null;
+            const barcodeInput = document.getElementById('manualBarcode');
+            if (barcodeInput) barcodeInput.value = decodedText;
+            lookupBarcode();
+          }).catch(() => {
+            html5QrCode = null;
+          });
+        },
+        (errorMessage) => {
+          // This fires constantly while scanning — don't alert
+        }
+      ).then(() => {
+        const statusEl = document.getElementById('scan-status');
+        if (statusEl) {
+          statusEl.textContent = 'Point camera at barcode';
+          statusEl.className = 'text-center text-sm text-slate-400 mb-4';
+        }
+      }).catch((err) => {
+        const statusEl = document.getElementById('scan-status');
+        if (statusEl) {
+          statusEl.textContent = 'Camera access denied. Use manual entry below.';
+          statusEl.className = 'text-center text-sm text-red-400 mb-4';
+        }
+        console.error('Camera error:', err);
+      });
+    }
+
+    function stopScannerAndClose() {
+      if (html5QrCode && html5QrCode.isScanning) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          html5QrCode = null;
+          closeModal();
+        }).catch(() => {
+          html5QrCode = null;
+          closeModal();
+        });
+      } else {
+        if (html5QrCode) {
+          try { html5QrCode.clear(); } catch (e) { }
+          html5QrCode = null;
+        }
+        closeModal();
+      }
+    }
+
+    function lookupBarcode() {
+      const code = document.getElementById('manualBarcode').value.trim();
+      if (!code) return;
+      const db = getDB();
+      const part = db.inventory.find(p => p.barcode === code || p.partNumber.toLowerCase() === code.toLowerCase());
+      if (part) {
+        closeModal();
+        openPartDetail(part.id);
+        showToast(`Found: ${part.name}`, 'success');
+      } else {
+        showToast('Part not found. Would you like to add it?', 'warning');
+        closeModal();
+        openAddPartModal(code);
+      }
+    }
+
+    // ==================== PART DETAIL ====================
+    function openPartDetail(partId) {
+      const db = getDB();
+      const part = db.inventory.find(p => p.id === partId);
+      if (!part) return;
+
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      const margin = ((part.price - part.cost) / part.price * 100).toFixed(1);
+      const stockStatus = part.stock <= part.minStock ? (part.stock <= 3 ? 'Critical' : 'Low') : 'OK';
+      const stockColor = part.stock <= 3 ? 'text-red-400' : part.stock <= part.minStock ? 'text-amber-400' : 'text-green-400';
+
+      // Get retailer prices for this part
+      const retailer = db.retailerPrices.find(r => r.partNumber === part.partNumber);
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center border border-blue-500/20">
+            <i class="ph-bold ph-package text-blue-400 text-xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">${part.name}</h3>
+            <p class="text-sm font-mono text-blue-400">${part.partNumber}</p>
+          </div>
+        </div>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <div class="glass-card rounded-lg p-3 text-center">
+          <p class="text-xs text-slate-400 mb-1">Stock</p>
+          <p class="text-xl font-bold ${stockColor}">${part.stock}</p>
+          <p class="text-[10px] text-slate-500">min: ${part.minStock}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3 text-center">
+          <p class="text-xs text-slate-400 mb-1">Cost</p>
+          <p class="text-xl font-bold text-white">$${part.cost.toFixed(2)}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3 text-center">
+          <p class="text-xs text-slate-400 mb-1">Price</p>
+          <p class="text-xl font-bold text-white">$${part.price.toFixed(2)}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3 text-center">
+          <p class="text-xs text-slate-400 mb-1">Margin</p>
+          <p class="text-xl font-bold text-green-400">${margin}%</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Category</p>
+          <p class="text-sm text-white">${part.category}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Brand</p>
+          <p class="text-sm text-white">${part.brand}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Supplier</p>
+          <p class="text-sm text-white">${part.supplier}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Location</p>
+          <p class="text-sm font-mono text-white">${part.location}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Barcode</p>
+          <p class="text-sm font-mono text-white">${part.barcode}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Last Updated</p>
+          <p class="text-sm text-white">${part.lastUpdated}</p>
+        </div>
+      </div>
+
+      <!-- Live Competitor Prices -->
+      <div class="mb-5">
+        <h4 class="text-sm font-semibold text-white mb-3 flex items-center justify-between">
+          <span class="flex items-center gap-2">
+            <i class="ph ph-arrows-left-right text-cyan-400"></i> Live Competitor Prices
+          </span>
+          <button onclick="fetchLiveCompetitorPrices('${part.partNumber}','${part.brand || ''}')" 
+            class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+            <i class="ph-bold ph-arrows-clockwise"></i> Refresh
+          </button>
+        </h4>
+        <div id="competitor-prices-container">
+          ${retailer ? `
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card rounded-lg p-2 text-center">
+                <p class="text-[10px] text-yellow-400">NAPA</p>
+                <p class="text-sm font-bold text-white">${retailer.napa ? '$' + Number(retailer.napa).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}</p>
+              </div>
+              <div class="glass-card rounded-lg p-2 text-center">
+                <p class="text-[10px] text-blue-400">AutoZone</p>
+                <p class="text-sm font-bold text-white">${retailer.autozone ? '$' + Number(retailer.autozone).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}</p>
+              </div>
+              <div class="glass-card rounded-lg p-2 text-center">
+                <p class="text-[10px] text-orange-400">Advance</p>
+                <p class="text-sm font-bold text-white">${retailer.advance ? '$' + Number(retailer.advance).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}</p>
+              </div>
+              <div class="glass-card rounded-lg p-2 text-center">
+                <p class="text-[10px] text-red-400">RockAuto</p>
+                <p class="text-sm font-bold text-white">${retailer.rockauto ? '$' + Number(retailer.rockauto).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}</p>
+              </div>
+              <div class="glass-card rounded-lg p-2 text-center">
+                <p class="text-[10px] text-green-400">O'Reilly</p>
+                <p class="text-sm font-bold text-white">${retailer.oreilly ? '$' + Number(retailer.oreilly).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}</p>
+              </div>
+              <div class="glass-card rounded-lg p-2 text-center">
+                <p class="text-[10px] text-purple-400">Carquest</p>
+                <p class="text-sm font-bold text-white">${retailer.carquest ? '$' + Number(retailer.carquest).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}</p>
+              </div>
+            </div>
+            ${retailer.fetchedAt ? '<p class="text-[10px] text-slate-600 text-right mt-1">Updated ' + new Date(retailer.fetchedAt).toLocaleTimeString() + '</p>' : ''}
+          ` : `
+            <p class="text-xs text-slate-500 text-center py-3">Click <strong>Refresh</strong> to fetch live prices</p>
+          `}
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button onclick="closeModal();openEditPartModal('${part.id}')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-pencil"></i> Edit Part
+        </button>
+        <button onclick="deletePart('${part.id}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-trash"></i>
+        </button>
+      </div>
+    </div>
+  `;
+    }
+
+    function deletePart(partId) {
+      if (!confirm('Delete this part? This cannot be undone.')) return;
+      const db = getDB();
+      const part = db.inventory.find(p => p.id === partId);
+      db.inventory = db.inventory.filter(p => p.id !== partId);
+      db.auditLogs.unshift({
+        id: 'LOG' + Date.now(),
+        timestamp: new Date().toISOString(),
+        action: 'PART_DELETED',
+        detail: `Part deleted: ${part.partNumber} (${part.name})`,
+        user: 'Admin'
+      });
+      saveDB(db);
+      closeModal();
+      showToast(`${part.partNumber} deleted`, 'danger');
+      renderView();
+    }
+
+    // ==================== ADD/EDIT PART MODAL ====================
+    function openAddPartModal(barcode = '') {
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-plus-circle text-blue-400"></i> Add New Part
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <form onsubmit="saveNewPart(event)" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Part Number *</label>
+            <input type="text" name="partNumber" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., BP-7842">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Barcode</label>
+            <div class="flex gap-2">
+              <input type="text" id="addPartBarcode" name="barcode" value="${barcode}" class="glass-input flex-1 w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="Scan or enter">
+              <button type="button" onclick="toggleAddPartScanner()" class="btn-amber px-3 py-2.5 rounded-lg text-white" title="Scan Barcode" aria-label="Scan Barcode">
+                <i class="ph-bold ph-barcode"></i>
+              </button>
+            </div>
+            <div id="add-part-scanner-container" class="hidden mt-2 rounded-xl overflow-hidden relative border border-slate-700">
+              <div id="add-part-qr-reader" style="width:100%;"></div>
+              <div id="add-part-scan-status" class="absolute bottom-2 left-0 right-0 text-center text-xs text-white bg-black/70 py-1">Initializing...</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Part Name *</label>
+          <input type="text" name="name" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., Front Brake Pad Set">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Category *</label>
+            <select name="category" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option value="">Select...</option>
+              <option>Brakes</option><option>Filters</option><option>Ignition</option>
+              <option>Suspension</option><option>Electrical</option><option>Belts & Hoses</option>
+              <option>Cooling</option><option>Lighting</option><option>Accessories</option>
+              <option>Engine</option><option>Exhaust</option><option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Brand *</label>
+            <input type="text" name="brand" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., Wagner">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Cost *</label>
+            <input type="number" name="cost" required step="0.01" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Sell Price *</label>
+            <input type="number" name="price" required step="0.01" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Stock Quantity *</label>
+            <input type="number" name="stock" required min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="0">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Min Stock Level</label>
+            <input type="number" name="minStock" min="0" value="5" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="5">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Location</label>
+            <input type="text" name="location" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., A-12-3">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Supplier</label>
+            <select name="supplier" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option value="">Select...</option>
+              <option>NAPA</option><option>AutoZone</option><option>O'Reilly</option>
+              <option>Advance</option><option>Carquest</option><option>RockAuto</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white mt-2">
+          <i class="ph-bold ph-plus"></i> Add Part to Inventory
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function saveNewPart(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+
+      const newPart = {
+        id: 'INV' + String(db.inventory.length + 1).padStart(3, '0'),
+        partNumber: data.partNumber,
+        name: data.name,
+        category: data.category,
+        brand: data.brand,
+        cost: parseFloat(data.cost),
+        price: parseFloat(data.price),
+        stock: parseInt(data.stock),
+        minStock: parseInt(data.minStock) || 5,
+        location: data.location || 'N/A',
+        barcode: data.barcode || '',
+        supplier: data.supplier || 'Other',
+        addedDate: new Date().toISOString().split('T')[0],
+        lastUpdated: new Date().toISOString().split('T')[0]
+      };
+
+      db.inventory.push(newPart);
+      db.auditLogs.unshift({
+        id: 'LOG' + Date.now(),
+        timestamp: new Date().toISOString(),
+        action: 'PART_ADDED',
+        detail: `New part: ${newPart.partNumber} (${newPart.name})`,
+        user: 'Admin'
+      });
+      saveDB(db);
+      closeModal();
+      showToast(`${newPart.partNumber} added to inventory`, 'success');
+      renderView();
+    }
+
+    function openEditPartModal(partId) {
+      const db = getDB();
+      const part = db.inventory.find(p => p.id === partId);
+      if (!part) return;
+
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-pencil text-blue-400"></i> Edit Part
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <form onsubmit="updatePart(event, '${partId}')" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Part Number</label>
+            <input type="text" name="partNumber" value="${part.partNumber}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Barcode</label>
+            <input type="text" name="barcode" value="${part.barcode}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Part Name</label>
+          <input type="text" name="name" value="${part.name}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Category</label>
+            <select name="category" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option ${part.category === 'Brakes' ? 'selected' : ''}>Brakes</option>
+              <option ${part.category === 'Filters' ? 'selected' : ''}>Filters</option>
+              <option ${part.category === 'Ignition' ? 'selected' : ''}>Ignition</option>
+              <option ${part.category === 'Suspension' ? 'selected' : ''}>Suspension</option>
+              <option ${part.category === 'Electrical' ? 'selected' : ''}>Electrical</option>
+              <option ${part.category === 'Belts & Hoses' ? 'selected' : ''}>Belts & Hoses</option>
+              <option ${part.category === 'Cooling' ? 'selected' : ''}>Cooling</option>
+              <option ${part.category === 'Lighting' ? 'selected' : ''}>Lighting</option>
+              <option ${part.category === 'Accessories' ? 'selected' : ''}>Accessories</option>
+              <option ${part.category === 'Engine' ? 'selected' : ''}>Engine</option>
+              <option ${part.category === 'Exhaust' ? 'selected' : ''}>Exhaust</option>
+              <option ${part.category === 'Other' ? 'selected' : ''}>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Brand</label>
+            <input type="text" name="brand" value="${part.brand}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Cost</label>
+            <input type="number" name="cost" value="${part.cost}" required step="0.01" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Sell Price</label>
+            <input type="number" name="price" value="${part.price}" required step="0.01" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Stock Quantity</label>
+            <input type="number" name="stock" value="${part.stock}" required min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Min Stock Level</label>
+            <input type="number" name="minStock" value="${part.minStock}" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Location</label>
+            <input type="text" name="location" value="${part.location}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Supplier</label>
+            <select name="supplier" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option ${part.supplier === 'NAPA' ? 'selected' : ''}>NAPA</option>
+              <option ${part.supplier === 'AutoZone' ? 'selected' : ''}>AutoZone</option>
+              <option ${part.supplier === 'O\'Reilly' ? 'selected' : ''}>O'Reilly</option>
+              <option ${part.supplier === 'Advance' ? 'selected' : ''}>Advance</option>
+              <option ${part.supplier === 'Carquest' ? 'selected' : ''}>Carquest</option>
+              <option ${part.supplier === 'RockAuto' ? 'selected' : ''}>RockAuto</option>
+              <option ${part.supplier === 'Other' ? 'selected' : ''}>Other</option>
+            </select>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white mt-2">
+          <i class="ph-bold ph-floppy-disk"></i> Save Changes
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function updatePart(e, partId) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+      const part = db.inventory.find(p => p.id === partId);
+
+      const oldPrice = part.price;
+      const oldStock = part.stock;
+
+      part.partNumber = data.partNumber;
+      part.barcode = data.barcode;
+      part.name = data.name;
+      part.category = data.category;
+      part.brand = data.brand;
+      part.cost = parseFloat(data.cost);
+      part.price = parseFloat(data.price);
+      part.stock = parseInt(data.stock);
+      part.minStock = parseInt(data.minStock) || 5;
+      part.location = data.location || 'N/A';
+      part.supplier = data.supplier || 'Other';
+      part.lastUpdated = new Date().toISOString().split('T')[0];
+
+      if (part.price !== oldPrice) {
+        db.auditLogs.unshift({
+          id: 'LOG' + Date.now(),
+          timestamp: new Date().toISOString(),
+          action: 'PRICE_CHANGE',
+          detail: `${part.partNumber} price updated: $${oldPrice.toFixed(2)} → $${part.price.toFixed(2)}`,
+          user: 'Admin'
+        });
+      }
+      if (part.stock !== oldStock) {
+        db.auditLogs.unshift({
+          id: 'LOG' + Date.now(),
+          timestamp: new Date().toISOString(),
+          action: 'STOCK_UPDATE',
+          detail: `${part.partNumber} stock adjusted: ${oldStock} → ${part.stock}`,
+          user: 'Admin'
+        });
+      }
+
+      saveDB(db);
+      closeModal();
+      showToast(`${part.partNumber} updated`, 'success');
+      renderView();
+    }
+
+    // ==================== CUSTOMERS ====================
+    function renderCustomers(el) {
+      const db = getDB();
+      const filtered = searchQuery ?
+        db.customers.filter(c => c.name.toLowerCase().includes(searchQuery) || c.phone.includes(searchQuery) || c.email.toLowerCase().includes(searchQuery)) :
+        db.customers;
+
+      el.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Customers</h2>
+          <p class="text-sm text-slate-400">${filtered.length} customers</p>
+        </div>
+        <button onclick="openAddCustomerModal()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+          <i class="ph-bold ph-user-plus"></i> Add Customer
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${filtered.map(cust => {
+        const vehicleCount = db.vehicles.filter(v => v.customerId === cust.id).length;
+        return `
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openCustomerDetail('${cust.id}')">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  ${cust.name.split(' ').map(n => n[0]).join('')}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-semibold text-white truncate">${cust.name}</h4>
+                  <p class="text-xs text-slate-400">${cust.phone}</p>
+                  <p class="text-xs text-slate-500 truncate">${cust.email}</p>
+                </div>
+              </div>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-slate-400 flex items-center gap-1">
+                    <i class="ph ph-car"></i> ${vehicleCount}
+                  </span>
+                  <span class="text-xs text-slate-400 flex items-center gap-1">
+                    <i class="ph ph-coins"></i> ${cust.loyaltyPoints || 0} pts
+                  </span>
+                </div>
+                <span class="text-sm font-bold text-green-400">$${(cust.totalSpent || 0).toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+      }).join('')}
+      </div>
+      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No customers found</p>' : ''}
+    </div>
+  `;
+    }
+
+    function openAddCustomerModal() {
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-user-plus text-blue-400"></i> Add Customer
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+      <form onsubmit="saveNewCustomer(event)" class="space-y-4">
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Full Name *</label>
+          <input type="text" name="name" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="John Doe">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Phone *</label>
+            <input type="tel" name="phone" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="(555) 000-0000">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Email</label>
+            <input type="email" name="email" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="email@example.com">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Address</label>
+          <input type="text" name="address" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="123 Main St">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Notes</label>
+          <textarea name="notes" rows="2" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white resize-none" placeholder="Any relevant notes..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-plus"></i> Add Customer
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function saveNewCustomer(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+
+      const newCust = {
+        id: 'CUST' + String(db.customers.length + 1).padStart(3, '0'),
+        name: data.name,
+        phone: data.phone,
+        email: data.email || '',
+        address: data.address || '',
+        notes: data.notes || '',
+        loyaltyPoints: 0,
+        totalSpent: 0,
+        createdDate: new Date().toISOString().split('T')[0]
+      };
+
+      db.customers.push(newCust);
+      db.auditLogs.unshift({
+        id: 'LOG' + Date.now(),
+        timestamp: new Date().toISOString(),
+        action: 'CUSTOMER_ADDED',
+        detail: `New customer: ${newCust.name}`,
+        user: 'Admin'
+      });
+      saveDB(db);
+      closeModal();
+      showToast(`${newCust.name} added`, 'success');
+      renderView();
+    }
+
+    function openCustomerDetail(custId) {
+      const db = getDB();
+      const cust = db.customers.find(c => c.id === custId);
+      if (!cust) return;
+      const vehicles = db.vehicles.filter(v => v.customerId === custId);
+      const sales = db.sales.filter(s => s.customerId === custId);
+
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg">
+            ${cust.name.split(' ').map(n => n[0]).join('')}
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">${cust.name}</h3>
+            <p class="text-sm text-slate-400">${cust.phone} • ${cust.email}</p>
+          </div>
+        </div>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mb-5">
+        <div class="glass-card rounded-lg p-3 text-center">
+          <p class="text-xs text-slate-400">Loyalty</p>
+          <p class="text-lg font-bold text-amber-400">${cust.loyaltyPoints}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3 text-center">
+          <p class="text-xs text-slate-400">Total Spent</p>
+          <p class="text-lg font-bold text-green-400">$${cust.totalSpent.toFixed(2)}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3 text-center">
+          <p class="text-xs text-slate-400">Vehicles</p>
+          <p class="text-lg font-bold text-blue-400">${vehicles.length}</p>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-lg p-3 mb-5">
+        <p class="text-xs text-slate-400 mb-1">Address</p>
+        <p class="text-sm text-white">${cust.address || 'N/A'}</p>
+        ${cust.notes ? `<p class="text-xs text-slate-500 mt-2"><i class="ph ph-note"></i> ${cust.notes}</p>` : ''}
+      </div>
+
+      <!-- Vehicles -->
+      <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+        <i class="ph ph-car text-blue-400"></i> Vehicles
+      </h4>
+      <div class="space-y-2 mb-5">
+        ${vehicles.length === 0 ? '<p class="text-sm text-slate-500 text-center py-4">No vehicles registered</p>' :
+          vehicles.map(v => `
+            <div class="glass-card rounded-lg p-3 cursor-pointer hover:border-blue-500/30 transition-all" onclick="closeModal();openVehicleDetail('${v.id}')">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-white">${v.year} ${v.make} ${v.model}</p>
+                  <p class="text-xs text-slate-400">VIN: ${v.vin} • ${v.mileage.toLocaleString()} mi</p>
+                </div>
+                <span class="text-xs text-slate-500 font-mono">${v.licensePlate}</span>
+              </div>
+            </div>
+          `).join('')}
+      </div>
+
+      <!-- Service History -->
+      <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+        <i class="ph ph-wrench text-green-400"></i> Service History
+      </h4>
+      <div class="space-y-2">
+        ${sales.length === 0 ? '<p class="text-sm text-slate-500 text-center py-4">No sales records</p>' :
+          sales.map(s => `
+            <div class="glass-card rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-slate-400">${s.date}</span>
+                <span class="badge ${s.status === 'Completed' ? 'bg-green-400/20 text-green-400' : 'bg-amber-400/20 text-amber-400'}">${s.status}</span>
+              </div>
+              <div class="space-y-1">
+                ${s.lineItems.map(li => `<p class="text-xs text-white">${li.qty}x ${li.name} - $${(li.qty * li.unitPrice).toFixed(2)}</p>`).join('')}
+              </div>
+              <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-700/50">
+                <span class="text-xs text-slate-400">${s.laborHours}h labor</span>
+                <span class="text-sm font-bold text-green-400">$${s.total.toFixed(2)}</span>
+              </div>
+            </div>
+          `).join('')}
+      </div>
+    </div>
+  `;
+    }
+
+    // ==================== VEHICLES ====================
+    function renderVehicles(el) {
+      const db = getDB();
+      const filtered = searchQuery ?
+        db.vehicles.filter(v => v.make.toLowerCase().includes(searchQuery) || v.model.toLowerCase().includes(searchQuery) || v.vin.toLowerCase().includes(searchQuery) || v.licensePlate.toLowerCase().includes(searchQuery)) :
+        db.vehicles;
+
+      el.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Vehicles</h2>
+          <p class="text-sm text-slate-400">${filtered.length} vehicles registered</p>
+        </div>
+        <button onclick="openAddVehicleModal()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+          <i class="ph-bold ph-plus"></i> Add Vehicle
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${filtered.map(v => {
+        const cust = db.customers.find(c => c.id === v.customerId);
+        const serviceCount = v.services ? v.services.length : 0;
+        return `
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openVehicleDetail('${v.id}')">
+              <div class="flex items-start gap-3 mb-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-purple-500/20 flex-shrink-0">
+                  <i class="ph-bold ph-car text-purple-400 text-xl"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-semibold text-white">${v.year} ${v.make} ${v.model}</h4>
+                  <p class="text-xs text-slate-400">${cust ? cust.name : 'Unknown Owner'}</p>
+                </div>
+              </div>
+              <div class="space-y-1 mb-3">
+                <p class="text-xs text-slate-400 font-mono">VIN: ${v.vin.substring(0, 10)}...</p>
+                <p class="text-xs text-slate-400">${v.mileage.toLocaleString()} miles • ${v.color}</p>
+              </div>
+              <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
+                <span class="text-xs text-slate-500">${serviceCount} services</span>
+                <span class="text-xs text-slate-500 font-mono">${v.licensePlate}</span>
+              </div>
+            </div>
+          `;
+      }).join('')}
+      </div>
+      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No vehicles found</p>' : ''}
+    </div>
+  `;
+    }
+
+    function openAddVehicleModal() {
+      const db = getDB();
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-car text-purple-400"></i> Add Vehicle
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+      <form onsubmit="saveNewVehicle(event)" class="space-y-4">
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Customer *</label>
+          <select name="customerId" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+            <option value="">Select customer...</option>
+            ${db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Year *</label>
+            <input type="number" name="year" required min="1950" max="2030" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="2024">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Make *</label>
+            <input type="text" name="make" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="Toyota">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Model *</label>
+            <input type="text" name="model" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="Camry">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">VIN *</label>
+          <input type="text" name="vin" required maxlength="17" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white font-mono" placeholder="1HGBH41JXMN109186">
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Mileage</label>
+            <input type="number" name="mileage" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="0">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Color</label>
+            <input type="text" name="color" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="Black">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">License Plate</label>
+            <input type="text" name="licensePlate" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white font-mono" placeholder="ABC-1234">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Notes</label>
+          <textarea name="notes" rows="2" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white resize-none" placeholder="Any relevant notes..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-plus"></i> Add Vehicle
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function saveNewVehicle(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+
+      const newV = {
+        id: 'VH' + String(db.vehicles.length + 1).padStart(3, '0'),
+        customerId: data.customerId,
+        make: data.make,
+        model: data.model,
+        year: parseInt(data.year),
+        vin: data.vin.toUpperCase(),
+        mileage: parseInt(data.mileage) || 0,
+        color: data.color || 'N/A',
+        licensePlate: data.licensePlate || 'N/A',
+        notes: data.notes || '',
+        services: []
+      };
+
+      db.vehicles.push(newV);
+      saveDB(db);
+      closeModal();
+      showToast(`${newV.year} ${newV.make} ${newV.model} added`, 'success');
+      renderView();
+    }
+
+    function openVehicleDetail(vId) {
+      const db = getDB();
+      const v = db.vehicles.find(vh => vh.id === vId);
+      if (!v) return;
+      const cust = db.customers.find(c => c.id === v.customerId);
+
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-purple-500/20">
+            <i class="ph-bold ph-car text-purple-400 text-2xl"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">${v.year} ${v.make} ${v.model}</h3>
+            <p class="text-sm text-slate-400">${cust ? cust.name : 'Unknown'}</p>
+          </div>
+        </div>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">VIN</p>
+          <p class="text-sm font-mono text-white">${v.vin}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Mileage</p>
+          <p class="text-sm text-white">${v.mileage.toLocaleString()} mi</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">Color</p>
+          <p class="text-sm text-white">${v.color}</p>
+        </div>
+        <div class="glass-card rounded-lg p-3">
+          <p class="text-xs text-slate-400 mb-1">License Plate</p>
+          <p class="text-sm font-mono text-white">${v.licensePlate}</p>
+        </div>
+      </div>
+      ${v.notes ? `<div class="glass-card rounded-lg p-3 mb-5"><p class="text-xs text-slate-400 mb-1">Notes</p><p class="text-sm text-white">${v.notes}</p></div>` : ''}
+
+      <!-- Repair History -->
+      <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+        <i class="ph ph-wrench text-green-400"></i> Repair History
+      </h4>
+      <div class="space-y-2 mb-4">
+        ${(v.services || []).length === 0 ? '<p class="text-sm text-slate-500 text-center py-4">No services recorded</p>' :
+          (v.services || []).map(s => `
+            <div class="glass-card rounded-lg p-3">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-medium text-white">${s.type}</span>
+                <span class="text-xs text-slate-400">${s.date}</span>
+              </div>
+              <p class="text-xs text-slate-400">${s.notes || 'No notes'}</p>
+              <p class="text-sm font-bold text-green-400 mt-1">$${s.cost.toFixed(2)}</p>
+            </div>
+          `).join('')}
+      </div>
+
+      <button onclick="closeModal();openAddServiceModal('${v.id}')" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+        <i class="ph-bold ph-plus"></i> Add Service Record
+      </button>
+    </div>
+  `;
+    }
+
+    function openAddServiceModal(vId) {
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-wrench text-green-400"></i> Add Service Record
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+      <form onsubmit="saveService(event, '${vId}')" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Date *</label>
+            <input type="date" name="date" required value="${new Date().toISOString().split('T')[0]}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Service Type *</label>
+            <select name="type" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option value="">Select...</option>
+              <option>Oil Change</option><option>Brake Service</option><option>Tire Rotation</option>
+              <option>Inspection</option><option>Engine Repair</option><option>Transmission Service</option>
+              <option>Suspension Work</option><option>Electrical Repair</option><option>AC Service</option>
+              <option>Parts Replacement</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Cost *</label>
+          <input type="number" name="cost" required step="0.01" min="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="0.00">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Notes</label>
+          <textarea name="notes" rows="3" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white resize-none" placeholder="Service details..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-floppy-disk"></i> Save Service Record
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function saveService(e, vId) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+      const v = db.vehicles.find(vh => vh.id === vId);
+      if (!v.services) v.services = [];
+      v.services.push({
+        date: data.date,
+        type: data.type,
+        cost: parseFloat(data.cost),
+        notes: data.notes || ''
+      });
+      saveDB(db);
+      closeModal();
+      showToast('Service record added', 'success');
+      openVehicleDetail(vId);
+    }
+
+    // ==================== SALES ====================
+    function renderSales(el) {
+      const db = getDB();
+      const filtered = searchQuery ?
+        db.sales.filter(s => {
+          const cust = db.customers.find(c => c.id === s.customerId);
+          return (cust && cust.name.toLowerCase().includes(searchQuery)) || s.id.toLowerCase().includes(searchQuery);
+        }) : db.sales;
+
+      el.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Sales & Estimates</h2>
+          <p class="text-sm text-slate-400">${filtered.length} records</p>
+        </div>
+        <button onclick="openNewEstimate()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+          <i class="ph-bold ph-plus"></i> New Estimate
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        ${filtered.slice().reverse().map(sale => {
+        const cust = db.customers.find(c => c.id === sale.customerId);
+        const v = db.vehicles.find(vh => vh.id === sale.vehicleId);
+        return `
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openSaleDetail('${sale.id}')">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <span class="text-xs font-mono text-blue-400">${sale.id}</span>
+                  <span class="badge ${sale.status === 'Completed' ? 'bg-green-400/20 text-green-400' : 'bg-amber-400/20 text-amber-400'}">${sale.status}</span>
+                </div>
+                <span class="text-xs text-slate-500">${sale.date}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-white">${cust ? cust.name : 'Unknown'}</p>
+                  <p class="text-xs text-slate-400">${v ? `${v.year} ${v.make} ${v.model}` : ''} • ${sale.lineItems.length} item(s)</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-lg font-bold text-green-400">$${sale.total.toFixed(2)}</p>
+                  <p class="text-xs text-slate-500">${sale.margin}% margin</p>
+                </div>
+              </div>
+            </div>
+          `;
+      }).join('')}
+      </div>
+      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No sales records</p>' : ''}
+    </div>
+  `;
+    }
+
+    function openNewEstimate() {
+      const db = getDB();
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-receipt text-green-400"></i> New Estimate
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <form onsubmit="saveEstimate(event)" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Customer *</label>
+            <select name="customerId" id="estCustomer" required onchange="updateEstimateVehicles()" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option value="">Select...</option>
+              ${db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Vehicle *</label>
+            <select name="vehicleId" id="estVehicle" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option value="">Select vehicle...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Line Items -->
+        <div class="border border-slate-700/50 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-semibold text-white">Parts & Labor</h4>
+            <button type="button" onclick="addEstimateLine()" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
+              <i class="ph-bold ph-plus"></i> Add Line
+            </button>
+          </div>
+          <div id="estimateLines" class="space-y-2">
+            <!-- Lines added dynamically -->
+          </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="glass-card rounded-lg p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-slate-400">Parts Subtotal</span>
+            <span class="text-sm text-white" id="estPartsSubtotal">$0.00</span>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-slate-400 mb-1 block">Labor Hours</label>
+              <input type="number" name="laborHours" id="estLaborHours" min="0" step="0.5" value="0" oninput="updateEstimateTotals()" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white">
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 mb-1 block">Labor Rate ($/hr)</label>
+              <input type="number" name="laborRate" id="estLaborRate" min="0" step="5" value="95" oninput="updateEstimateTotals()" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white">
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-slate-400">Labor Total</span>
+            <span class="text-sm text-white" id="estLaborTotal">$0.00</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-slate-400">Tax Rate (%)</span>
+            <input type="number" id="estTaxRate" value="8" step="0.5" oninput="updateEstimateTotals()" class="glass-input w-20 px-2 py-1 rounded-lg text-sm text-white text-right">
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-slate-400">Tax</span>
+            <span class="text-sm text-white" id="estTax">$0.00</span>
+          </div>
+          <div class="border-t border-slate-700 pt-2 flex items-center justify-between">
+            <span class="text-lg font-bold text-white">Total</span>
+            <span class="text-xl font-bold text-green-400" id="estTotal">$0.00</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-sm text-slate-400">Est. Margin</span>
+            <span class="text-sm font-bold text-blue-400" id="estMargin">0%</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <button type="button" onclick="saveEstimateStatus('Pending')" class="btn-amber py-3 rounded-lg text-sm font-semibold text-white">
+            <i class="ph-bold ph-clock"></i> Save Pending
+          </button>
+          <button type="button" onclick="saveEstimateStatus('Completed')" class="btn-primary py-3 rounded-lg text-sm font-semibold text-white">
+            <i class="ph-bold ph-check-circle"></i> Complete Sale
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+      window._estimateLineCount = 0;
+      addEstimateLine();
+    }
+
+    function updateEstimateVehicles() {
+      const custId = document.getElementById('estCustomer').value;
+      const db = getDB();
+      const vehicles = db.vehicles.filter(v => v.customerId === custId);
+      const sel = document.getElementById('estVehicle');
+      sel.innerHTML = '<option value="">Select vehicle...</option>' +
+        vehicles.map(v => `<option value="${v.id}">${v.year} ${v.make} ${v.model}</option>`).join('');
+    }
+
+    function addEstimateLine() {
+      const db = getDB();
+      const container = document.getElementById('estimateLines');
+      const idx = window._estimateLineCount++;
+
+      const div = document.createElement('div');
+      div.className = 'grid grid-cols-12 gap-2 items-center';
+      div.innerHTML = `
+    <div class="col-span-5">
+      <select name="part_${idx}" onchange="updatePartPrice(this, ${idx})" class="glass-input w-full px-2 py-2 rounded-lg text-xs text-white">
+        <option value="">Select part...</option>
+        ${db.inventory.map(p => `<option value="${p.id}" data-cost="${p.cost}" data-price="${p.price}">${p.partNumber} - ${p.name}</option>`).join('')}
+      </select>
+    </div>
+    <div class="col-span-2">
+      <input type="number" name="qty_${idx}" value="1" min="1" oninput="updateEstimateTotals()" class="glass-input w-full px-2 py-2 rounded-lg text-xs text-white text-center">
+    </div>
+    <div class="col-span-2">
+      <input type="number" name="price_${idx}" step="0.01" oninput="updateEstimateTotals()" class="glass-input w-full px-2 py-2 rounded-lg text-xs text-white text-right" placeholder="0.00">
+    </div>
+    <div class="col-span-2 text-right">
+      <span class="text-xs text-white font-mono" id="lineTotal_${idx}">$0.00</span>
+    </div>
+    <div class="col-span-1">
+      <button type="button" onclick="this.parentElement.parentElement.remove();updateEstimateTotals()" class="text-red-400 hover:text-red-300 p-1">
+        <i class="ph-bold ph-x text-xs"></i>
+      </button>
+    </div>
+  `;
+      container.appendChild(div);
+    }
+
+    function updatePartPrice(sel, idx) {
+      const opt = sel.options[sel.selectedIndex];
+      if (opt && opt.dataset.price) {
+        document.querySelector(`input[name="price_${idx}"]`).value = opt.dataset.price;
+      }
+      updateEstimateTotals();
+    }
+
+    function updateEstimateTotals() {
+      let partsCost = 0, partsRevenue = 0;
+      const lines = document.getElementById('estimateLines').children;
+
+      for (const line of lines) {
+        const sel = line.querySelector('select');
+        const qtyInput = line.querySelector('input[type="number"]');
+        const priceInput = line.querySelectorAll('input[type="number"]')[1];
+
+        if (!sel || !qtyInput || !priceInput) continue;
+
+        const opt = sel.options[sel.selectedIndex];
+        const qty = parseInt(qtyInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+
+        if (opt && opt.dataset.cost) {
+          const cost = parseFloat(opt.dataset.cost);
+          partsCost += cost * qty;
+          partsRevenue += price * qty;
+        } else {
+          partsRevenue += price * qty;
+        }
+
+        const idx = line.querySelector('select').name.split('_')[1];
+        const lineTotalEl = document.getElementById('lineTotal_' + idx);
+        if (lineTotalEl) lineTotalEl.textContent = '$' + (price * qty).toFixed(2);
+      }
+
+      const laborHours = parseFloat(document.getElementById('estLaborHours')?.value) || 0;
+      const laborRate = parseFloat(document.getElementById('estLaborRate')?.value) || 95;
+      const laborTotal = laborHours * laborRate;
+      const subtotal = partsRevenue + laborTotal;
+      const taxRate = parseFloat(document.getElementById('estTaxRate')?.value) || 8;
+      const tax = subtotal * (taxRate / 100);
+      const total = subtotal + tax;
+      const totalCost = partsCost + (laborHours * 30); // Assume $30/hr labor cost
+      const margin = totalCost > 0 ? ((total - totalCost) / total * 100) : 0;
+
+      const estPartsSubtotal = document.getElementById('estPartsSubtotal');
+      const estLaborTotal = document.getElementById('estLaborTotal');
+      const estTax = document.getElementById('estTax');
+      const estTotal = document.getElementById('estTotal');
+      const estMargin = document.getElementById('estMargin');
+
+      if (estPartsSubtotal) estPartsSubtotal.textContent = '$' + partsRevenue.toFixed(2);
+      if (estLaborTotal) estLaborTotal.textContent = '$' + laborTotal.toFixed(2);
+      if (estTax) estTax.textContent = '$' + tax.toFixed(2);
+      if (estTotal) estTotal.textContent = '$' + total.toFixed(2);
+      if (estMargin) estMargin.textContent = margin.toFixed(1) + '%';
+    }
+
+    let _estimateStatus = 'Pending';
+    function saveEstimateStatus(status) {
+      _estimateStatus = status;
+      const form = document.querySelector('#modalContent form');
+      if (form) form.dispatchEvent(new Event('submit'));
+    }
+
+    function saveEstimate(e) {
+      e.preventDefault();
+      const db = getDB();
+      const custId = document.getElementById('estCustomer').value;
+      const vId = document.getElementById('estVehicle').value;
+      const laborHours = parseFloat(document.getElementById('estLaborHours').value) || 0;
+      const laborRate = parseFloat(document.getElementById('estLaborRate').value) || 95;
+      const taxRate = parseFloat(document.getElementById('estTaxRate').value) || 8;
+
+      if (!custId || !vId) {
+        showToast('Please select customer and vehicle', 'warning');
+        return;
+      }
+
+      const lineItems = [];
+      let partsSubtotal = 0, partsCostTotal = 0;
+      const lines = document.getElementById('estimateLines').children;
+
+      for (const line of lines) {
+        const sel = line.querySelector('select');
+        const qtyInput = line.querySelector('input[type="number"]');
+        const priceInput = line.querySelectorAll('input[type="number"]')[1];
+
+        if (!sel || !sel.value || !qtyInput || !priceInput) continue;
+
+        const part = db.inventory.find(p => p.id === sel.value);
+        const qty = parseInt(qtyInput.value) || 1;
+        const price = parseFloat(priceInput.value) || 0;
+
+        if (part) {
+          lineItems.push({
+            partNumber: part.partNumber,
+            name: part.name,
+            qty: qty,
+            unitCost: part.cost,
+            unitPrice: price
+          });
+          partsCostTotal += part.cost * qty;
+        } else {
+          lineItems.push({
+            partNumber: 'CUSTOM',
+            name: 'Custom Item',
+            qty: qty,
+            unitCost: 0,
+            unitPrice: price
+          });
+        }
+        partsSubtotal += price * qty;
+      }
+
+      if (lineItems.length === 0) {
+        showToast('Add at least one line item', 'warning');
+        return;
+      }
+
+      const laborTotal = laborHours * laborRate;
+      const subtotal = partsSubtotal + laborTotal;
+      const tax = subtotal * (taxRate / 100);
+      const total = subtotal + tax;
+      const totalCost = partsCostTotal + (laborHours * 30);
+      const margin = totalCost > 0 ? ((total - totalCost) / total * 100).toFixed(1) : 0;
+
+      const newSale = {
+        id: 'SALE' + String(db.sales.length + 1).padStart(3, '0'),
+        customerId: custId,
+        vehicleId: vId,
+        date: new Date().toISOString().split('T')[0],
+        status: _estimateStatus,
+        lineItems: lineItems,
+        laborHours: laborHours,
+        laborRate: laborRate,
+        subtotal: parseFloat(subtotal.toFixed(2)),
+        tax: parseFloat(tax.toFixed(2)),
+        total: parseFloat(total.toFixed(2)),
+        margin: parseFloat(margin)
+      };
+
+      db.sales.push(newSale);
+
+      // Update customer total spent if completed
+      if (_estimateStatus === 'Completed') {
+        const cust = db.customers.find(c => c.id === custId);
+        if (cust) {
+          cust.totalSpent += total;
+          cust.loyaltyPoints += Math.floor(total);
+        }
+        // Update stock
+        lineItems.forEach(li => {
+          if (li.partNumber !== 'CUSTOM') {
+            const part = db.inventory.find(p => p.partNumber === li.partNumber);
+            if (part) {
+              part.stock = Math.max(0, part.stock - li.qty);
+              part.lastUpdated = new Date().toISOString().split('T')[0];
+            }
+          }
+        });
+      }
+
+      db.auditLogs.unshift({
+        id: 'LOG' + Date.now(),
+        timestamp: new Date().toISOString(),
+        action: _estimateStatus === 'Completed' ? 'SALE_COMPLETED' : 'ESTIMATE_CREATED',
+        detail: `${newSale.id} ${_estimateStatus} - $${total.toFixed(2)} (${db.customers.find(c => c.id === custId)?.name || 'Unknown'})`,
+        user: 'Admin'
+      });
+
+      saveDB(db);
+      closeModal();
+      showToast(`Estimate ${newSale.id} saved as ${_estimateStatus}`, 'success');
+      renderView();
+    }
+
+    function openSaleDetail(saleId) {
+      const db = getDB();
+      const sale = db.sales.find(s => s.id === saleId);
+      if (!sale) return;
+      const cust = db.customers.find(c => c.id === sale.customerId);
+      const v = db.vehicles.find(vh => vh.id === sale.vehicleId);
+
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h3 class="text-lg font-bold text-white">${sale.id}</h3>
+          <p class="text-sm text-slate-400">${sale.date} • ${sale.status}</p>
+        </div>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <div class="glass-card rounded-lg p-3 mb-4">
+        <p class="text-xs text-slate-400 mb-1">Customer</p>
+        <p class="text-sm text-white font-medium">${cust ? cust.name : 'Unknown'}</p>
+        <p class="text-xs text-slate-400">${v ? `${v.year} ${v.make} ${v.model} • VIN: ${v.vin}` : ''}</p>
+      </div>
+
+      <h4 class="text-sm font-semibold text-white mb-3">Line Items</h4>
+      <div class="space-y-2 mb-4">
+        ${sale.lineItems.map(li => `
+          <div class="glass-card rounded-lg p-3">
+            <div class="flex items-center justify-between mb-1">
+              <div>
+                <p class="text-sm font-medium text-white">${li.name}</p>
+                <p class="text-xs text-slate-400 font-mono">${li.partNumber}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-slate-400">${li.qty}x $${li.unitPrice.toFixed(2)}</p>
+                <p class="text-sm font-bold text-white">$${(li.qty * li.unitPrice).toFixed(2)}</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-500">Cost: $${li.unitCost.toFixed(2)} • Markup: ${((li.unitPrice - li.unitCost) / li.unitCost * 100).toFixed(0)}%</p>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="glass-card rounded-lg p-4 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-400">Parts Subtotal</span>
+          <span class="text-sm text-white">$${sale.lineItems.reduce((s, li) => s + li.qty * li.unitPrice, 0).toFixed(2)}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-400">Labor (${sale.laborHours}h × $${sale.laborRate}/hr)</span>
+          <span class="text-sm text-white">$${(sale.laborHours * sale.laborRate).toFixed(2)}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-400">Tax</span>
+          <span class="text-sm text-white">$${sale.tax.toFixed(2)}</span>
+        </div>
+        <div class="border-t border-slate-700 pt-2 flex items-center justify-between">
+          <span class="text-lg font-bold text-white">Total</span>
+          <span class="text-xl font-bold text-green-400">$${sale.total.toFixed(2)}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-slate-400">Margin</span>
+          <span class="text-sm font-bold text-blue-400">${sale.margin}%</span>
+        </div>
+      </div>
+
+      ${sale.status === 'Pending' ? `
+        <div class="flex gap-2 mt-4">
+          <button onclick="closeModal();updateSaleStatus('${sale.id}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
+            <i class="ph-bold ph-check-circle"></i> Complete Sale
+          </button>
+          <button onclick="deleteSale('${sale.id}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
+            <i class="ph-bold ph-trash"></i>
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+    }
+
+    function updateSaleStatus(saleId, status) {
+      const db = getDB();
+      const sale = db.sales.find(s => s.id === saleId);
+      if (!sale) return;
+      sale.status = status;
+      const cust = db.customers.find(c => c.id === sale.customerId);
+      if (cust) {
+        cust.totalSpent += sale.total;
+        cust.loyaltyPoints += Math.floor(sale.total);
+      }
+      saveDB(db);
+      closeModal();
+      showToast(`Sale ${saleId} completed`, 'success');
+      renderView();
+    }
+
+    function deleteSale(saleId) {
+      if (!confirm('Delete this sale record?')) return;
+      const db = getDB();
+      db.sales = db.sales.filter(s => s.id !== saleId);
+      saveDB(db);
+      closeModal();
+      showToast('Sale deleted', 'danger');
+      renderView();
+    }
+
+    // ==================== PRICE COMPARISON ====================
+    function renderComparison(el) {
+      const db = getDB();
+      const filtered = searchQuery ?
+        db.retailerPrices.filter(r => r.partNumber.toLowerCase().includes(searchQuery)) :
+        db.retailerPrices;
+
+      el.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Price Comparison</h2>
+          <p class="text-sm text-slate-400">Side-by-side competitor pricing</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openAddRetailerPrice()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white flex items-center gap-2 whitespace-nowrap">
+            <i class="ph-bold ph-plus"></i> Add Part
+          </button>
+          <button onclick="openBulkPriceUpdate()" class="glass-input px-4 py-2.5 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-2 whitespace-nowrap">
+            <i class="ph-bold ph-arrows-clockwise"></i> Update Prices
+          </button>
+        </div>
+      </div>
+
+      <!-- Competitor Legend -->
+      <div class="glass-card rounded-xl p-4 mb-4">
+        <div class="flex flex-wrap gap-3 justify-center">
+          <span class="flex items-center gap-1.5 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-red-400"></span> RockAuto</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-green-400"></span> O'Reilly</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-yellow-400"></span> NAPA</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-blue-400"></span> AutoZone</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-orange-400"></span> Advance</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-purple-400"></span> Carquest</span>
+          <span class="flex items-center gap-1.5 text-xs text-slate-300"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> Our Price</span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-slate-700/50">
+                <th class="text-left px-3 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Part #</th>
+                <th class="text-left px-3 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:table-cell">Name</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-red-400">RockAuto</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-green-400">O'Reilly</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-yellow-400">NAPA</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-blue-400">AutoZone</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-orange-400">Advance</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-purple-400">Carquest</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-cyan-400">Our Price</th>
+                <th class="text-center px-3 py-3 text-xs font-semibold text-slate-400">Margin</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(r => {
+        const part = db.inventory.find(p => p.partNumber === r.partNumber);
+        const prices = [r.rockauto, r.oreilly, r.napa, r.autozone, r.advance, r.carquest, r.ourPrice];
+        const minPrice = Math.min(...prices);
+        const maxPrice = Math.max(...prices);
+        const margin = r.ourCost > 0 ? ((r.ourPrice - r.ourCost) / r.ourPrice * 100).toFixed(0) : 0;
+        const avgCompetitor = ((r.rockauto + r.oreilly + r.napa + r.autozone + r.advance + r.carquest) / 6).toFixed(2);
+        const isBestPrice = r.ourPrice <= minPrice;
+        const isHighPrice = r.ourPrice > maxPrice;
+
+        return `
+                  <tr class="table-row border-b border-slate-800/50">
+                    <td class="px-3 py-3 font-mono text-xs text-blue-400">${r.partNumber}</td>
+                    <td class="px-3 py-3 hidden sm:table-cell">
+                      <p class="text-xs text-white">${part ? part.name : 'N/A'}</p>
+                      <p class="text-[10px] text-slate-500">Avg: $${avgCompetitor}</p>
+                    </td>
+                    <td class="px-3 py-3 text-center text-xs ${r.rockauto === minPrice ? 'text-green-400 font-bold' : 'text-slate-300'}">$${r.rockauto.toFixed(2)}</td>
+                    <td class="px-3 py-3 text-center text-xs ${r.oreilly === minPrice ? 'text-green-400 font-bold' : 'text-slate-300'}">$${r.oreilly.toFixed(2)}</td>
+                    <td class="px-3 py-3 text-center text-xs ${r.napa === minPrice ? 'text-green-400 font-bold' : 'text-slate-300'}">$${r.napa.toFixed(2)}</td>
+                    <td class="px-3 py-3 text-center text-xs ${r.autozone === minPrice ? 'text-green-400 font-bold' : 'text-slate-300'}">$${r.autozone.toFixed(2)}</td>
+                    <td class="px-3 py-3 text-center text-xs ${r.advance === minPrice ? 'text-green-400 font-bold' : 'text-slate-300'}">$${r.advance.toFixed(2)}</td>
+                    <td class="px-3 py-3 text-center text-xs ${r.carquest === minPrice ? 'text-green-400 font-bold' : 'text-slate-300'}">$${r.carquest.toFixed(2)}</td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="text-sm font-bold ${isBestPrice ? 'text-green-400' : isHighPrice ? 'text-red-400' : 'text-cyan-400'}">$${r.ourPrice.toFixed(2)}</span>
+                      ${isHighPrice ? '<br><span class="text-[9px] text-red-400">Above max</span>' : isBestPrice ? '<br><span class="text-[9px] text-green-400">Best price</span>' : ''}
+                    </td>
+                    <td class="px-3 py-3 text-center">
+                      <span class="badge ${parseFloat(margin) >= 50 ? 'bg-green-400/20 text-green-400' : parseFloat(margin) >= 35 ? 'bg-amber-400/20 text-amber-400' : 'bg-red-400/20 text-red-400'}">${margin}%</span>
+                    </td>
+                  </tr>
+                `;
+      }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pricing Recommendations -->
+      <div class="glass-card rounded-xl p-5 mt-4">
+        <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+          <i class="ph-bold ph-lightbulb text-amber-400"></i> Pricing Recommendations
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          ${db.retailerPrices.filter(r => {
+        const avgComp = (r.rockauto + r.oreilly + r.napa + r.autozone + r.advance + r.carquest) / 6;
+        return r.ourPrice > avgComp * 1.2 || r.ourPrice < avgComp * 0.8;
+      }).map(r => {
+        const avgComp = (r.rockauto + r.oreilly + r.napa + r.autozone + r.advance + r.carquest) / 6;
+        const suggested = r.ourPrice > avgComp * 1.2 ? (avgComp * 1.1).toFixed(2) : (avgComp * 0.95).toFixed(2);
+        const action = r.ourPrice > avgComp * 1.2 ? 'reduce' : 'increase';
+        return `
+              <div class="glass-card rounded-lg p-3 border-l-2 ${action === 'reduce' ? 'border-red-400' : 'border-green-400'}">
+                <p class="text-xs font-mono text-blue-400">${r.partNumber}</p>
+                <p class="text-xs text-slate-300 mt-1">
+                  ${action === 'reduce' ? 'Price is above competitors.' : 'Consider increasing price.'}
+                </p>
+                <p class="text-xs text-slate-400">Suggested: $${suggested} (current: $${r.ourPrice.toFixed(2)})</p>
+              </div>
+            `;
+      }).join('') || '<p class="text-sm text-slate-500 col-span-full text-center py-4">All prices are within competitive range</p>'}
+        </div>
+      </div>
+    </div>
+  `;
+    }
+
+    function openAddRetailerPrice() {
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-plus-circle text-cyan-400"></i> Add Retailer Pricing
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+      <form onsubmit="saveRetailerPrice(event)" class="space-y-4">
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Part Number *</label>
+          <select name="partNumber" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+            <option value="">Select part...</option>
+            ${getDB().inventory.map(p => `<option value="${p.partNumber}">${p.partNumber} - ${p.name}</option>`).join('')}
+          </select>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="text-xs text-red-400 mb-1 block">RockAuto</label>
+            <input type="number" name="rockauto" step="0.01" min="0" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+          <div>
+            <label class="text-xs text-green-400 mb-1 block">O'Reilly</label>
+            <input type="number" name="oreilly" step="0.01" min="0" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+          <div>
+            <label class="text-xs text-yellow-400 mb-1 block">NAPA</label>
+            <input type="number" name="napa" step="0.01" min="0" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+          <div>
+            <label class="text-xs text-blue-400 mb-1 block">AutoZone</label>
+            <input type="number" name="autozone" step="0.01" min="0" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+          <div>
+            <label class="text-xs text-orange-400 mb-1 block">Advance</label>
+            <input type="number" name="advance" step="0.01" min="0" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+          <div>
+            <label class="text-xs text-purple-400 mb-1 block">Carquest</label>
+            <input type="number" name="carquest" step="0.01" min="0" class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-cyan-400 mb-1 block">Our Price *</label>
+            <input type="number" name="ourPrice" step="0.01" min="0" required class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Our Cost *</label>
+            <input type="number" name="ourCost" step="0.01" min="0" required class="glass-input w-full px-3 py-2 rounded-lg text-sm text-white" placeholder="0.00">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-floppy-disk"></i> Save Pricing
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function saveRetailerPrice(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+
+      const existing = db.retailerPrices.findIndex(r => r.partNumber === data.partNumber);
+      const entry = {
+        partNumber: data.partNumber,
+        rockauto: parseFloat(data.rockauto) || 0,
+        oreilly: parseFloat(data.oreilly) || 0,
+        napa: parseFloat(data.napa) || 0,
+        autozone: parseFloat(data.autozone) || 0,
+        advance: parseFloat(data.advance) || 0,
+        carquest: parseFloat(data.carquest) || 0,
+        ourPrice: parseFloat(data.ourPrice),
+        ourCost: parseFloat(data.ourCost)
+      };
+
+      if (existing >= 0) {
+        db.retailerPrices[existing] = entry;
+      } else {
+        db.retailerPrices.push(entry);
+      }
+
+      // Update inventory price if exists
+      const invPart = db.inventory.find(p => p.partNumber === data.partNumber);
+      if (invPart) {
+        invPart.price = parseFloat(data.ourPrice);
+        invPart.lastUpdated = new Date().toISOString().split('T')[0];
+      }
+
+      saveDB(db);
+      closeModal();
+      showToast('Pricing data saved', 'success');
+      renderView();
+    }
+
+    function openBulkPriceUpdate() {
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-arrows-clockwise text-cyan-400"></i> Bulk Price Update
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+
+      <div class="mb-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+        <p class="text-xs text-blue-300">
+          <i class="ph-bold ph-info"></i> 
+          Adjust prices by percentage. Positive values increase, negative values decrease.
+          This simulates receiving updated pricing from retailers.
+        </p>
+      </div>
+
+      <form onsubmit="applyBulkUpdate(event)" class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Retailer</label>
+            <select name="retailer" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              <option value="rockauto">RockAuto</option>
+              <option value="oreilly">O'Reilly</option>
+              <option value="napa">NAPA</option>
+              <option value="autozone">AutoZone</option>
+              <option value="advance">Advance</option>
+              <option value="carquest">Carquest</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Adjustment (%)</label>
+            <input type="number" name="adjustment" step="0.5" value="0" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., -5 or 10">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-arrows-clockwise"></i> Apply Adjustment
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function applyBulkUpdate(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+      const retailer = data.retailer;
+      const adjustment = parseFloat(data.adjustment) / 100;
+
+      db.retailerPrices.forEach(r => {
+        if (r[retailer] > 0) {
+          r[retailer] = Math.round(r[retailer] * (1 + adjustment) * 100) / 100;
+        }
+      });
+
+      saveDB(db);
+      closeModal();
+      showToast(`Prices updated for ${data.retailer}`, 'success');
+      renderView();
+    }
+
+    // ==================== AUDIT LOGS ====================
+    function renderAudit(el) {
+      const db = getDB();
+      const filtered = searchQuery ?
+        db.auditLogs.filter(l => l.detail.toLowerCase().includes(searchQuery) || l.action.toLowerCase().includes(searchQuery)) :
+        db.auditLogs;
+
+      const actionColors = {
+        'STOCK_UPDATE': 'text-amber-400 bg-amber-400/10',
+        'PRICE_CHANGE': 'text-blue-400 bg-blue-400/10',
+        'SALE_COMPLETED': 'text-green-400 bg-green-400/10',
+        'PART_ADDED': 'text-purple-400 bg-purple-400/10',
+        'PART_DELETED': 'text-red-400 bg-red-400/10',
+        'CUSTOMER_ADDED': 'text-cyan-400 bg-cyan-400/10',
+        'ESTIMATE_CREATED': 'text-blue-400 bg-blue-400/10',
+        'STOCK_LOW': 'text-red-400 bg-red-400/10'
+      };
+
+      const actionIcons = {
+        'STOCK_UPDATE': 'ph-package',
+        'PRICE_CHANGE': 'ph-tag',
+        'SALE_COMPLETED': 'ph-check-circle',
+        'PART_ADDED': 'ph-plus-circle',
+        'PART_DELETED': 'ph-trash',
+        'CUSTOMER_ADDED': 'ph-user-plus',
+        'ESTIMATE_CREATED': 'ph-receipt',
+        'STOCK_LOW': 'ph-warning'
+      };
+
+      el.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h2 class="text-2xl font-bold text-white">Audit Logs</h2>
+          <p class="text-sm text-slate-400">${filtered.length} entries</p>
+        </div>
+        <button onclick="clearAuditLogs()" class="glass-input px-4 py-2.5 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-2">
+          <i class="ph-bold ph-trash"></i> Clear All
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        ${filtered.map(log => {
+        const color = actionColors[log.action] || 'text-slate-400 bg-slate-400/10';
+        const icon = actionIcons[log.action] || 'ph-info';
+        const time = new Date(log.timestamp);
+        const timeStr = time.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        return `
+            <div class="glass-card rounded-xl p-4 flex items-start gap-3">
+              <div class="w-10 h-10 rounded-lg ${color} flex items-center justify-center flex-shrink-0 mt-0.5">
+                <i class="ph-bold ${icon} text-lg"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-semibold text-white">${log.action.replace('_', ' ')}</span>
+                  <span class="badge ${color}">${log.user}</span>
+                </div>
+                <p class="text-sm text-slate-300">${log.detail}</p>
+                <p class="text-xs text-slate-500 mt-1">${timeStr}</p>
+              </div>
+            </div>
+          `;
+      }).join('')}
+      </div>
+      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No audit entries</p>' : ''}
+    </div>
+  `;
+    }
+
+    function clearAuditLogs() {
+      if (!confirm('Clear all audit logs? This cannot be undone.')) return;
+      const db = getDB();
+      db.auditLogs = [];
+      saveDB(db);
+      showToast('Audit logs cleared', 'warning');
+      renderView();
+    }
+
+    // ==================== QUICK ADD ====================
+    function openQuickAdd() {
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      content.innerHTML = `
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-lg font-bold text-white">Quick Add</h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="closeModal();openAddPartModal()" class="glass-card rounded-xl p-6 text-center hover:border-blue-500/30 transition-all cursor-pointer">
+          <i class="ph-bold ph-package text-3xl text-blue-400 mb-3"></i>
+          <p class="text-sm font-semibold text-white">New Part</p>
+          <p class="text-xs text-slate-500">Add to inventory</p>
+        </button>
+        <button onclick="closeModal();openAddCustomerModal()" class="glass-card rounded-xl p-6 text-center hover:border-green-500/30 transition-all cursor-pointer">
+          <i class="ph-bold ph-user-plus text-3xl text-green-400 mb-3"></i>
+          <p class="text-sm font-semibold text-white">New Customer</p>
+          <p class="text-xs text-slate-500">Register client</p>
+        </button>
+        <button onclick="closeModal();openAddVehicleModal()" class="glass-card rounded-xl p-6 text-center hover:border-purple-500/30 transition-all cursor-pointer">
+          <i class="ph-bold ph-car text-3xl text-purple-400 mb-3"></i>
+          <p class="text-sm font-semibold text-white">New Vehicle</p>
+          <p class="text-xs text-slate-500">Register vehicle</p>
+        </button>
+        <button onclick="closeModal();openNewEstimate()" class="glass-card rounded-xl p-6 text-center hover:border-amber-500/30 transition-all cursor-pointer">
+          <i class="ph-bold ph-receipt text-3xl text-amber-400 mb-3"></i>
+          <p class="text-sm font-semibold text-white">New Estimate</p>
+          <p class="text-xs text-slate-500">Create sale</p>
+        </button>
+      </div>
+    </div>
+  `;
+    }
+
+    // ==================== UTILITIES ====================
+    function closeModal() {
+      if (html5QrCode) {
+        if (html5QrCode.isScanning) {
+          html5QrCode.stop().catch(() => { });
+        }
+        try { html5QrCode.clear(); } catch (e) { }
+        html5QrCode = null;
+      }
+      if (addPartQrCode) {
+        if (addPartQrCode.isScanning) {
+          addPartQrCode.stop().catch(() => { });
+        }
+        try { addPartQrCode.clear(); } catch (e) { }
+        addPartQrCode = null;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+      document.getElementById('modalContainer').classList.add('hidden');
+    }
+
+    // ==================== LIVE COMPETITOR PRICE FETCHING ====================
+    async function fetchLiveCompetitorPrices(partNumber, brand) {
+      const container = document.getElementById('competitor-prices-container');
+      if (!container) return;
+
+      container.innerHTML = `
+        <div class="text-center py-4">
+          <div class="inline-block w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+          <p class="text-xs text-slate-400">Fetching live prices...</p>
+        </div>
+      `;
+
+      try {
+        const res = await fetch(
+          `${API_URL}/prices?partNumber=${encodeURIComponent(partNumber)}&brand=${encodeURIComponent(brand || '')}`,
+          { signal: AbortSignal.timeout(8000) }
+        );
+
+        if (!res.ok) throw new Error('API error');
+        const prices = await res.json();
+
+        // Cache the result in local DB
+        const db = getDB();
+        const existing = db.retailerPrices.findIndex(r => r.partNumber === partNumber);
+        const invPart = db.inventory.find(p => p.partNumber === partNumber);
+        const entry = {
+          partNumber,
+          rockauto: prices.rockauto || 0,
+          oreilly: prices.oreilly || 0,
+          napa: prices.napa || 0,
+          autozone: prices.autozone || 0,
+          advance: prices.advance || 0,
+          carquest: prices.carquest || 0,
+          ourPrice: invPart?.price || 0,
+          ourCost: invPart?.cost || 0,
+          fetchedAt: prices.fetchedAt
+        };
+        if (existing >= 0) db.retailerPrices[existing] = entry;
+        else db.retailerPrices.push(entry);
+        saveDB(db);
+
+        // Render the price grid
+        const rows = [
+          { label: "NAPA", color: "text-yellow-400", val: prices.napa },
+          { label: "AutoZone", color: "text-blue-400", val: prices.autozone },
+          { label: "Advance", color: "text-orange-400", val: prices.advance },
+          { label: "RockAuto", color: "text-red-400", val: prices.rockauto },
+          { label: "O'Reilly", color: "text-green-400", val: prices.oreilly },
+          { label: "Carquest", color: "text-purple-400", val: prices.carquest },
+        ];
+
+        container.innerHTML = `
+          <div class="grid grid-cols-3 gap-2">
+            ${rows.map(r => `
+              <div class="glass-card rounded-lg p-2 text-center">
+                <p class="text-[10px] ${r.color}">${r.label}</p>
+                <p class="text-sm font-bold text-white">
+                  ${r.val ? '$' + Number(r.val).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}
+                </p>
+              </div>
+            `).join('')}
+          </div>
+          <p class="text-[10px] text-slate-600 text-right mt-1">
+            Updated ${new Date(prices.fetchedAt).toLocaleTimeString()}
+          </p>
+        `;
+      } catch (err) {
+        console.error('Live price fetch failed:', err);
+        container.innerHTML = `
+          <p class="text-xs text-slate-500 text-center py-2">
+            Live prices unavailable — showing cached data
+          </p>
+        `;
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-green-500/20 border-green-500/30 text-green-300',
+        warning: 'bg-amber-500/20 border-amber-500/30 text-amber-300',
+        danger: 'bg-red-500/20 border-red-500/30 text-red-300',
+        info: 'bg-blue-500/20 border-blue-500/30 text-blue-300'
+      };
+      const icons = {
+        success: 'ph-check-circle',
+        warning: 'ph-warning',
+        danger: 'ph-x-circle',
+        info: 'ph-info'
+      };
+
+      toast.className = `${colors[type]} border rounded-lg px-4 py-3 flex items-center gap-2 text-sm font-medium animate-slide-in pointer-events-auto min-w-[280px] backdrop-blur-lg`;
+      toast.innerHTML = `<i class="ph-bold ${icons[type]}"></i> ${message}`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function updateNotificationBadge() {
+      const db = getDB();
+      const lowStock = db.inventory.filter(i => i.stock <= i.minStock);
+      const pendingSales = db.sales.filter(s => s.status === 'Pending');
+      const badge = document.getElementById('notifBadge');
+      if (badge) {
+        if (lowStock.length > 0 || pendingSales.length > 0) {
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+    }
+
+    function toggleNotifications() {
+      const db = getDB();
+      const lowStock = db.inventory.filter(i => i.stock <= i.minStock);
+      const pendingSales = db.sales.filter(s => s.status === 'Pending');
+
+      let hasNotifs = false;
+      if (lowStock.length > 0) {
+        showToast(`${lowStock.length} item(s) below minimum stock. Check Inventory.`, 'warning');
+        hasNotifs = true;
+      }
+      if (pendingSales.length > 0) {
+        setTimeout(() => showToast(`${pendingSales.length} estimate(s) waiting for approval.`, 'info'), hasNotifs ? 600 : 0);
+        hasNotifs = true;
+      }
+
+      if (!hasNotifs) {
+        showToast('No new notifications', 'success');
+      }
+      updateNotificationBadge();
+    }
+
+    // Close modal on overlay click
+    document.getElementById('modalContainer').addEventListener('click', function (e) {
+      if (e.target === this) closeModal();
+    });
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. First render with whatever is in localStorage or defaults (fast visual load)
+      renderDashboard(document.getElementById('mainContent'));
+
+      try {
+        // 2. Fetch fresh data from Neon Postgres Database via Cloudflare Worker
+        const response = await fetch(`${API_URL}/sync`);
+        if (response.ok) {
+          const cloudData = await response.json();
+
+          // Convert PostgreSQL decimal strings back to JavaScript Numbers
+          if (cloudData.inventory) {
+            cloudData.inventory.forEach(item => {
+              item.cost = Number(item.cost || 0);
+              item.price = Number(item.price || 0);
+            });
+          }
+          if (cloudData.sales) {
+            cloudData.sales.forEach(sale => {
+              sale.total = Number(sale.total || 0);
+              sale.margin = Number(sale.margin || 0);
+            });
+          }
+
+          // Only overwrite if cloud has data to avoid wiping local dev data on first run empty db
+          if (cloudData.inventory?.length > 0 || cloudData.customers?.length > 0) {
+            windowDB = Object.assign(getDB(), cloudData);
+            localStorage.setItem(DB_KEY, JSON.stringify(windowDB));
+            renderView(); // re-render with fresh cloud data
+          }
+        }
+      } catch (err) {
+        console.error("Cloud DB connection failed, using local storage", err);
+      }
+
+      // Check for low stock alerts on load
+      const db = getDB();
+      const lowStock = db.inventory.filter(i => i.stock <= i.minStock);
+      if (lowStock.length > 0) {
+        setTimeout(() => {
+          showToast(`${lowStock.length} item(s) below minimum stock`, 'warning');
+        }, 500);
+      }
+    });
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js")
+          .then(reg => {
+            console.log("[SW] Registered:", reg.scope);
+            reg.addEventListener("updatefound", () => {
+              const newSW = reg.installing;
+              newSW.addEventListener("statechange", () => {
+                if (newSW.state === "installed" && navigator.serviceWorker.controller) {
+                  showToast("App updated — refresh for the latest version.", "info");
+                }
+              });
+            });
+          })
+          .catch(err => console.warn("[SW] Registration failed:", err));
+        navigator.serviceWorker.addEventListener("message", (e) => {
+          if (e.data?.type === "SYNC_REQUESTED") {
+            const db = getDB();
+            saveDB(db);
+          }
+        });
+      });
+    }
+  </script>
+</body>
+
+</html>
