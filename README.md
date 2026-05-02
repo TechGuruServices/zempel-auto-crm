@@ -243,16 +243,14 @@ This is a private project for **Zempel Auto**. If you've been granted access:
 5. Open a Pull Request
 
 ---
-
+<p align="center">
 ## 📄 License
 
 **Proprietary** — © 2026 Zempel Auto. All rights reserved.
 
 <p align="center">
-## Powered by TECHGURU ##
-<br> LINK:https://techguruofficial.us
-  
----
+  Powered by TECHGURU
+<br>Link: TECHGURUOFFICIAL.US <br>
 
 <p align="center">
   <img src="https://i.imgur.com/tuBAEOR.png" alt="Zempel Auto" width="120" />
