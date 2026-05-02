@@ -12,13 +12,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PartsCommand">
   <link rel="apple-touch-icon" href="assets/favicon-cropped.png">
-  <meta name="description" content="PartsCommand CRM — Auto parts inventory, customer, and sales management for Zempel Auto.">
+  <meta name="description"
+    content="PartsCommand CRM — Auto parts inventory, customer, and sales management for Zempel Auto.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
   <script src="/assets/html5-qrcode.min.js"></script>
-    <script src="/assets/jspdf.umd.min.js"></script>
-    <script src="/assets/jspdf.plugin.autotable.min.js"></script>
+  <script src="/assets/jspdf.umd.min.js"></script>
+  <script src="/assets/jspdf.plugin.autotable.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -260,7 +261,6 @@
       object-fit: contain;
       object-position: center center;
       image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
       filter: brightness(1.15) contrast(1.1);
       transform: scale(1.3) translateZ(0);
       margin: 12px 0;
@@ -273,7 +273,6 @@
       object-fit: contain;
       object-position: center center;
       image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
       filter: brightness(1.15) contrast(1.1);
       transform: scale(1.3) translateZ(0);
       margin: 12px 0;
@@ -293,79 +292,212 @@
       }
     }
 
-      /* ── Light Mode Theme ───────────────────────────────────────────────── */
-      html.light-mode body { background: #f1f5f9 !important; color: #0f172a !important; }
-      html.light-mode aside#sidebar { background: #ffffff !important; border-color: #e2e8f0 !important; }
-      html.light-mode #mobileNavOverlay > div { background: #ffffff !important; border-color: #e2e8f0 !important; }
-      html.light-mode header { background: rgba(255,255,255,0.93) !important; border-color: #e2e8f0 !important; }
-      html.light-mode nav.mobile-nav { background: rgba(255,255,255,0.97) !important; border-color: #e2e8f0 !important; }
-      html.light-mode .glass-card {
-        background: linear-gradient(135deg,rgba(255,255,255,0.97) 0%,rgba(248,250,252,0.99) 100%) !important;
-        border-color: rgba(203,213,225,0.7) !important;
-      }
-      html.light-mode .glass-input { background: rgba(241,245,249,0.95) !important; border-color: rgba(203,213,225,0.9) !important; color: #0f172a !important; }
-      html.light-mode .glass-input::placeholder { color: #94a3b8 !important; }
-      html.light-mode .glass-input:focus { border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important; }
-      html.light-mode #modalContent { background: #ffffff !important; border-color: #e2e8f0 !important; }
-      html.light-mode .text-white { color: #0f172a !important; }
-      html.light-mode .text-slate-100, html.light-mode .text-slate-200 { color: #1e293b !important; }
-      html.light-mode .text-slate-300 { color: #334155 !important; }
-      html.light-mode .text-slate-400 { color: #475569 !important; }
-      html.light-mode .text-slate-500 { color: #64748b !important; }
-      html.light-mode .bg-slate-950 { background-color: #f1f5f9 !important; }
-      html.light-mode .bg-slate-900 { background-color: #ffffff !important; }
-      html.light-mode .bg-slate-800\/50 { background-color: rgba(241,245,249,0.85) !important; }
-      html.light-mode .border-slate-800 { border-color: #e2e8f0 !important; }
-      html.light-mode .border-slate-700, html.light-mode .border-slate-700\/50 { border-color: rgba(203,213,225,0.8) !important; }
-      html.light-mode .nav-item:hover:not(.active) { background: rgba(241,245,249,0.9) !important; }
-      html.light-mode .nav-item.active { background: linear-gradient(90deg,rgba(59,130,246,0.1) 0%,transparent 100%) !important; }
-      html.light-mode .table-row:hover { background: rgba(59,130,246,0.05) !important; }
-      html.light-mode ::-webkit-scrollbar-track { background: #f1f5f9 !important; }
-      html.light-mode ::-webkit-scrollbar-thumb { background: #cbd5e1 !important; }
-      html.light-mode ::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
-      html.light-mode select option { background: #ffffff; color: #0f172a; }
-      html.light-mode .metric-card::before { opacity: 0.8; }
+    /* ── Light Mode Theme ───────────────────────────────────────────────── */
+    html.light-mode body {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
 
-      /* ── Toggle switch ──────────────────────────────────────────────────── */
-      .toggle-track {
-        width: 48px; height: 26px; border-radius: 13px; position: relative;
-        cursor: pointer; transition: background 0.25s ease; background: #334155;
-        display: inline-flex; align-items: center; flex-shrink: 0; border: none; outline: none;
-      }
-      .toggle-track.on { background: #3b82f6; }
-      .toggle-thumb {
-        position: absolute; top: 3px; left: 3px;
-        width: 20px; height: 20px; border-radius: 50%;
-        background: #ffffff; transition: transform 0.25s ease;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.3); pointer-events: none;
-      }
-      .toggle-track.on .toggle-thumb { transform: translateX(22px); }
-  
-      /* ── System font stack (replaces Google Fonts — works offline) ───────── */
-      :root {
-        --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro',
-          Menlo, Monaco, Consolas, 'Courier New', monospace;
-      }
-      body { font-family: var(--font-sans); }
-      .font-mono, code, pre { font-family: var(--font-mono); }
-    </style>
+    html.light-mode aside#sidebar {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
 
-    <script>
-      // Force-evict any stale service worker (old CACHE_NAME != current)
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(regs) {
-          regs.forEach(function(reg) {
-            reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, {cache:'no-store'})
-              .then(function(r) { return r.text(); })
-              .then(function(t) { if (!t.includes('partscommand-v2.1')) reg.unregister(); })
-              .catch(function() {});
-          });
+    html.light-mode #mobileNavOverlay>div {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    html.light-mode header {
+      background: rgba(255, 255, 255, 0.93) !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    html.light-mode nav.mobile-nav {
+      background: rgba(255, 255, 255, 0.97) !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    html.light-mode .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 250, 252, 0.99) 100%) !important;
+      border-color: rgba(203, 213, 225, 0.7) !important;
+    }
+
+    html.light-mode .glass-input {
+      background: rgba(241, 245, 249, 0.95) !important;
+      border-color: rgba(203, 213, 225, 0.9) !important;
+      color: #0f172a !important;
+    }
+
+    html.light-mode .glass-input::placeholder {
+      color: #94a3b8 !important;
+    }
+
+    html.light-mode .glass-input:focus {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    }
+
+    html.light-mode #modalContent {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    html.light-mode .text-white {
+      color: #0f172a !important;
+    }
+
+    html.light-mode .text-slate-100,
+    html.light-mode .text-slate-200 {
+      color: #1e293b !important;
+    }
+
+    html.light-mode .text-slate-300 {
+      color: #334155 !important;
+    }
+
+    html.light-mode .text-slate-400 {
+      color: #475569 !important;
+    }
+
+    html.light-mode .text-slate-500 {
+      color: #64748b !important;
+    }
+
+    html.light-mode .bg-slate-950 {
+      background-color: #f1f5f9 !important;
+    }
+
+    html.light-mode .bg-slate-900 {
+      background-color: #ffffff !important;
+    }
+
+    html.light-mode .bg-slate-800\/50 {
+      background-color: rgba(241, 245, 249, 0.85) !important;
+    }
+
+    html.light-mode .border-slate-800 {
+      border-color: #e2e8f0 !important;
+    }
+
+    html.light-mode .border-slate-700,
+    html.light-mode .border-slate-700\/50 {
+      border-color: rgba(203, 213, 225, 0.8) !important;
+    }
+
+    html.light-mode .nav-item:hover:not(.active) {
+      background: rgba(241, 245, 249, 0.9) !important;
+    }
+
+    html.light-mode .nav-item.active {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%) !important;
+    }
+
+    html.light-mode .table-row:hover {
+      background: rgba(59, 130, 246, 0.05) !important;
+    }
+
+    html.light-mode ::-webkit-scrollbar-track {
+      background: #f1f5f9 !important;
+    }
+
+    html.light-mode ::-webkit-scrollbar-thumb {
+      background: #cbd5e1 !important;
+    }
+
+    html.light-mode ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8 !important;
+    }
+
+    html.light-mode select option {
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    html.light-mode .metric-card::before {
+      opacity: 0.8;
+    }
+
+    html.light-mode .brand-logo,
+    html.light-mode .brand-logo-overlay {
+      background: rgba(15, 23, 42, 0.8) !important;
+      -webkit-backdrop-filter: blur(6px) !important;
+      backdrop-filter: blur(6px) !important;
+      border-radius: 12px !important;
+      padding: 6px !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* ── Toggle switch ──────────────────────────────────────────────────── */
+    .toggle-track {
+      width: 48px;
+      height: 26px;
+      border-radius: 13px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.25s ease;
+      background: #334155;
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+      border: none;
+      outline: none;
+    }
+
+    .toggle-track.on {
+      background: #3b82f6;
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.25s ease;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      pointer-events: none;
+    }
+
+    .toggle-track.on .toggle-thumb {
+      transform: translateX(22px);
+    }
+
+    /* ── System font stack (replaces Google Fonts — works offline) ───────── */
+    :root {
+      --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro',
+        Menlo, Monaco, Consolas, 'Courier New', monospace;
+    }
+
+    body {
+      font-family: var(--font-sans);
+    }
+
+    .font-mono,
+    code,
+    pre {
+      font-family: var(--font-mono);
+    }
+  </style>
+
+  <script>
+    // Force-evict any stale service worker (old CACHE_NAME != current)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (reg) {
+          reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, { cache: 'no-store' })
+            .then(function (r) { return r.text(); })
+            .then(function (t) { if (!t.includes('partscommand-v2.1')) reg.unregister(); })
+            .catch(function () { });
         });
-      }
-    </script>
-  </head>
+      });
+    }
+  </script>
+</head>
 
 <body class="min-h-screen bg-slate-950">
 
@@ -516,7 +648,8 @@
     onclick="toggleMobileNav()">
     <div class="w-72 h-full bg-slate-900 border-r border-slate-800 p-4" onclick="event.stopPropagation()">
       <div class="mb-6 text-center">
-        <a href="#" onclick="navigate('dashboard');toggleMobileNav()" title="Zempel Auto – PartsCommand CRM" class="inline-block">
+        <a href="#" onclick="navigate('dashboard');toggleMobileNav()" title="Zempel Auto – PartsCommand CRM"
+          class="inline-block">
           <img src="assets/z-auto-7.PNG" alt="Zempel Auto logo" class="brand-logo-overlay" width="280" height="85"
             loading="eager" decoding="sync" />
         </a>
@@ -634,7 +767,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
           signal: _c2.signal
-        }).catch(() => {}); // localStorage is source of truth; ignore cloud failures
+        }).catch(() => { }); // localStorage is source of truth; ignore cloud failures
       }
     }
 
@@ -1054,7 +1187,7 @@
             toggleAddPartScanner();
           }, 800);
         },
-        (errorMessage) => {}
+        (errorMessage) => { }
       ).then(() => {
         const statusEl = document.getElementById('add-part-scan-status');
         if (statusEl) {
@@ -1079,7 +1212,7 @@
           addPartQrCode = null;
         });
       } else if (addPartQrCode) {
-        try { addPartQrCode.clear(); } catch(e){}
+        try { addPartQrCode.clear(); } catch (e) { }
         addPartQrCode = null;
       }
     }
@@ -3066,7 +3199,7 @@
         }
         try { addPartQrCode.clear(); } catch (e) { }
         addPartQrCode = null;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            }
+      }
       document.getElementById('modalContainer').classList.add('hidden');
     }
 
@@ -3210,44 +3343,44 @@
     }
 
 
-      // ==================== THEME ====================
-      function initTheme() {
-        const saved = localStorage.getItem('pc_theme') || 'dark';
-        applyTheme(saved);
+    // ==================== THEME ====================
+    function initTheme() {
+      const saved = localStorage.getItem('pc_theme') || 'dark';
+      applyTheme(saved);
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        document.documentElement.classList.add('light-mode');
+      } else {
+        document.documentElement.classList.remove('light-mode');
       }
-
-      function applyTheme(theme) {
-        if (theme === 'light') {
-          document.documentElement.classList.add('light-mode');
-        } else {
-          document.documentElement.classList.remove('light-mode');
-        }
-        localStorage.setItem('pc_theme', theme);
-        const track = document.getElementById('themeTrack');
-        if (track) {
-          if (theme === 'light') track.classList.add('on');
-          else track.classList.remove('on');
-        }
+      localStorage.setItem('pc_theme', theme);
+      const track = document.getElementById('themeTrack');
+      if (track) {
+        if (theme === 'light') track.classList.add('on');
+        else track.classList.remove('on');
       }
+    }
 
-      function toggleTheme() {
-        const current = localStorage.getItem('pc_theme') || 'dark';
-        applyTheme(current === 'dark' ? 'light' : 'dark');
-      }
+    function toggleTheme() {
+      const current = localStorage.getItem('pc_theme') || 'dark';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
 
-      // ==================== SETTINGS PAGE ====================
-      function renderSettings(el) {
-        const settings = getAppSettings();
-        const currentTheme = localStorage.getItem('pc_theme') || 'dark';
-        const db = getDB();
-        const invCount   = db.inventory.length;
-        const custCount  = db.customers.length;
-        const vehCount   = db.vehicles.length;
-        const salesCount = db.sales.length;
-        const logCount   = db.auditLogs.length;
-        const invValue   = db.inventory.reduce((t, i) => t + (i.stock * i.cost), 0);
+    // ==================== SETTINGS PAGE ====================
+    function renderSettings(el) {
+      const settings = getAppSettings();
+      const currentTheme = localStorage.getItem('pc_theme') || 'dark';
+      const db = getDB();
+      const invCount = db.inventory.length;
+      const custCount = db.customers.length;
+      const vehCount = db.vehicles.length;
+      const salesCount = db.sales.length;
+      const logCount = db.auditLogs.length;
+      const invValue = db.inventory.reduce((t, i) => t + (i.stock * i.cost), 0);
 
-        el.innerHTML = `
+      el.innerHTML = `
       <div class="animate-slide-in">
         <div class="flex items-center justify-between mb-6">
           <div>
@@ -3591,351 +3724,351 @@
         </div>
       </div>
     `;
-      }
+    }
 
-      // ==================== SETTINGS HELPERS ====================
-      const SETTINGS_KEY = 'pc_app_settings';
+    // ==================== SETTINGS HELPERS ====================
+    const SETTINGS_KEY = 'pc_app_settings';
 
-      function getAppSettings() {
-        try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; }
-        catch(e) { return {}; }
-      }
+    function getAppSettings() {
+      try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; }
+      catch (e) { return {}; }
+    }
 
-      function saveAppSettings(updates) {
-        const s = getAppSettings();
-        Object.assign(s, updates);
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-      }
+    function saveAppSettings(updates) {
+      const s = getAppSettings();
+      Object.assign(s, updates);
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+    }
 
-      function toggleSetting(key, trackId) {
-        const s = getAppSettings();
-        s[key] = !s[key];
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-        const el = document.getElementById(trackId);
-        if (el) { if (s[key]) el.classList.add('on'); else el.classList.remove('on'); }
-        const label = key.replace(/([A-Z])/g, ' $1').toLowerCase();
-        showToast(label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (s[key] ? 'enabled' : 'disabled'), 'info');
-      }
+    function toggleSetting(key, trackId) {
+      const s = getAppSettings();
+      s[key] = !s[key];
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+      const el = document.getElementById(trackId);
+      if (el) { if (s[key]) el.classList.add('on'); else el.classList.remove('on'); }
+      const label = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+      showToast(label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (s[key] ? 'enabled' : 'disabled'), 'info');
+    }
 
-      function saveBusinessProfile() {
-        saveAppSettings({
-          bizName:           (document.getElementById('biz_name') || {}).value || 'Zempel Auto',
-          bizPhone:          (document.getElementById('biz_phone') || {}).value || '',
-          bizEmail:          (document.getElementById('biz_email') || {}).value || '',
-          bizAddress:        (document.getElementById('biz_address') || {}).value || '',
-          defaultTax:        parseFloat((document.getElementById('biz_tax') || {}).value) || 8,
-          defaultLaborRate:  parseFloat((document.getElementById('biz_labor') || {}).value) || 95,
-          lowStockThreshold: parseInt((document.getElementById('biz_lowstock') || {}).value) || 5,
-          currency:          (document.getElementById('biz_currency') || {}).value || 'USD',
-        });
-        showToast('Business profile saved', 'success');
-      }
+    function saveBusinessProfile() {
+      saveAppSettings({
+        bizName: (document.getElementById('biz_name') || {}).value || 'Zempel Auto',
+        bizPhone: (document.getElementById('biz_phone') || {}).value || '',
+        bizEmail: (document.getElementById('biz_email') || {}).value || '',
+        bizAddress: (document.getElementById('biz_address') || {}).value || '',
+        defaultTax: parseFloat((document.getElementById('biz_tax') || {}).value) || 8,
+        defaultLaborRate: parseFloat((document.getElementById('biz_labor') || {}).value) || 95,
+        lowStockThreshold: parseInt((document.getElementById('biz_lowstock') || {}).value) || 5,
+        currency: (document.getElementById('biz_currency') || {}).value || 'USD',
+      });
+      showToast('Business profile saved', 'success');
+    }
 
-      // ==================== EXPORT - PDF ====================
-      function buildPDFHeader(doc, title) {
-        const s = getAppSettings();
-        const shopName = s.bizName || 'Zempel Auto';
-        const W = doc.internal.pageSize.width;
-        doc.setFillColor(15, 23, 42); doc.rect(0, 0, W, 30, 'F');
-        doc.setFillColor(59, 130, 246); doc.rect(0, 28, W, 2, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-        doc.text(shopName + '  -  ' + title, 14, 13);
-        doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-        doc.setTextColor(148, 163, 184);
-        doc.text('PartsCommand CRM v2.0  |  Generated: ' + new Date().toLocaleString(), 14, 22);
-        if (s.bizPhone) doc.text(s.bizPhone, W - 14, 17, { align: 'right' });
-        if (s.bizAddress) doc.text(s.bizAddress, W - 14, 23, { align: 'right' });
-      }
+    // ==================== EXPORT - PDF ====================
+    function buildPDFHeader(doc, title) {
+      const s = getAppSettings();
+      const shopName = s.bizName || 'Zempel Auto';
+      const W = doc.internal.pageSize.width;
+      doc.setFillColor(15, 23, 42); doc.rect(0, 0, W, 30, 'F');
+      doc.setFillColor(59, 130, 246); doc.rect(0, 28, W, 2, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+      doc.text(shopName + '  -  ' + title, 14, 13);
+      doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
+      doc.text('PartsCommand CRM v2.0  |  Generated: ' + new Date().toLocaleString(), 14, 22);
+      if (s.bizPhone) doc.text(s.bizPhone, W - 14, 17, { align: 'right' });
+      if (s.bizAddress) doc.text(s.bizAddress, W - 14, 23, { align: 'right' });
+    }
 
-      function exportInventoryPDF() {
-        const db = getDB();
-        if (!db.inventory.length) { showToast('No inventory data to export', 'warning'); return; }
-        showToast('Generating inventory PDF...', 'info');
-        setTimeout(function() {
-          try {
-            const jsPDF = window.jspdf.jsPDF;
-            const doc = new jsPDF({ orientation: 'landscape' });
-            buildPDFHeader(doc, 'Inventory Report');
-            const rows = db.inventory.map(function(i) {
-              return [i.partNumber, i.name, i.category, i.brand, i.supplier,
-                '$' + Number(i.cost).toFixed(2), '$' + Number(i.price).toFixed(2),
-                i.stock, i.minStock, i.location || '-', i.barcode || '-'];
-            });
-            doc.autoTable({
-              head: [['Part #','Name','Category','Brand','Supplier','Cost','Price','Stock','Min','Location','Barcode']],
-              body: rows, startY: 34,
-              styles: { fontSize: 7.5, cellPadding: 2.5 },
-              headStyles: { fillColor: [30,41,59], textColor: [226,232,240], fontStyle: 'bold', fontSize: 8 },
-              alternateRowStyles: { fillColor: [248,250,252] },
-              didParseCell: function(data) {
-                if (data.section === 'body' && data.column.index === 7) {
-                  var stk = parseInt(data.cell.raw), min = parseInt(data.row.raw[8]);
-                  data.cell.styles.textColor = stk <= 3 ? [239,68,68] : stk <= min ? [245,158,11] : [16,185,129];
-                  data.cell.styles.fontStyle = 'bold';
-                }
+    function exportInventoryPDF() {
+      const db = getDB();
+      if (!db.inventory.length) { showToast('No inventory data to export', 'warning'); return; }
+      showToast('Generating inventory PDF...', 'info');
+      setTimeout(function () {
+        try {
+          const jsPDF = window.jspdf.jsPDF;
+          const doc = new jsPDF({ orientation: 'landscape' });
+          buildPDFHeader(doc, 'Inventory Report');
+          const rows = db.inventory.map(function (i) {
+            return [i.partNumber, i.name, i.category, i.brand, i.supplier,
+            '$' + Number(i.cost).toFixed(2), '$' + Number(i.price).toFixed(2),
+            i.stock, i.minStock, i.location || '-', i.barcode || '-'];
+          });
+          doc.autoTable({
+            head: [['Part #', 'Name', 'Category', 'Brand', 'Supplier', 'Cost', 'Price', 'Stock', 'Min', 'Location', 'Barcode']],
+            body: rows, startY: 34,
+            styles: { fontSize: 7.5, cellPadding: 2.5 },
+            headStyles: { fillColor: [30, 41, 59], textColor: [226, 232, 240], fontStyle: 'bold', fontSize: 8 },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            didParseCell: function (data) {
+              if (data.section === 'body' && data.column.index === 7) {
+                var stk = parseInt(data.cell.raw), min = parseInt(data.row.raw[8]);
+                data.cell.styles.textColor = stk <= 3 ? [239, 68, 68] : stk <= min ? [245, 158, 11] : [16, 185, 129];
+                data.cell.styles.fontStyle = 'bold';
               }
-            });
-            var y = doc.lastAutoTable.finalY + 8;
-            var invVal = db.inventory.reduce(function(t,i) { return t + i.stock * i.cost; }, 0);
-            var lowCnt = db.inventory.filter(function(i) { return i.stock <= i.minStock; }).length;
-            doc.setFontSize(9); doc.setTextColor(100,116,139);
-            doc.text('Total Parts: ' + db.inventory.length + '  |  Low-Stock: ' + lowCnt + '  |  Cost Value: $' + invVal.toFixed(2), 14, y);
-            doc.save('inventory-report-' + new Date().toISOString().split('T')[0] + '.pdf');
-            showToast('Inventory PDF downloaded', 'success');
-          } catch(err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
-        }, 80);
-      }
-
-      function exportSalesPDF() {
-        const db = getDB();
-        if (!db.sales.length) { showToast('No sales data to export', 'warning'); return; }
-        showToast('Generating sales PDF...', 'info');
-        setTimeout(function() {
-          try {
-            const jsPDF = window.jspdf.jsPDF;
-            const doc = new jsPDF();
-            buildPDFHeader(doc, 'Sales Report');
-            const rows = db.sales.slice().reverse().map(function(s) {
-              const cu = db.customers.find(function(c) { return c.id === s.customerId; });
-              const vh = db.vehicles.find(function(v) { return v.id === s.vehicleId; });
-              return [s.id, s.date, cu ? cu.name : 'Unknown',
-                vh ? vh.year + ' ' + vh.make + ' ' + vh.model : '-',
-                s.status, s.lineItems.length + ' item(s)',
-                '$' + Number(s.total).toFixed(2), Number(s.margin).toFixed(1) + '%'];
-            });
-            doc.autoTable({
-              head: [['Sale ID','Date','Customer','Vehicle','Status','Items','Total','Margin']],
-              body: rows, startY: 34,
-              styles: { fontSize: 8.5, cellPadding: 3 },
-              headStyles: { fillColor: [30,41,59], textColor: [226,232,240], fontStyle: 'bold' },
-              alternateRowStyles: { fillColor: [248,250,252] },
-              didParseCell: function(data) {
-                if (data.section === 'body' && data.column.index === 4) {
-                  data.cell.styles.textColor = data.cell.raw === 'Completed' ? [16,185,129] : [245,158,11];
-                  data.cell.styles.fontStyle = 'bold';
-                }
-              }
-            });
-            var completed = db.sales.filter(function(s) { return s.status === 'Completed'; });
-            var totalRev = completed.reduce(function(t,s) { return t + Number(s.total); }, 0);
-            var avgMgn = db.sales.length ? (db.sales.reduce(function(t,s) { return t + Number(s.margin); }, 0) / db.sales.length).toFixed(1) : 0;
-            var y = doc.lastAutoTable.finalY + 8;
-            doc.setFontSize(9); doc.setTextColor(100,116,139);
-            doc.text('Total: ' + db.sales.length + '  |  Completed Revenue: $' + totalRev.toFixed(2) + '  |  Avg Margin: ' + avgMgn + '%', 14, y);
-            doc.save('sales-report-' + new Date().toISOString().split('T')[0] + '.pdf');
-            showToast('Sales PDF downloaded', 'success');
-          } catch(err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
-        }, 80);
-      }
-
-      function exportFullReportPDF() {
-        const db = getDB();
-        showToast('Building full report...', 'info');
-        setTimeout(function() {
-          try {
-            const jsPDF = window.jspdf.jsPDF;
-            const s = getAppSettings();
-            const doc = new jsPDF();
-            const W = doc.internal.pageSize.width;
-            const H = doc.internal.pageSize.height;
-            doc.setFillColor(10,15,26); doc.rect(0,0,W,H,'F');
-            doc.setFillColor(59,130,246); doc.rect(0,H-4,W,4,'F');
-            doc.setTextColor(59,130,246); doc.setFontSize(32); doc.setFont('helvetica','bold');
-            doc.text('PartsCommand', W/2, 90, {align:'center'});
-            doc.setFontSize(13); doc.setFont('helvetica','normal'); doc.setTextColor(148,163,184);
-            doc.text('Business Report', W/2, 103, {align:'center'});
-            doc.setFontSize(11); doc.setTextColor(255,255,255);
-            doc.text(s.bizName || 'Zempel Auto', W/2, 120, {align:'center'});
-            doc.setFontSize(9); doc.setTextColor(100,116,139);
-            doc.text('Generated: ' + new Date().toLocaleString(), W/2, 130, {align:'center'});
-
-            doc.addPage(); buildPDFHeader(doc, 'Business Overview');
-            var totalRev = db.sales.filter(function(sl) { return sl.status === 'Completed'; }).reduce(function(t,sl) { return t + Number(sl.total); }, 0);
-            var avgMgn = db.sales.length ? (db.sales.reduce(function(t,sl) { return t + Number(sl.margin); }, 0) / db.sales.length).toFixed(1) : 0;
-            var invVal = db.inventory.reduce(function(t,i) { return t + i.stock * i.cost; }, 0);
-            doc.autoTable({
-              head:[['Category','Metric','Value']],
-              body:[
-                ['Inventory','Total SKUs', db.inventory.length],
-                ['Inventory','Total Units', db.inventory.reduce(function(t,i){return t+i.stock;},0)],
-                ['Inventory','Inventory Value (Cost)', '$' + invVal.toFixed(2)],
-                ['Inventory','Low-Stock Items', db.inventory.filter(function(i){return i.stock<=i.minStock;}).length],
-                ['Customers','Total Customers', db.customers.length],
-                ['Customers','Total Vehicles', db.vehicles.length],
-                ['Sales','Total Records', db.sales.length],
-                ['Sales','Completed Revenue', '$' + totalRev.toFixed(2)],
-                ['Sales','Avg Margin', avgMgn + '%'],
-                ['Sales','Pending Estimates', db.sales.filter(function(sl){return sl.status==='Pending';}).length],
-              ],
-              startY:34, styles:{fontSize:9,cellPadding:3},
-              headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
-              alternateRowStyles:{fillColor:[248,250,252]},
-            });
-
-            doc.addPage(); buildPDFHeader(doc, 'Inventory');
-            doc.autoTable({
-              head:[['Part #','Name','Category','Brand','Cost','Price','Stock','Location']],
-              body:db.inventory.map(function(i){return [i.partNumber,i.name,i.category,i.brand,'$'+Number(i.cost).toFixed(2),'$'+Number(i.price).toFixed(2),i.stock,i.location||'-'];}),
-              startY:34, styles:{fontSize:8,cellPadding:2.5},
-              headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
-              alternateRowStyles:{fillColor:[248,250,252]},
-            });
-
-            doc.addPage(); buildPDFHeader(doc, 'Sales Records');
-            doc.autoTable({
-              head:[['ID','Date','Customer','Status','Total','Margin']],
-              body:db.sales.slice().reverse().map(function(sl){
-                var cu=db.customers.find(function(c){return c.id===sl.customerId;});
-                return [sl.id,sl.date,cu?cu.name:'Unknown',sl.status,'$'+Number(sl.total).toFixed(2),Number(sl.margin).toFixed(1)+'%'];
-              }),
-              startY:34, styles:{fontSize:8.5,cellPadding:2.5},
-              headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
-              alternateRowStyles:{fillColor:[248,250,252]},
-            });
-
-            if (db.customers.length) {
-              doc.addPage(); buildPDFHeader(doc, 'Customers');
-              doc.autoTable({
-                head:[['Name','Phone','Email','Address','Total Spent','Loyalty Pts']],
-                body:db.customers.map(function(cu){return [cu.name,cu.phone||'-',cu.email||'-',cu.address||'-','$'+Number(cu.totalSpent||0).toFixed(2),cu.loyaltyPoints||0];}),
-                startY:34, styles:{fontSize:8.5,cellPadding:2.5},
-                headStyles:{fillColor:[30,41,59],textColor:[226,232,240],fontStyle:'bold'},
-                alternateRowStyles:{fillColor:[248,250,252]},
-              });
             }
+          });
+          var y = doc.lastAutoTable.finalY + 8;
+          var invVal = db.inventory.reduce(function (t, i) { return t + i.stock * i.cost; }, 0);
+          var lowCnt = db.inventory.filter(function (i) { return i.stock <= i.minStock; }).length;
+          doc.setFontSize(9); doc.setTextColor(100, 116, 139);
+          doc.text('Total Parts: ' + db.inventory.length + '  |  Low-Stock: ' + lowCnt + '  |  Cost Value: $' + invVal.toFixed(2), 14, y);
+          doc.save('inventory-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+          showToast('Inventory PDF downloaded', 'success');
+        } catch (err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
+      }, 80);
+    }
 
-            doc.save('full-report-' + new Date().toISOString().split('T')[0] + '.pdf');
-            showToast('Full report PDF downloaded', 'success');
-          } catch(err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
-        }, 80);
-      }
+    function exportSalesPDF() {
+      const db = getDB();
+      if (!db.sales.length) { showToast('No sales data to export', 'warning'); return; }
+      showToast('Generating sales PDF...', 'info');
+      setTimeout(function () {
+        try {
+          const jsPDF = window.jspdf.jsPDF;
+          const doc = new jsPDF();
+          buildPDFHeader(doc, 'Sales Report');
+          const rows = db.sales.slice().reverse().map(function (s) {
+            const cu = db.customers.find(function (c) { return c.id === s.customerId; });
+            const vh = db.vehicles.find(function (v) { return v.id === s.vehicleId; });
+            return [s.id, s.date, cu ? cu.name : 'Unknown',
+            vh ? vh.year + ' ' + vh.make + ' ' + vh.model : '-',
+            s.status, s.lineItems.length + ' item(s)',
+            '$' + Number(s.total).toFixed(2), Number(s.margin).toFixed(1) + '%'];
+          });
+          doc.autoTable({
+            head: [['Sale ID', 'Date', 'Customer', 'Vehicle', 'Status', 'Items', 'Total', 'Margin']],
+            body: rows, startY: 34,
+            styles: { fontSize: 8.5, cellPadding: 3 },
+            headStyles: { fillColor: [30, 41, 59], textColor: [226, 232, 240], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            didParseCell: function (data) {
+              if (data.section === 'body' && data.column.index === 4) {
+                data.cell.styles.textColor = data.cell.raw === 'Completed' ? [16, 185, 129] : [245, 158, 11];
+                data.cell.styles.fontStyle = 'bold';
+              }
+            }
+          });
+          var completed = db.sales.filter(function (s) { return s.status === 'Completed'; });
+          var totalRev = completed.reduce(function (t, s) { return t + Number(s.total); }, 0);
+          var avgMgn = db.sales.length ? (db.sales.reduce(function (t, s) { return t + Number(s.margin); }, 0) / db.sales.length).toFixed(1) : 0;
+          var y = doc.lastAutoTable.finalY + 8;
+          doc.setFontSize(9); doc.setTextColor(100, 116, 139);
+          doc.text('Total: ' + db.sales.length + '  |  Completed Revenue: $' + totalRev.toFixed(2) + '  |  Avg Margin: ' + avgMgn + '%', 14, y);
+          doc.save('sales-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+          showToast('Sales PDF downloaded', 'success');
+        } catch (err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
+      }, 80);
+    }
 
-      // ==================== EXPORT - CSV ====================
-      function csvRow(arr) {
-        return arr.map(function(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
-      }
-      function downloadCSV(filename, content) {
-        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href = url; a.download = filename; a.click();
-        URL.revokeObjectURL(url);
-      }
+    function exportFullReportPDF() {
+      const db = getDB();
+      showToast('Building full report...', 'info');
+      setTimeout(function () {
+        try {
+          const jsPDF = window.jspdf.jsPDF;
+          const s = getAppSettings();
+          const doc = new jsPDF();
+          const W = doc.internal.pageSize.width;
+          const H = doc.internal.pageSize.height;
+          doc.setFillColor(10, 15, 26); doc.rect(0, 0, W, H, 'F');
+          doc.setFillColor(59, 130, 246); doc.rect(0, H - 4, W, 4, 'F');
+          doc.setTextColor(59, 130, 246); doc.setFontSize(32); doc.setFont('helvetica', 'bold');
+          doc.text('PartsCommand', W / 2, 90, { align: 'center' });
+          doc.setFontSize(13); doc.setFont('helvetica', 'normal'); doc.setTextColor(148, 163, 184);
+          doc.text('Business Report', W / 2, 103, { align: 'center' });
+          doc.setFontSize(11); doc.setTextColor(255, 255, 255);
+          doc.text(s.bizName || 'Zempel Auto', W / 2, 120, { align: 'center' });
+          doc.setFontSize(9); doc.setTextColor(100, 116, 139);
+          doc.text('Generated: ' + new Date().toLocaleString(), W / 2, 130, { align: 'center' });
 
-      function exportInventoryCSV() {
-        const db = getDB();
-        if (!db.inventory.length) { showToast('No inventory to export', 'warning'); return; }
-        var csv = csvRow(['Part Number','Name','Category','Brand','Supplier','Cost','Price','Stock','Min Stock','Location','Barcode','Added Date','Last Updated']) + '\n';
-        db.inventory.forEach(function(i) {
-          csv += csvRow([i.partNumber,i.name,i.category,i.brand,i.supplier,i.cost,i.price,i.stock,i.minStock,i.location,i.barcode,i.addedDate,i.lastUpdated]) + '\n';
-        });
-        downloadCSV('inventory-' + new Date().toISOString().split('T')[0] + '.csv', csv);
-        showToast('Inventory CSV downloaded', 'success');
-      }
+          doc.addPage(); buildPDFHeader(doc, 'Business Overview');
+          var totalRev = db.sales.filter(function (sl) { return sl.status === 'Completed'; }).reduce(function (t, sl) { return t + Number(sl.total); }, 0);
+          var avgMgn = db.sales.length ? (db.sales.reduce(function (t, sl) { return t + Number(sl.margin); }, 0) / db.sales.length).toFixed(1) : 0;
+          var invVal = db.inventory.reduce(function (t, i) { return t + i.stock * i.cost; }, 0);
+          doc.autoTable({
+            head: [['Category', 'Metric', 'Value']],
+            body: [
+              ['Inventory', 'Total SKUs', db.inventory.length],
+              ['Inventory', 'Total Units', db.inventory.reduce(function (t, i) { return t + i.stock; }, 0)],
+              ['Inventory', 'Inventory Value (Cost)', '$' + invVal.toFixed(2)],
+              ['Inventory', 'Low-Stock Items', db.inventory.filter(function (i) { return i.stock <= i.minStock; }).length],
+              ['Customers', 'Total Customers', db.customers.length],
+              ['Customers', 'Total Vehicles', db.vehicles.length],
+              ['Sales', 'Total Records', db.sales.length],
+              ['Sales', 'Completed Revenue', '$' + totalRev.toFixed(2)],
+              ['Sales', 'Avg Margin', avgMgn + '%'],
+              ['Sales', 'Pending Estimates', db.sales.filter(function (sl) { return sl.status === 'Pending'; }).length],
+            ],
+            startY: 34, styles: { fontSize: 9, cellPadding: 3 },
+            headStyles: { fillColor: [30, 41, 59], textColor: [226, 232, 240], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+          });
 
-      function exportCustomersCSV() {
-        const db = getDB();
-        if (!db.customers.length) { showToast('No customers to export', 'warning'); return; }
-        var csv = csvRow(['ID','Name','Phone','Email','Address','Notes','Total Spent','Loyalty Points']) + '\n';
-        db.customers.forEach(function(c) {
-          csv += csvRow([c.id,c.name,c.phone,c.email,c.address,c.notes,c.totalSpent,c.loyaltyPoints]) + '\n';
-        });
-        downloadCSV('customers-' + new Date().toISOString().split('T')[0] + '.csv', csv);
-        showToast('Customers CSV downloaded', 'success');
-      }
+          doc.addPage(); buildPDFHeader(doc, 'Inventory');
+          doc.autoTable({
+            head: [['Part #', 'Name', 'Category', 'Brand', 'Cost', 'Price', 'Stock', 'Location']],
+            body: db.inventory.map(function (i) { return [i.partNumber, i.name, i.category, i.brand, '$' + Number(i.cost).toFixed(2), '$' + Number(i.price).toFixed(2), i.stock, i.location || '-']; }),
+            startY: 34, styles: { fontSize: 8, cellPadding: 2.5 },
+            headStyles: { fillColor: [30, 41, 59], textColor: [226, 232, 240], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+          });
 
-      function exportSalesCSV() {
-        const db = getDB();
-        if (!db.sales.length) { showToast('No sales to export', 'warning'); return; }
-        var csv = csvRow(['Sale ID','Date','Customer','Vehicle','Status','Line Items','Labor Hrs','Labor Rate','Subtotal','Tax','Total','Margin %']) + '\n';
-        db.sales.forEach(function(s) {
-          var cu = db.customers.find(function(c) { return c.id === s.customerId; });
-          var vh = db.vehicles.find(function(v) { return v.id === s.vehicleId; });
-          csv += csvRow([s.id,s.date,cu?cu.name:'Unknown',vh?vh.year+' '+vh.make+' '+vh.model:'-',s.status,s.lineItems.length,s.laborHours,s.laborRate,s.subtotal,s.tax,s.total,s.margin]) + '\n';
-        });
-        downloadCSV('sales-' + new Date().toISOString().split('T')[0] + '.csv', csv);
-        showToast('Sales CSV downloaded', 'success');
-      }
+          doc.addPage(); buildPDFHeader(doc, 'Sales Records');
+          doc.autoTable({
+            head: [['ID', 'Date', 'Customer', 'Status', 'Total', 'Margin']],
+            body: db.sales.slice().reverse().map(function (sl) {
+              var cu = db.customers.find(function (c) { return c.id === sl.customerId; });
+              return [sl.id, sl.date, cu ? cu.name : 'Unknown', sl.status, '$' + Number(sl.total).toFixed(2), Number(sl.margin).toFixed(1) + '%'];
+            }),
+            startY: 34, styles: { fontSize: 8.5, cellPadding: 2.5 },
+            headStyles: { fillColor: [30, 41, 59], textColor: [226, 232, 240], fontStyle: 'bold' },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+          });
 
-      // ==================== GOOGLE SHEETS ====================
-      function exportToGoogleSheets(type) {
-        if (type === 'inventory') exportInventoryCSV();
-        else exportSalesCSV();
-        setTimeout(function() {
-          window.open('https://sheets.new', '_blank');
-          showToast('CSV downloaded! In Google Sheets: File > Import > Upload your CSV.', 'info');
-        }, 700);
-      }
+          if (db.customers.length) {
+            doc.addPage(); buildPDFHeader(doc, 'Customers');
+            doc.autoTable({
+              head: [['Name', 'Phone', 'Email', 'Address', 'Total Spent', 'Loyalty Pts']],
+              body: db.customers.map(function (cu) { return [cu.name, cu.phone || '-', cu.email || '-', cu.address || '-', '$' + Number(cu.totalSpent || 0).toFixed(2), cu.loyaltyPoints || 0]; }),
+              startY: 34, styles: { fontSize: 8.5, cellPadding: 2.5 },
+              headStyles: { fillColor: [30, 41, 59], textColor: [226, 232, 240], fontStyle: 'bold' },
+              alternateRowStyles: { fillColor: [248, 250, 252] },
+            });
+          }
 
-      // ==================== DATA MANAGEMENT ====================
-      function exportFullBackup() {
-        const db = getDB();
-        const backup = Object.assign({}, db, { exportedAt: new Date().toISOString(), version: '2.0' });
-        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href = url; a.download = 'partscommand-backup-' + new Date().toISOString().split('T')[0] + '.json'; a.click();
-        URL.revokeObjectURL(url);
-        showToast('Full backup downloaded', 'success');
-      }
+          doc.save('full-report-' + new Date().toISOString().split('T')[0] + '.pdf');
+          showToast('Full report PDF downloaded', 'success');
+        } catch (err) { console.error(err); showToast('PDF failed - see console', 'danger'); }
+      }, 80);
+    }
 
-      function importBackup(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          try {
-            const data = JSON.parse(e.target.result);
-            if (!data.inventory && !data.customers) { showToast('Invalid backup file', 'danger'); return; }
-            if (!confirm('Replace ALL current local data with this backup?')) return;
-            const clean = {
-              inventory:      data.inventory      || [],
-              customers:      data.customers      || [],
-              vehicles:       data.vehicles       || [],
-              sales:          data.sales          || [],
-              retailerPrices: data.retailerPrices || [],
-              auditLogs:      data.auditLogs      || []
-            };
-            windowDB = clean;
-            localStorage.setItem(DB_KEY, JSON.stringify(clean));
-            showToast('Backup restored - reloading dashboard', 'success');
-            setTimeout(function() { navigate('dashboard'); }, 800);
-          } catch(e2) { showToast('Failed to parse backup file', 'danger'); }
-        };
-        reader.readAsText(file);
-      }
+    // ==================== EXPORT - CSV ====================
+    function csvRow(arr) {
+      return arr.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
+    }
+    function downloadCSV(filename, content) {
+      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
 
-      function clearAuditLogs() {
-        if (!confirm('Clear all audit logs? This cannot be undone.')) return;
-        const db = getDB(); db.auditLogs = [];
-        saveDB(db);
-        showToast('Audit logs cleared', 'success');
-        navigate('settings');
-      }
+    function exportInventoryCSV() {
+      const db = getDB();
+      if (!db.inventory.length) { showToast('No inventory to export', 'warning'); return; }
+      var csv = csvRow(['Part Number', 'Name', 'Category', 'Brand', 'Supplier', 'Cost', 'Price', 'Stock', 'Min Stock', 'Location', 'Barcode', 'Added Date', 'Last Updated']) + '\n';
+      db.inventory.forEach(function (i) {
+        csv += csvRow([i.partNumber, i.name, i.category, i.brand, i.supplier, i.cost, i.price, i.stock, i.minStock, i.location, i.barcode, i.addedDate, i.lastUpdated]) + '\n';
+      });
+      downloadCSV('inventory-' + new Date().toISOString().split('T')[0] + '.csv', csv);
+      showToast('Inventory CSV downloaded', 'success');
+    }
 
-      function forceSyncCloud() {
-        showToast('Syncing to cloud...', 'info');
-        const db = getDB();
-        fetch(API_URL + '/sync', {
-          method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(db)
-        }).then(function(r) {
-          if (r.ok) showToast('Cloud sync complete', 'success');
-          else showToast('Sync failed', 'danger');
-        }).catch(function() { showToast('Cloud unreachable - data safe locally', 'warning'); });
-      }
+    function exportCustomersCSV() {
+      const db = getDB();
+      if (!db.customers.length) { showToast('No customers to export', 'warning'); return; }
+      var csv = csvRow(['ID', 'Name', 'Phone', 'Email', 'Address', 'Notes', 'Total Spent', 'Loyalty Points']) + '\n';
+      db.customers.forEach(function (c) {
+        csv += csvRow([c.id, c.name, c.phone, c.email, c.address, c.notes, c.totalSpent, c.loyaltyPoints]) + '\n';
+      });
+      downloadCSV('customers-' + new Date().toISOString().split('T')[0] + '.csv', csv);
+      showToast('Customers CSV downloaded', 'success');
+    }
 
-      function confirmResetAllData() {
-        if (!confirm('WARNING: This permanently deletes ALL local data.\n\nInventory, customers, vehicles, sales, and logs will all be erased. Continue?')) return;
-        const code = prompt('Type RESET to confirm factory reset:');
-        if (code !== 'RESET') { showToast('Reset cancelled', 'info'); return; }
-        windowDB = null;
-        localStorage.removeItem(DB_KEY);
-        showToast('All data cleared. Reloading...', 'warning');
-        setTimeout(function() { location.reload(); }, 1400);
-      }
+    function exportSalesCSV() {
+      const db = getDB();
+      if (!db.sales.length) { showToast('No sales to export', 'warning'); return; }
+      var csv = csvRow(['Sale ID', 'Date', 'Customer', 'Vehicle', 'Status', 'Line Items', 'Labor Hrs', 'Labor Rate', 'Subtotal', 'Tax', 'Total', 'Margin %']) + '\n';
+      db.sales.forEach(function (s) {
+        var cu = db.customers.find(function (c) { return c.id === s.customerId; });
+        var vh = db.vehicles.find(function (v) { return v.id === s.vehicleId; });
+        csv += csvRow([s.id, s.date, cu ? cu.name : 'Unknown', vh ? vh.year + ' ' + vh.make + ' ' + vh.model : '-', s.status, s.lineItems.length, s.laborHours, s.laborRate, s.subtotal, s.tax, s.total, s.margin]) + '\n';
+      });
+      downloadCSV('sales-' + new Date().toISOString().split('T')[0] + '.csv', csv);
+      showToast('Sales CSV downloaded', 'success');
+    }
 
-      // Close modal on overlay click
+    // ==================== GOOGLE SHEETS ====================
+    function exportToGoogleSheets(type) {
+      if (type === 'inventory') exportInventoryCSV();
+      else exportSalesCSV();
+      setTimeout(function () {
+        window.open('https://sheets.new', '_blank');
+        showToast('CSV downloaded! In Google Sheets: File > Import > Upload your CSV.', 'info');
+      }, 700);
+    }
+
+    // ==================== DATA MANAGEMENT ====================
+    function exportFullBackup() {
+      const db = getDB();
+      const backup = Object.assign({}, db, { exportedAt: new Date().toISOString(), version: '2.0' });
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'partscommand-backup-' + new Date().toISOString().split('T')[0] + '.json'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('Full backup downloaded', 'success');
+    }
+
+    function importBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.inventory && !data.customers) { showToast('Invalid backup file', 'danger'); return; }
+          if (!confirm('Replace ALL current local data with this backup?')) return;
+          const clean = {
+            inventory: data.inventory || [],
+            customers: data.customers || [],
+            vehicles: data.vehicles || [],
+            sales: data.sales || [],
+            retailerPrices: data.retailerPrices || [],
+            auditLogs: data.auditLogs || []
+          };
+          windowDB = clean;
+          localStorage.setItem(DB_KEY, JSON.stringify(clean));
+          showToast('Backup restored - reloading dashboard', 'success');
+          setTimeout(function () { navigate('dashboard'); }, 800);
+        } catch (e2) { showToast('Failed to parse backup file', 'danger'); }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearAuditLogs() {
+      if (!confirm('Clear all audit logs? This cannot be undone.')) return;
+      const db = getDB(); db.auditLogs = [];
+      saveDB(db);
+      showToast('Audit logs cleared', 'success');
+      navigate('settings');
+    }
+
+    function forceSyncCloud() {
+      showToast('Syncing to cloud...', 'info');
+      const db = getDB();
+      fetch(API_URL + '/sync', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(db)
+      }).then(function (r) {
+        if (r.ok) showToast('Cloud sync complete', 'success');
+        else showToast('Sync failed', 'danger');
+      }).catch(function () { showToast('Cloud unreachable - data safe locally', 'warning'); });
+    }
+
+    function confirmResetAllData() {
+      if (!confirm('WARNING: This permanently deletes ALL local data.\n\nInventory, customers, vehicles, sales, and logs will all be erased. Continue?')) return;
+      const code = prompt('Type RESET to confirm factory reset:');
+      if (code !== 'RESET') { showToast('Reset cancelled', 'info'); return; }
+      windowDB = null;
+      localStorage.removeItem(DB_KEY);
+      showToast('All data cleared. Reloading...', 'warning');
+      setTimeout(function () { location.reload(); }, 1400);
+    }
+
+    // Close modal on overlay click
     document.getElementById('modalContainer').addEventListener('click', function (e) {
       if (e.target === this) closeModal();
     });
