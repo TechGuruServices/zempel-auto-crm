@@ -1,4 +1,4 @@
-/**
+  /**
  * ============================================================
  * PartsCommand CRM — Cloudflare Worker (Full API)
  * ============================================================
@@ -54,32 +54,21 @@ export default {
   }
 };
 
+import { neon } from '@neondatabase/serverless';
+
 // ============================================================
-// Neon Postgres helper (uses fetch-based @neondatabase/serverless)
+// Neon Postgres helper (uses @neondatabase/serverless)
 // ============================================================
 async function query(env, sql, params = []) {
   if (!env.DATABASE_URL) throw new Error('DATABASE_URL not configured');
 
-  // Neon serverless HTTP API — works natively in Cloudflare Workers
-  const dbUrl = new URL(env.DATABASE_URL);
-  const endpoint = `${dbUrl.protocol}//${dbUrl.host}/query`;
-
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${dbUrl.password}`,
-      'Neon-Connection-String': env.DATABASE_URL
-    },
-    body: JSON.stringify({ query: sql, params })
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`DB query failed: ${res.status} — ${text}`);
-  }
-
-  return res.json();
+  const sqlClient = neon(env.DATABASE_URL);
+  
+  // Executing the query using the official library
+  const result = await sqlClient.query(sql, params);
+  
+  // existing code expects { rows: [...] }
+  return { rows: result };
 }
 
 // ============================================================
@@ -317,43 +306,44 @@ async function scrapeAdvanceAuto(partNumber, brand) {
 // Schema bootstrap — idempotent, runs on first request
 // ============================================================
 async function ensureSchema(env) {
-  const ddl = `
-    CREATE TABLE IF NOT EXISTS inventory (
+  const tables = [
+    `CREATE TABLE IF NOT EXISTS inventory (
       id          TEXT PRIMARY KEY,
       data        JSONB NOT NULL,
       created_at  TIMESTAMPTZ DEFAULT NOW(),
       updated_at  TIMESTAMPTZ DEFAULT NOW()
-    );
-    CREATE TABLE IF NOT EXISTS customers (
+    )`,
+    `CREATE TABLE IF NOT EXISTS customers (
       id          TEXT PRIMARY KEY,
       data        JSONB NOT NULL,
       created_at  TIMESTAMPTZ DEFAULT NOW(),
       updated_at  TIMESTAMPTZ DEFAULT NOW()
-    );
-    CREATE TABLE IF NOT EXISTS vehicles (
+    )`,
+    `CREATE TABLE IF NOT EXISTS vehicles (
       id          TEXT PRIMARY KEY,
       data        JSONB NOT NULL,
       created_at  TIMESTAMPTZ DEFAULT NOW(),
       updated_at  TIMESTAMPTZ DEFAULT NOW()
-    );
-    CREATE TABLE IF NOT EXISTS sales (
+    )`,
+    `CREATE TABLE IF NOT EXISTS sales (
       id          TEXT PRIMARY KEY,
       data        JSONB NOT NULL,
       created_at  TIMESTAMPTZ DEFAULT NOW(),
       updated_at  TIMESTAMPTZ DEFAULT NOW()
-    );
-    CREATE TABLE IF NOT EXISTS retailer_prices (
+    )`,
+    `CREATE TABLE IF NOT EXISTS retailer_prices (
       part_number TEXT PRIMARY KEY,
       data        JSONB NOT NULL,
       fetched_at  TIMESTAMPTZ DEFAULT NOW()
-    );
-    CREATE TABLE IF NOT EXISTS audit_logs (
+    )`,
+    `CREATE TABLE IF NOT EXISTS audit_logs (
       id          TEXT PRIMARY KEY,
       data        JSONB NOT NULL,
       created_at  TIMESTAMPTZ DEFAULT NOW()
-    );
-  `;
-  await query(env, ddl);
+    )`
+  ];
+  
+  await Promise.all(tables.map(t => query(env, t)));
 }
 
 // ── JSON helper ───────────────────────────────────────────────────────────────
