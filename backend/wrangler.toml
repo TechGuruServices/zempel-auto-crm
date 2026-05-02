@@ -26,9 +26,7 @@ ENVIRONMENT = "production"
 # Neon DATABASE_URL — set via: wrangler secret put DATABASE_URL
 # Never hardcode credentials here.
 
-[[routes]]
-pattern = "parts-command-api.techguruofficial.workers.dev/*"
-zone_name = "techguruofficial.workers.dev"
+workers_dev = true
 
 [observability]
 enabled = true
