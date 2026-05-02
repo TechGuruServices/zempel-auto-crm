@@ -2,8 +2,7 @@
   <img src="https://i.imgur.com/tuBAEOR.png" alt="Zempel Auto — PartsCommand CRM" width="360" />
 </p>
 
-<h2> align="center">
-  ZEMPEL AUTO  |  Auto Parts +  CMR</h2>
+<h2>ZEMPEL AUTO  |  Auto Parts +  CMR</h2>
 </p align="center">
   <strong>The all-in-one auto parts inventory, customer, and sales management platform built for speed.</strong>
 </p>
