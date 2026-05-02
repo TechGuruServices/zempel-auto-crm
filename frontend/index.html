@@ -482,6 +482,30 @@
     pre {
       font-family: var(--font-mono);
     }
+
+    .animated-techguru {
+      background: linear-gradient(
+        to right,
+        #1e3a8a,
+        #581c87,
+        #db2777,
+        #ea580c,
+        #16a34a,
+        #dc2626,
+        #1e3a8a
+      );
+      background-size: 300% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+      animation: gradient-text-anim 4s ease infinite;
+    }
+    @keyframes gradient-text-anim {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
   </style>
 
   <script>
@@ -3719,6 +3743,7 @@
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">License</span><span class="text-white">Proprietary</span></div>
             </div>
             <p class="text-xs text-slate-500 text-center mt-5">2026 Zempel Auto. All rights reserved.</p>
+            <p class="text-sm text-center mt-2 font-bold uppercase tracking-widest animated-techguru">Powered by TECHGURU</p>
           </div>
 
         </div>
