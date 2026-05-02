@@ -248,9 +248,10 @@ This is a private project for **Zempel Auto**. If you've been granted access:
 
 **Proprietary** — © 2026 Zempel Auto. All rights reserved.
 
-
+<p align="center">
 ## Powered by TECHGURU ##
-<br> ** LINK: https://techguruofficial.uS **
+<br> LINK:https://techguruofficial.us
+  
 ---
 
 <p align="center">
