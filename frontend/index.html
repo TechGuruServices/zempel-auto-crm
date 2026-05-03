@@ -782,23 +782,31 @@
 
     function saveDB(data) {
       windowDB = JSON.parse(JSON.stringify(data));
-      try {
-        localStorage.setItem(DB_KEY, JSON.stringify(data));
-      } catch (e) {
-        console.error("Save error", e);
-      }
 
-      // Sync to cloud only in production (avoids ERR_FAILED noise in dev)
+      // Cache locally for fast reads & offline fallback
+      try { localStorage.setItem(DB_KEY, JSON.stringify(data)); } catch (e) { }
+
+      // ── DATABASE IS THE SOURCE OF TRUTH ──
+      // Cloud sync is mandatory — notify user on failure so they can retry
       if (IS_PROD && navigator.onLine) {
         const _c2 = new AbortController();
-        setTimeout(() => _c2.abort(), 5000);
+        setTimeout(() => _c2.abort(), 8000);
         fetch(`${API_URL}/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
           signal: _c2.signal
-        }).catch(() => { }); // localStorage is source of truth; ignore cloud failures
+        }).then(res => {
+          if (!res.ok) {
+            console.error('[saveDB] Cloud sync failed:', res.status);
+            showToast('⚠️ Data failed to save to cloud — please retry', 'warning');
+          }
+        }).catch(err => {
+          console.error('[saveDB] Cloud sync error:', err);
+          showToast('⚠️ Offline — changes saved locally, will sync when back online', 'warning');
+        });
       }
+
       if (typeof updateNotificationBadge === 'function') {
         updateNotificationBadge();
       }
@@ -4111,13 +4119,13 @@
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', async () => {
       initTheme();
-      // 1. First render with whatever is in localStorage or defaults (fast visual load)
+      // 1. Instant render from localStorage/defaults (fast visual load)
       renderDashboard(document.getElementById('mainContent'));
 
       if (IS_PROD) try {
-        // 2. Fetch fresh data from Neon Postgres Database via Cloudflare Worker
+        // 2. Fetch authoritative data from Neon Postgres (DATABASE IS SOURCE OF TRUTH)
         const _ctrl = new AbortController();
-        const _tid = setTimeout(() => _ctrl.abort(), 4000);
+        const _tid = setTimeout(() => _ctrl.abort(), 8000);
         let response;
         try { response = await fetch(`${API_URL}/sync`, { signal: _ctrl.signal }); } finally { clearTimeout(_tid); }
         if (!response) throw new Error('Worker unreachable');
@@ -4138,15 +4146,14 @@
             });
           }
 
-          // Only overwrite if cloud has data to avoid wiping local dev data on first run empty db
-          if (cloudData.inventory?.length > 0 || cloudData.customers?.length > 0) {
-            windowDB = Object.assign(getDB(), cloudData);
-            localStorage.setItem(DB_KEY, JSON.stringify(windowDB));
-            renderView(); // re-render with fresh cloud data
-          }
+          // DB is the source of truth — always use cloud data when available
+          windowDB = Object.assign({}, defaultData, cloudData);
+          localStorage.setItem(DB_KEY, JSON.stringify(windowDB));
+          renderView(); // re-render with authoritative cloud data
         }
       } catch (err) {
-        console.error("Cloud DB connection failed, using local storage", err);
+        console.warn('[Init] Cloud DB unavailable, using local cache as fallback', err);
+        showToast('⚠️ Could not reach database — showing cached data', 'warning');
       }
 
       // Check for low stock alerts on load
