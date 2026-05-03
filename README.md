@@ -1,8 +1,7 @@
 <div align="center">
 
-<img src="frontend/assets/z-auto-7.PNG" alt="Zempel Auto Logo" width="220" />
-
-# ⚙️ ZEMPEL AUTO — Parts Command CRM
+<img src="frontend/assets/z-auto-7.PNG" alt="Zempel Auto Logo" width="300"/>
+<h2>⚙️Parts Command CRM</h2>
 
 ### Enterprise-Grade Auto Parts Inventory & Customer Management Platform
 
