@@ -490,16 +490,14 @@
     }
 
     .animated-techguru {
-      background: linear-gradient(
-        to right,
-        #1e3a8a,
-        #581c87,
-        #db2777,
-        #ea580c,
-        #16a34a,
-        #dc2626,
-        #1e3a8a
-      );
+      background: linear-gradient(to right,
+          #1e3a8a,
+          #581c87,
+          #db2777,
+          #ea580c,
+          #16a34a,
+          #dc2626,
+          #1e3a8a);
       background-size: 300% 100%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -507,10 +505,19 @@
       color: transparent;
       animation: gradient-text-anim 6s ease infinite;
     }
+
     @keyframes gradient-text-anim {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
     }
   </style>
 
@@ -538,8 +545,8 @@
     <aside id="sidebar" class="hidden lg:flex flex-col w-64 bg-slate-900 border-r border-slate-800 flex-shrink-0">
       <div class="px-5 py-4 border-b border-slate-800 text-center">
         <a href="#" onclick="navigate('dashboard')" title="Zempel Auto – PartsCommand CRM" class="inline-block">
-          <img src="https://i.imgur.com/1ayLL0S.png" alt="Zempel Auto logo" class="brand-logo"
-            loading="eager" decoding="sync" />
+          <img src="https://i.imgur.com/1ayLL0S.png" alt="Zempel Auto logo" class="brand-logo" loading="eager"
+            decoding="sync" />
         </a>
         <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
         </p>
@@ -676,12 +683,13 @@
   <!-- Mobile Nav Overlay -->
   <div id="mobileNavOverlay" class="hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
     onclick="toggleMobileNav()">
-    <div class="w-72 h-full bg-slate-900 border-r border-slate-800 flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+    <div class="w-72 h-full bg-slate-900 border-r border-slate-800 flex flex-col overflow-hidden"
+      onclick="event.stopPropagation()">
       <div class="px-4 pt-4 pb-2 text-center flex-shrink-0">
         <a href="#" onclick="navigate('dashboard');toggleMobileNav()" title="Zempel Auto – PartsCommand CRM"
           class="inline-block">
-          <img src="https://i.imgur.com/1ayLL0S.png" alt="Zempel Auto logo" class="brand-logo-overlay"
-            loading="eager" decoding="sync" />
+          <img src="https://i.imgur.com/1ayLL0S.png" alt="Zempel Auto logo" class="brand-logo-overlay" loading="eager"
+            decoding="sync" />
         </a>
         <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
         </p>
@@ -726,7 +734,9 @@
       </nav>
       <div class="px-4 py-3 border-t border-slate-800 flex-shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">ZA</div>
+          <div
+            class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">
+            ZA</div>
           <div>
             <p class="text-sm font-medium text-white">Zempel Auto</p>
             <p class="text-[10px] text-slate-400">Admin</p>
@@ -1269,9 +1279,9 @@
     function handlePartPhotoUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-      
+
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         document.getElementById('partPhotoPreview').src = e.target.result;
         document.getElementById('addPartPhotoUrl').value = e.target.result;
         document.getElementById('partPhotoPreviewContainer').classList.remove('hidden');
@@ -1289,9 +1299,9 @@
     function handleEditPartPhotoUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-      
+
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         document.getElementById('editPartPhotoPreview').src = e.target.result;
         document.getElementById('editPartPhotoUrl').value = e.target.result;
         document.getElementById('editPartPhotoPreviewContainer').classList.remove('hidden');
@@ -1307,24 +1317,36 @@
     }
 
     async function fetchPriceInfoFromBarcode(barcode) {
+      if (!barcode) return;
       showToast('Fetching product info & pricing...', 'info');
       try {
-        const res = await fetch(`${API_URL}/prices?partNumber=${encodeURIComponent(barcode)}&brand=`, { signal: AbortSignal.timeout(8000) });
+        const res = await fetch(`${API_URL}/prices?partNumber=${encodeURIComponent(barcode)}&brand=`, { signal: AbortSignal.timeout(10000) });
         if (res.ok) {
-          const prices = await res.json();
-          showToast('Pricing data fetched!', 'success');
-          if (prices.autozone || prices.napa || prices.advance) {
-            const lowest = Math.min(...[prices.autozone, prices.napa, prices.advance].filter(p => p !== null));
-            if (lowest && lowest !== Infinity) {
+          const data = await res.json();
+          showToast('Product info fetched!', 'success');
+          
+          // Autofill Part Name if available
+          if (data.name) {
+            const nameInput = document.querySelector('input[name="name"]');
+            if (nameInput && (!nameInput.value || nameInput.value.trim() === "")) {
+              nameInput.value = data.name;
+            }
+          }
+
+          // Autofill Price (10% discount off best competitor price)
+          if (data.autozone || data.napa || data.advance) {
+            const prices = [data.autozone, data.napa, data.advance].filter(p => p !== null && p > 0);
+            if (prices.length > 0) {
+              const lowest = Math.min(...prices);
               const priceInput = document.querySelector('input[name="price"]');
-              if (priceInput && !priceInput.value) {
-                priceInput.value = (lowest * 0.9).toFixed(2); // Auto-fill 10% under
+              if (priceInput && (!priceInput.value || priceInput.value == 0)) {
+                priceInput.value = (lowest * 0.9).toFixed(2);
               }
             }
           }
         }
       } catch (e) {
-        // Silently fail if price fetch doesn't work, user can enter manually
+        console.error('[fetchPriceInfoFromBarcode] error:', e);
       }
     }
 
@@ -1658,7 +1680,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-xs text-slate-400 mb-1 block">Part Number *</label>
-            <input type="text" name="partNumber" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., BP-7842">
+            <input type="text" name="partNumber" value="${barcode}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., BP-7842">
           </div>
           <div>
             <label class="text-xs text-slate-400 mb-1 block">Barcode</label>
@@ -1749,6 +1771,9 @@
       </form>
     </div>
   `;
+      if (barcode) {
+        setTimeout(() => fetchPriceInfoFromBarcode(barcode), 100);
+      }
     }
 
     function saveNewPart(e) {

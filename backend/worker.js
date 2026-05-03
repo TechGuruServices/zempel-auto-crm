@@ -211,11 +211,19 @@ async function handlePriceLookup(request, url, corsHeaders) {
     scrapeAdvanceAuto(partNumber, brand),
   ]);
 
+  const napa = results[0].status === 'fulfilled' ? results[0].value : null;
+  const autozone = results[1].status === 'fulfilled' ? results[1].value : null;
+  const advance = results[2].status === 'fulfilled' ? results[2].value : null;
+
+  // Extract the best name available from any of the scrapers
+  const bestName = napa?.name || autozone?.name || advance?.name || null;
+
   const prices = {
     partNumber,
-    napa:      results[0].status === 'fulfilled' ? results[0].value : null,
-    autozone:  results[1].status === 'fulfilled' ? results[1].value : null,
-    advance:   results[2].status === 'fulfilled' ? results[2].value : null,
+    name: bestName,
+    napa:      napa?.price || null,
+    autozone:  autozone?.price || null,
+    advance:   advance?.price || null,
     rockauto:  null,
     oreilly:   null,
     carquest:  null,
@@ -243,10 +251,15 @@ async function scrapeNapa(partNumber, brand) {
     });
     if (!res.ok) return null;
     const html = await res.text();
+
+    const nameMatch = html.match(/"name"\s*:\s*"([^"]+)"/);
     const jsonLdMatch = html.match(/"price"\s*:\s*"?([\d.]+)"?/);
-    if (jsonLdMatch) return parseFloat(jsonLdMatch[1]);
     const priceMatch = html.match(/\$\s*([\d,]+\.[\d]{2})/);
-    return priceMatch ? parseFloat(priceMatch[1].replace(',', '')) : null;
+
+    return {
+      price: jsonLdMatch ? parseFloat(jsonLdMatch[1]) : (priceMatch ? parseFloat(priceMatch[1].replace(',', '')) : null),
+      name: nameMatch ? nameMatch[1] : null
+    };
   } catch {
     return null;
   }
@@ -264,6 +277,10 @@ async function scrapeAutozone(partNumber, brand) {
     });
     if (!res.ok) return null;
     const html = await res.text();
+
+    let price = null;
+    let name = null;
+
     const nextDataMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
     if (nextDataMatch) {
       try {
@@ -271,13 +288,18 @@ async function scrapeAutozone(partNumber, brand) {
         const products = data?.props?.pageProps?.products ||
                          data?.props?.pageProps?.initialData?.products || [];
         if (products.length > 0) {
-          const price = products[0]?.pricing?.finalPrice || products[0]?.price;
-          if (price) return parseFloat(price);
+          price = parseFloat(products[0]?.pricing?.finalPrice || products[0]?.price);
+          name = products[0]?.name || products[0]?.title;
         }
       } catch { }
     }
-    const priceMatch = html.match(/data-testid="price"[^>]*>\$?([\d.]+)/);
-    return priceMatch ? parseFloat(priceMatch[1]) : null;
+
+    if (!price) {
+      const priceMatch = html.match(/data-testid="price"[^>]*>\$?([\d.]+)/);
+      price = priceMatch ? parseFloat(priceMatch[1]) : null;
+    }
+
+    return { price, name };
   } catch {
     return null;
   }
@@ -295,12 +317,19 @@ async function scrapeAdvanceAuto(partNumber, brand) {
     });
     if (!res.ok) return null;
     const html = await res.text();
+
     const priceMatch = html.match(/"salePrice"\s*:\s*([\d.]+)/);
-    return priceMatch ? parseFloat(priceMatch[1]) : null;
+    const nameMatch = html.match(/"name"\s*:\s*"([^"]+)"/);
+
+    return {
+      price: priceMatch ? parseFloat(priceMatch[1]) : null,
+      name: nameMatch ? nameMatch[1] : null
+    };
   } catch {
     return null;
   }
 }
+
 
 // ============================================================
 // Schema bootstrap — idempotent, runs on first request
