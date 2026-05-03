@@ -451,10 +451,11 @@ Unauthorized copying, distribution, or modification of this software is strictly
 <br><br>
 
 <!-- Animated Gradient TECHGURU Footer -->
-<https://techguruofficial.us>
 <br>
 <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=900&size=28&duration=3000&pause=1000&color=0EA5E9&center=true&vCenter=true&multiline=false&width=500&height=45&lines=Powered+by+TECHGURU" alt="Powered by TECHGURU" />
 <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=2,3,12,19,27&height=100&section=footer" width="100%" alt="" />
+
+<https://techguruofficial.us>
 <br>
 
 <picture>
