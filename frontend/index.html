@@ -676,8 +676,8 @@
   <!-- Mobile Nav Overlay -->
   <div id="mobileNavOverlay" class="hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
     onclick="toggleMobileNav()">
-    <div class="w-72 h-full bg-slate-900 border-r border-slate-800 p-4" onclick="event.stopPropagation()">
-      <div class="mb-6 text-center">
+    <div class="w-72 h-full bg-slate-900 border-r border-slate-800 flex flex-col overflow-hidden" onclick="event.stopPropagation()">
+      <div class="px-4 pt-4 pb-2 text-center flex-shrink-0">
         <a href="#" onclick="navigate('dashboard');toggleMobileNav()" title="Zempel Auto – PartsCommand CRM"
           class="inline-block">
           <img src="https://i.imgur.com/1ayLL0S.png" alt="Zempel Auto logo" class="brand-logo-overlay"
@@ -686,7 +686,8 @@
         <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
         </p>
       </div>
-      <nav>
+      <nav class="flex-1 overflow-y-auto px-3 pb-6">
+        <div class="px-1 mb-2 mt-2 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Main</div>
         <a href="#" onclick="navigate('dashboard');toggleMobileNav()"
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-squares-four text-lg"></i> Dashboard
@@ -703,6 +704,7 @@
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-car text-lg"></i> Vehicles
         </a>
+        <div class="px-1 mb-2 mt-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Operations</div>
         <a href="#" onclick="navigate('sales');toggleMobileNav()"
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-receipt text-lg"></i> Sales & Estimates
@@ -711,11 +713,26 @@
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-arrows-left-right text-lg"></i> Price Comparison
         </a>
+        <div class="px-1 mb-2 mt-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Logs</div>
         <a href="#" onclick="navigate('audit');toggleMobileNav()"
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-clock-counter-clockwise text-lg"></i> Audit Logs
         </a>
+        <div class="px-1 mb-2 mt-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">System</div>
+        <a href="#" onclick="navigate('settings');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-gear text-lg"></i> Settings
+        </a>
       </nav>
+      <div class="px-4 py-3 border-t border-slate-800 flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">ZA</div>
+          <div>
+            <p class="text-sm font-medium text-white">Zempel Auto</p>
+            <p class="text-[10px] text-slate-400">Admin</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
