@@ -5,13 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Zempel Auto CRM</title>
-  <link rel="icon" type="image/png" href="https://i.imgur.com/1ayLL0S.png">
+  <link rel="icon" type="image/png" href="assets/favicon-cropped.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3b82f6">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PartsCommand">
-  <link rel="apple-touch-icon" href="https://i.imgur.com/1ayLL0S.png">
+  <link rel="apple-touch-icon" href="assets/z-auto-7.PNG">
   <meta name="description"
     content="PartsCommand CRM — Auto parts inventory, customer, and sales management for Zempel Auto.">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -1219,6 +1219,10 @@
         config,
         (decodedText) => {
           document.getElementById('addPartBarcode').value = decodedText;
+          const partNumInput = document.querySelector('input[name="partNumber"]');
+          if (partNumInput && !partNumInput.value) {
+            partNumInput.value = decodedText; // Auto-populate part number
+          }
           const statusEl = document.getElementById('add-part-scan-status');
           if (statusEl) {
             statusEl.textContent = `✓ Scanned: ${decodedText}`;
@@ -1226,6 +1230,7 @@
           }
           setTimeout(() => {
             toggleAddPartScanner();
+            fetchPriceInfoFromBarcode(decodedText);
           }, 800);
         },
         (errorMessage) => { }
@@ -1242,6 +1247,68 @@
           statusEl.className = 'absolute bottom-2 left-0 right-0 text-center text-xs text-red-400 bg-black/70 py-1';
         }
       });
+    }
+
+    function handlePartPhotoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('partPhotoPreview').src = e.target.result;
+        document.getElementById('addPartPhotoUrl').value = e.target.result;
+        document.getElementById('partPhotoPreviewContainer').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearPartPhoto() {
+      document.getElementById('addPartPhoto').value = '';
+      document.getElementById('partPhotoPreview').src = '';
+      document.getElementById('addPartPhotoUrl').value = '';
+      document.getElementById('partPhotoPreviewContainer').classList.add('hidden');
+    }
+
+    function handleEditPartPhotoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('editPartPhotoPreview').src = e.target.result;
+        document.getElementById('editPartPhotoUrl').value = e.target.result;
+        document.getElementById('editPartPhotoPreviewContainer').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearEditPartPhoto() {
+      document.getElementById('editPartPhoto').value = '';
+      document.getElementById('editPartPhotoPreview').src = '';
+      document.getElementById('editPartPhotoUrl').value = '';
+      document.getElementById('editPartPhotoPreviewContainer').classList.add('hidden');
+    }
+
+    async function fetchPriceInfoFromBarcode(barcode) {
+      showToast('Fetching product info & pricing...', 'info');
+      try {
+        const res = await fetch(`${API_URL}/prices?partNumber=${encodeURIComponent(barcode)}&brand=`, { signal: AbortSignal.timeout(8000) });
+        if (res.ok) {
+          const prices = await res.json();
+          showToast('Pricing data fetched!', 'success');
+          if (prices.autozone || prices.napa || prices.advance) {
+            const lowest = Math.min(...[prices.autozone, prices.napa, prices.advance].filter(p => p !== null));
+            if (lowest && lowest !== Infinity) {
+              const priceInput = document.querySelector('input[name="price"]');
+              if (priceInput && !priceInput.value) {
+                priceInput.value = (lowest * 0.9).toFixed(2); // Auto-fill 10% under
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // Silently fail if price fetch doesn't work, user can enter manually
+      }
     }
 
     function stopAddPartScanner() {
@@ -1426,6 +1493,12 @@
         <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
+      ${part.photoUrl ? `
+      <div class="mb-5 rounded-xl overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center relative">
+        <img src="${part.photoUrl}" class="max-w-full max-h-[300px] object-contain">
+      </div>
+      ` : ''}
+
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
         <div class="glass-card rounded-lg p-3 text-center">
           <p class="text-xs text-slate-400 mb-1">Stock</p>
@@ -1604,6 +1677,20 @@
             <input type="text" name="brand" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="e.g., Wagner">
           </div>
         </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Part Photo</label>
+          <div class="flex gap-2">
+            <input type="file" id="addPartPhoto" accept="image/*" capture="environment" class="hidden" onchange="handlePartPhotoUpload(event)">
+            <button type="button" onclick="document.getElementById('addPartPhoto').click()" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white flex justify-center items-center gap-2">
+              <i class="ph-bold ph-camera"></i> Capture Photo
+            </button>
+          </div>
+          <div id="partPhotoPreviewContainer" class="hidden mt-2 rounded-xl overflow-hidden relative border border-slate-700 aspect-video bg-slate-800 flex items-center justify-center">
+              <img id="partPhotoPreview" src="" class="max-w-full max-h-full object-contain">
+              <button type="button" onclick="clearPartPhoto()" class="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1"><i class="ph-bold ph-x"></i></button>
+          </div>
+          <input type="hidden" name="photoUrl" id="addPartPhotoUrl" value="">
+        </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-xs text-slate-400 mb-1 block">Cost *</label>
@@ -1665,6 +1752,7 @@
         minStock: parseInt(data.minStock) || 5,
         location: data.location || 'N/A',
         barcode: data.barcode || '',
+        photoUrl: data.photoUrl || '',
         supplier: data.supplier || 'Other',
         addedDate: new Date().toISOString().split('T')[0],
         lastUpdated: new Date().toISOString().split('T')[0]
@@ -1716,6 +1804,20 @@
         <div>
           <label class="text-xs text-slate-400 mb-1 block">Part Name</label>
           <input type="text" name="name" value="${part.name}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Part Photo</label>
+          <div class="flex gap-2">
+            <input type="file" id="editPartPhoto" accept="image/*" capture="environment" class="hidden" onchange="handleEditPartPhotoUpload(event)">
+            <button type="button" onclick="document.getElementById('editPartPhoto').click()" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white flex justify-center items-center gap-2">
+              <i class="ph-bold ph-camera"></i> Update Photo
+            </button>
+          </div>
+          <div id="editPartPhotoPreviewContainer" class="${part.photoUrl ? '' : 'hidden'} mt-2 rounded-xl overflow-hidden relative border border-slate-700 aspect-video bg-slate-800 flex items-center justify-center">
+              <img id="editPartPhotoPreview" src="${part.photoUrl || ''}" class="max-w-full max-h-full object-contain">
+              <button type="button" onclick="clearEditPartPhoto()" class="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1"><i class="ph-bold ph-x"></i></button>
+          </div>
+          <input type="hidden" name="photoUrl" id="editPartPhotoUrl" value="${part.photoUrl || ''}">
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -1806,6 +1908,7 @@
       part.stock = parseInt(data.stock);
       part.minStock = parseInt(data.minStock) || 5;
       part.location = data.location || 'N/A';
+      part.photoUrl = data.photoUrl || '';
       part.supplier = data.supplier || 'Other';
       part.lastUpdated = new Date().toISOString().split('T')[0];
 

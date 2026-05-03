@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="frontend/assets/z-auto-7.PNG" alt="Zempel Auto Logo" width="220" />
+
 # ⚙️ ZEMPEL AUTO — Parts Command CRM
 
 ### Enterprise-Grade Auto Parts Inventory & Customer Management Platform
@@ -12,10 +14,6 @@
 [![Backend](https://img.shields.io/badge/Backend-Cloudflare%20Workers-f59e0b?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
 [![Database](https://img.shields.io/badge/Database-Neon%20PostgreSQL-3b82f6?style=for-the-badge&logo=postgresql&logoColor=white)](https://neon.tech)
 [![Deploy](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-ff6633?style=for-the-badge&logo=cloudflarepages&logoColor=white)](https://pages.cloudflare.com)
-
-<br>
-
-<img src="frontend/assets/z-auto-8.png" alt="Zempel Auto Logo" width="220" />
 
 <br>
 
