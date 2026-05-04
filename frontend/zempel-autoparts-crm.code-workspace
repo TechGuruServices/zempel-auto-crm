@@ -2,10 +2,10 @@
 	"folders": [
 		{
 			"path": ".."
-		},
-		{
-			"path": "../../../parts-command-api"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"debug.javascript.unmapMissingSources": true,
+		"debug.javascript.autoAttachFilter": "smart"
+	}
 }
