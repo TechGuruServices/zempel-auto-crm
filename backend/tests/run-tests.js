@@ -562,6 +562,52 @@ async function runAllTests() {
 
   console.log('');
 
+  // ── 10. BARCODE SCANNER & UI AUTOMATION ───────────────────
+  console.log('─── 10. Barcode Scanner & UI Automation ──────────────────────');
+
+  await test('AUDIT: Barcode scanner configured for environment camera', async () => {
+    const fs = await import('fs');
+    const html = fs.readFileSync(
+      new URL('../../frontend/index.html', import.meta.url), 'utf8'
+    );
+    assert(html.includes('facingMode: "environment"'), 'Scanner not configured to use rear/environment camera');
+    assert(html.includes('Html5QrcodeSupportedFormats'), 'Missing QR/Barcode format support');
+  });
+
+  await test('AUDIT: Barcode scan triggers auto-fill and price fetching', async () => {
+    const fs = await import('fs');
+    const html = fs.readFileSync(
+      new URL('../../frontend/index.html', import.meta.url), 'utf8'
+    );
+    assert(html.includes('fetchPriceInfoFromBarcode'), 'Missing function to fetch price info from barcode');
+    assert(html.includes('partNumInput.value = decodedText'), 'Does not auto-populate part number on scan');
+  });
+
+  await test('AUDIT: Competitor API dynamically auto-fills price and name', async () => {
+    const fs = await import('fs');
+    const html = fs.readFileSync(
+      new URL('../../frontend/index.html', import.meta.url), 'utf8'
+    );
+    const fetchInfoSection = html.substring(
+      html.indexOf('function fetchPriceInfoFromBarcode'),
+      html.indexOf('function stopAddPartScanner')
+    );
+    assert(fetchInfoSection.includes('nameInput.value = data.name'), 'Does not auto-fill part name from API');
+    assert(fetchInfoSection.includes('lowest * 0.9'), 'Does not calculate competitive price based on lowest competitor');
+    assert(fetchInfoSection.includes('priceInput.value ='), 'Does not auto-fill sell price from API');
+  });
+
+  await test('AUDIT: Image capture uses mobile camera correctly', async () => {
+    const fs = await import('fs');
+    const html = fs.readFileSync(
+      new URL('../../frontend/index.html', import.meta.url), 'utf8'
+    );
+    assert(html.includes('accept="image/*"'), 'Image upload missing accept="image/*" restriction');
+    assert(html.includes('capture="environment"'), 'Image upload missing capture="environment" for direct mobile camera access');
+  });
+
+  console.log('');
+
   // ── CLEANUP ────────────────────────────────────────────────
   console.log('─── Cleanup ─────────────────────────────────────────────────');
 
