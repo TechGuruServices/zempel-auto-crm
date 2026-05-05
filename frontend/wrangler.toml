@@ -1,0 +1,7 @@
+# PartsCommand CRM — Cloudflare Pages Configuration
+name = "zempel-auto-crm-frontend"
+compatibility_date = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# The directory where the build script outputs the site
+pages_build_output_dir = "dist"

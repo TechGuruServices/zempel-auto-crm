@@ -5,15 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Zempel Auto CRM</title>
-  <link rel="icon" type="image/png" href="assets/favicon-cropped.png">
+  <link rel="icon" type="image/png" href="assets/favicon-cropped1.PNG">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#3b82f6">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="PartsCommand">
-  <link rel="apple-touch-icon" href="assets/z-auto-7.PNG">
-  <meta name="description"
-    content="PartsCommand CRM — Auto parts inventory, customer, and sales management for Zempel Auto.">
+  <meta name="apple-mobile-web-app-title" content="Zempel Auto">
+  <link rel="apple-touch-icon" href="assets/favicon-cropped1.PNG">
+  <meta name="description" content="Zempel Auto CRM — Auto parts inventory, customer, and sales management.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
@@ -256,32 +256,43 @@
     /* ---- Logo rendering ---- */
     .brand-logo {
       display: block;
-      max-width: 160px;
-      width: 100%;
+      max-width: min(100%, 160px);
+      width: auto;
       height: auto;
       max-height: 80px;
       margin: 0 auto;
       object-fit: contain;
       object-position: center center;
       image-rendering: -webkit-optimize-contrast;
-      filter: brightness(1.15) contrast(1.1);
-      transform: scale(1.3) translateZ(0);
-      margin: 12px 0;
+      image-rendering: crisp-edges;
+      transform: translateZ(0);
+      margin: 8px 0;
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
     }
 
     .brand-logo-overlay {
       display: block;
-      max-width: 180px;
-      width: 100%;
+      max-width: min(100%, 180px);
+      width: auto;
       height: auto;
       max-height: 90px;
       margin: 0 auto;
       object-fit: contain;
       object-position: center center;
       image-rendering: -webkit-optimize-contrast;
-      filter: brightness(1.15) contrast(1.1);
-      transform: scale(1.3) translateZ(0);
-      margin: 12px 0;
+      image-rendering: crisp-edges;
+      transform: translateZ(0);
+      margin: 10px 0;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+    }
+
+    .header-logo-mobile {
+      height: 32px;
+      width: auto;
+      object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .mobile-nav-safe-bottom {
@@ -528,7 +539,7 @@
         regs.forEach(function (reg) {
           reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, { cache: 'no-store' })
             .then(function (r) { return r.text(); })
-            .then(function (t) { if (!t.includes('partscommand-v2.1')) reg.unregister(); })
+            .then(function (t) { if (!t.includes('partscommand-v2.2')) reg.unregister(); })
             .catch(function () { });
         });
       });
@@ -545,8 +556,7 @@
     <aside id="sidebar" class="hidden lg:flex flex-col w-64 bg-slate-900 border-r border-slate-800 flex-shrink-0">
       <div class="px-5 py-4 border-b border-slate-800 text-center">
         <a href="#" onclick="navigate('dashboard')" title="Zempel Auto – PartsCommand CRM" class="inline-block">
-          <img src="https://i.imgur.com/1ayLL0S.png" alt="Zempel Auto logo" class="brand-logo" loading="eager"
-            decoding="sync" />
+          <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo" loading="eager" decoding="sync" />
         </a>
         <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
         </p>
@@ -620,6 +630,7 @@
             title="Open navigation menu" aria-label="Open navigation menu">
             <i class="ph ph-list text-xl"></i>
           </button>
+          <img src="assets/z-auto-9.jpeg" alt="Logo" class="lg:hidden header-logo-mobile" />
           <div class="relative">
             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
             <input type="text" id="globalSearch" placeholder="Search parts, customers, vehicles..."
@@ -688,7 +699,7 @@
       <div class="px-4 pt-4 pb-2 text-center flex-shrink-0">
         <a href="#" onclick="navigate('dashboard');toggleMobileNav()" title="Zempel Auto – PartsCommand CRM"
           class="inline-block">
-          <img src="https://i.imgur.com/1ayLL0S.png" alt="Zempel Auto logo" class="brand-logo-overlay" loading="eager"
+          <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo-overlay" loading="eager"
             decoding="sync" />
         </a>
         <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
@@ -786,17 +797,42 @@
         }
         windowDB = JSON.parse(stored);
 
-        // Ensure all decimals are parsed back to numbers in case they were saved as strings
+        // Ensure all decimals and numbers are correctly typed to prevent NaN in UI
         if (windowDB.inventory) {
           windowDB.inventory.forEach(item => {
-            item.cost = Number(item.cost || 0);
-            item.price = Number(item.price || 0);
+            item.cost = Number(item.cost) || 0;
+            item.price = Number(item.price) || 0;
+            item.stock = Number(item.stock) || 0;
+            item.minStock = Number(item.minStock) || 0;
           });
         }
         if (windowDB.sales) {
           windowDB.sales.forEach(sale => {
-            sale.total = Number(sale.total || 0);
-            sale.margin = Number(sale.margin || 0);
+            sale.total = Number(sale.total) || 0;
+            sale.margin = Number(sale.margin) || 0;
+            sale.laborHours = Number(sale.laborHours) || 0;
+            if (sale.lineItems) {
+              sale.lineItems.forEach(li => {
+                li.qty = Number(li.qty) || 0;
+                li.unitPrice = Number(li.unitPrice) || 0;
+              });
+            }
+          });
+        }
+        if (windowDB.customers) {
+          windowDB.customers.forEach(cust => {
+            cust.totalSpent = Number(cust.totalSpent) || 0;
+            cust.loyaltyPoints = Number(cust.loyaltyPoints) || 0;
+          });
+        }
+        if (windowDB.vehicles) {
+          windowDB.vehicles.forEach(v => {
+            v.mileage = Number(v.mileage) || 0;
+            if (v.services) {
+              v.services.forEach(s => {
+                s.cost = Number(s.cost) || 0;
+              });
+            }
           });
         }
 
@@ -826,11 +862,13 @@
         }).then(res => {
           if (!res.ok) {
             console.error('[saveDB] Cloud sync failed:', res.status);
-            showToast('⚠️ Data failed to save to cloud — please retry', 'warning');
+            showToast('⚠️ Data failed to save to cloud — try again in Settings', 'warning');
+          } else {
+            console.log('[saveDB] Cloud sync successful');
           }
         }).catch(err => {
           console.error('[saveDB] Cloud sync error:', err);
-          showToast('⚠️ Offline — changes saved locally, will sync when back online', 'warning');
+          showToast('⚠️ Network Error — saved locally, will sync later', 'warning');
         });
       }
 
@@ -933,10 +971,10 @@
     // ==================== DASHBOARD ====================
     function renderDashboard(el) {
       const db = getDB();
-      const totalInventory = db.inventory.reduce((s, i) => s + i.stock, 0);
-      const lowStockItems = db.inventory.filter(i => i.stock <= i.minStock);
-      const totalSales = db.sales.reduce((s, sale) => s + sale.total, 0);
-      const avgMargin = db.sales.length > 0 ? (db.sales.reduce((s, sale) => s + sale.margin, 0) / db.sales.length).toFixed(1) : 0;
+      const totalInventory = db.inventory.reduce((s, i) => s + (Number(i.stock) || 0), 0);
+      const lowStockItems = db.inventory.filter(i => (Number(i.stock) || 0) <= (Number(i.minStock) || 0));
+      const totalSales = db.sales.reduce((s, sale) => s + (Number(sale.total) || 0), 0);
+      const avgMargin = db.sales.length > 0 ? (db.sales.reduce((s, sale) => s + (Number(sale.margin) || 0), 0) / db.sales.length).toFixed(1) : "0.0";
 
       el.innerHTML = `
     <div class="animate-slide-in">
@@ -1078,9 +1116,14 @@
             <option value="low">Low Stock</option>
             <option value="ok">In Stock</option>
           </select>
-          <button onclick="exportInventory()" class="ml-auto glass-input px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-1">
-            <i class="ph ph-download-simple"></i> Export
-          </button>
+          <div class="ml-auto flex gap-2">
+            <button onclick="exportInventoryPDF()" class="glass-input px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-1">
+              <i class="ph ph-file-pdf"></i> PDF
+            </button>
+            <button onclick="exportInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-1" title="Export CSV">
+              <i class="ph ph-file-csv"></i> CSV
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1211,8 +1254,10 @@
       const a = document.createElement('a');
       a.href = url; a.download = 'inventory_export.csv'; a.click();
       URL.revokeObjectURL(url);
-      showToast('Inventory exported successfully', 'success');
+      showToast('Inventory CSV exported successfully', 'success');
     }
+
+
 
     // ==================== BARCODE SCANNER ====================
     let html5QrCode = null;
@@ -1327,7 +1372,7 @@
         if (res.ok) {
           const data = await res.json();
           showToast('Product info fetched!', 'success');
-          
+
           // Autofill Part Name if available
           if (data.name) {
             const nameInput = document.querySelector('input[name="name"]');
@@ -3847,6 +3892,32 @@
                 </div>
                 <i class="ph ph-cloud text-slate-400 group-hover:text-blue-400 transition-colors"></i>
               </button>
+              <label class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-green-500/40 transition-all cursor-pointer group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-csv text-green-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Import Inventory (CSV)</p>
+                    <p class="text-xs text-slate-500">Add parts from a CSV spreadsheet</p>
+                  </div>
+                </div>
+                <i class="ph ph-plus-circle text-slate-400 group-hover:text-green-400 transition-colors"></i>
+                <input type="file" accept=".csv" class="hidden" onchange="importInventoryCSVFile(event)">
+              </label>
+              <label class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-red-500/40 transition-all cursor-pointer group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-file-pdf text-red-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Import Inventory (PDF)</p>
+                    <p class="text-xs text-slate-500">Add parts from a PDF invoice/list</p>
+                  </div>
+                </div>
+                <i class="ph ph-plus-circle text-slate-400 group-hover:text-red-400 transition-colors"></i>
+                <input type="file" accept=".pdf" class="hidden" onchange="importInventoryPDFFile(event)">
+              </label>
               <button onclick="clearAuditLogs()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-amber-500/40 transition-all group">
                 <div class="flex items-center gap-3">
                   <div class="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
@@ -3960,16 +4031,44 @@
       const s = getAppSettings();
       const shopName = s.bizName || 'Zempel Auto';
       const W = doc.internal.pageSize.width;
-      doc.setFillColor(15, 23, 42); doc.rect(0, 0, W, 30, 'F');
-      doc.setFillColor(59, 130, 246); doc.rect(0, 28, W, 2, 'F');
+
+      // Header Background
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, W, 32, 'F');
+      doc.setFillColor(59, 130, 246);
+      doc.rect(0, 30, W, 2, 'F');
+
+      // Add Logo (assets/z-auto-9.jpeg)
+      try {
+        // x=14, y=5, width=22, height=22
+        doc.addImage('assets/z-auto-9.jpeg', 'JPEG', 14, 5, 22, 22);
+      } catch (e) {
+        console.warn('PDF Logo failed to load:', e);
+      }
+
       doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-      doc.text(shopName + '  -  ' + title, 14, 13);
-      doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+      doc.setFontSize(15);
+      doc.setFont('helvetica', 'bold');
+      doc.text(shopName.toUpperCase(), 42, 14);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(title, 42, 21);
+
+      doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
-      doc.text('PartsCommand CRM v2.0  |  Generated: ' + new Date().toLocaleString(), 14, 22);
-      if (s.bizPhone) doc.text(s.bizPhone, W - 14, 17, { align: 'right' });
-      if (s.bizAddress) doc.text(s.bizAddress, W - 14, 23, { align: 'right' });
+      doc.text('PartsCommand CRM v2.0  |  ' + new Date().toLocaleString(), 42, 27);
+
+      if (s.bizPhone || s.bizEmail) {
+        doc.setFontSize(8);
+        doc.setTextColor(255, 255, 255);
+        if (s.bizPhone) doc.text(s.bizPhone, W - 14, 14, { align: 'right' });
+        if (s.bizEmail) doc.text(s.bizEmail, W - 14, 20, { align: 'right' });
+        if (s.bizAddress) {
+          doc.setTextColor(148, 163, 184);
+          doc.text(s.bizAddress, W - 14, 26, { align: 'right' });
+        }
+      }
     }
 
     function exportInventoryPDF() {
@@ -4065,14 +4164,20 @@
           const H = doc.internal.pageSize.height;
           doc.setFillColor(10, 15, 26); doc.rect(0, 0, W, H, 'F');
           doc.setFillColor(59, 130, 246); doc.rect(0, H - 4, W, 4, 'F');
+
+          // Add Logo to Cover Page
+          try {
+            doc.addImage('assets/z-auto-9.jpeg', 'JPEG', (W - 50) / 2, 40, 50, 50);
+          } catch (e) { }
+
           doc.setTextColor(59, 130, 246); doc.setFontSize(32); doc.setFont('helvetica', 'bold');
-          doc.text('PartsCommand', W / 2, 90, { align: 'center' });
+          doc.text('PartsCommand', W / 2, 110, { align: 'center' });
           doc.setFontSize(13); doc.setFont('helvetica', 'normal'); doc.setTextColor(148, 163, 184);
-          doc.text('Business Report', W / 2, 103, { align: 'center' });
+          doc.text('Business Intelligence Report', W / 2, 123, { align: 'center' });
           doc.setFontSize(11); doc.setTextColor(255, 255, 255);
-          doc.text(s.bizName || 'Zempel Auto', W / 2, 120, { align: 'center' });
+          doc.text(s.bizName || 'Zempel Auto', W / 2, 140, { align: 'center' });
           doc.setFontSize(9); doc.setTextColor(100, 116, 139);
-          doc.text('Generated: ' + new Date().toLocaleString(), W / 2, 130, { align: 'center' });
+          doc.text('Generated: ' + new Date().toLocaleString(), W / 2, 150, { align: 'center' });
 
           doc.addPage(); buildPDFHeader(doc, 'Business Overview');
           var totalRev = db.sales.filter(function (sl) { return sl.status === 'Completed'; }).reduce(function (t, sl) { return t + Number(sl.total); }, 0);
@@ -4221,13 +4326,105 @@
             retailerPrices: data.retailerPrices || [],
             auditLogs: data.auditLogs || []
           };
-          windowDB = clean;
-          localStorage.setItem(DB_KEY, JSON.stringify(clean));
-          showToast('Backup restored - reloading dashboard', 'success');
+          saveDB(clean);
+          showToast('Backup restored — syncing to cloud & reloading', 'success');
           setTimeout(function () { navigate('dashboard'); }, 800);
         } catch (e2) { showToast('Failed to parse backup file', 'danger'); }
       };
       reader.readAsText(file);
+    }
+
+    // --- CSV/PDF Import Logic ---
+    function importInventoryCSVFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const text = e.target.result;
+        processInventoryCSV(text);
+      };
+      reader.readAsText(file);
+    }
+
+    function processInventoryCSV(text) {
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length < 2) { showToast('CSV file is empty or missing data', 'warning'); return; }
+
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+      const newItems = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+        if (cols.length < 2) continue;
+
+        const item = {
+          id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+          partNumber: '',
+          name: '',
+          category: 'Uncategorized',
+          brand: '',
+          supplier: '',
+          cost: 0,
+          price: 0,
+          stock: 0,
+          minStock: 5,
+          location: '',
+          barcode: '',
+          addedDate: new Date().toISOString().split('T')[0],
+          lastUpdated: new Date().toISOString().split('T')[0],
+          notes: ''
+        };
+
+        headers.forEach((h, idx) => {
+          const val = cols[idx];
+          if (!val) return;
+
+          if (h.includes('part') && h.includes('number')) item.partNumber = val;
+          else if (h === 'sku' || h === 'pn') item.partNumber = val;
+          else if (h.includes('name') || h === 'description') item.name = val;
+          else if (h.includes('category')) item.category = val;
+          else if (h.includes('brand') || h.includes('make')) item.brand = val;
+          else if (h.includes('supplier') || h.includes('vendor')) item.supplier = val;
+          else if (h.includes('cost')) item.cost = parseFloat(val) || 0;
+          else if (h.includes('price')) item.price = parseFloat(val) || 0;
+          else if (h.includes('stock') || h.includes('qty') || h.includes('quantity')) item.stock = parseInt(val) || 0;
+          else if (h.includes('min') && h.includes('stock')) item.minStock = parseInt(val) || 5;
+          else if (h.includes('location') || h.includes('shelf') || h.includes('bin')) item.location = val;
+          else if (h.includes('barcode') || h.includes('upc')) item.barcode = val;
+        });
+
+        if (item.partNumber || item.name) {
+          newItems.push(item);
+        }
+      }
+
+      if (newItems.length > 0) {
+        if (confirm(`Import ${newItems.length} parts from CSV?`)) {
+          const db = getDB();
+          // Avoid duplicates by part number if possible
+          newItems.forEach(newItem => {
+            const idx = db.inventory.findIndex(p => p.partNumber === newItem.partNumber && newItem.partNumber !== '');
+            if (idx >= 0) {
+              // Update existing
+              db.inventory[idx].stock += newItem.stock;
+              db.inventory[idx].lastUpdated = new Date().toISOString().split('T')[0];
+            } else {
+              db.inventory.push(newItem);
+            }
+          });
+          saveDB(db);
+          showToast(`Successfully imported ${newItems.length} parts`, 'success');
+          navigate('inventory');
+        }
+      } else {
+        showToast('No valid parts found in CSV. Ensure headers match common names (Part Number, Name, Stock, etc.)', 'warning');
+      }
+    }
+
+    function importInventoryPDFFile(event) {
+      showToast('PDF import requires specialized parsing. For now, please use CSV for bulk inventory import.', 'info');
+      // In a real scenario, we'd use pdf.js to extract text or a server-side parser.
+      // For this prototype, we'll guide the user to CSV.
     }
 
     function clearAuditLogs() {

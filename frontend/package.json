@@ -1,0 +1,10 @@
+{
+  "name": "zempel-auto-frontend",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "build": "mkdir -p dist && cp -r index.html sw.js manifest.json assets dist/",
+    "preview": "npx serve dist"
+  }
+}

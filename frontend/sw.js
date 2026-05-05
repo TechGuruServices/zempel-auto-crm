@@ -4,7 +4,7 @@
  * Cache-first for static assets.
  */
 
-const CACHE_NAME = 'partscommand-v2.1.0';
+const CACHE_NAME = 'partscommand-v2.2.0';
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 // Same-origin assets that MUST be cached (hard fail is acceptable)
@@ -12,9 +12,8 @@ const PRECACHE_CORE = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/assets/z-auto-7.PNG',
-  '/assets/z-auto-8.png',
-  '/assets/favicon-cropped.png',
+  '/assets/z-auto-9.jpeg',
+  '/assets/favicon-cropped1.PNG',
   '/assets/jspdf.umd.min.js',
   '/assets/jspdf.plugin.autotable.min.js',
 ];
@@ -159,8 +158,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || 'PartsCommand CRM', {
       body: data.body || '',
-      icon: '/assets/favicon-cropped.png',
-      badge: '/assets/favicon-cropped.png',
+      icon: '/assets/favicon-cropped1.PNG',
+      badge: '/assets/favicon-cropped1.PNG',
       tag: data.tag || 'partscommand-notif',
       data: data.url ? { url: data.url } : {}
     })

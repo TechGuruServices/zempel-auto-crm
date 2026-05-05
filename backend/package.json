@@ -1,4 +1,13 @@
 {
+  "name": "zempel-auto-api",
+  "version": "2.0.0",
+  "type": "module",
+  "main": "worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node tests/run-tests.js"
+  },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
     "wrangler": "^4.87.0"

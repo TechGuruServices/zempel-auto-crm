@@ -1,6 +1,12 @@
 {
-  "dependencies": {
-    "@tailwindcss/cli": "^4.2.4",
-    "tailwindcss": "^4.2.4"
-  }
+  "name": "zempel-auto-crm",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "frontend:dev": "npx serve frontend",
+    "backend:dev": "cd backend && npx wrangler dev",
+    "backend:deploy": "cd backend && npx wrangler deploy",
+    "deploy": "npm run backend:deploy"
+  },
+  "devDependencies": {}
 }

@@ -1,16 +1,19 @@
-  /**
+  import { neon } from '@neondatabase/serverless';
+
+/**
  * ============================================================
  * PartsCommand CRM — Cloudflare Worker (Full API)
  * ============================================================
  *
  * Routes:
+ *   GET  /               Welcome/Status message
  *   GET  /sync          Pull full database from Neon Postgres
  *   POST /sync          Push full database to Neon Postgres
  *   GET  /prices        Live competitor price lookup (scraper)
  *   GET  /health        Health check
  *   OPTIONS *           CORS preflight
  *
- * Environment bindings (set in Cloudflare dashboard or wrangler.toml):
+ * Environment bindings (set in Cloudflare dashboard or wrangler.toml):i
  *   DATABASE_URL        Neon Postgres connection string (pooled)
  *
  * Deploy: wrangler deploy --config wrangler.toml
@@ -33,6 +36,19 @@ export default {
     }
 
     try {
+      if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '') {
+        return json({
+          message: 'PartsCommand CRM API — Running',
+          status: 'online',
+          endpoints: ['/health', '/sync', '/prices'],
+          docs: 'https://github.com/TechGuruServices/zempel-auto-crm'
+        }, corsHeaders);
+      }
+
+      if (url.pathname === '/favicon.ico') {
+        return new Response(null, { status: 204, headers: corsHeaders });
+      }
+
       if (url.pathname === '/health') {
         return json({ status: 'ok', ts: new Date().toISOString() }, corsHeaders);
       }
@@ -46,7 +62,7 @@ export default {
         return handlePriceLookup(request, url, corsHeaders);
       }
 
-      return json({ error: 'Not found' }, corsHeaders, 404);
+      return json({ error: 'Not found', path: url.pathname }, corsHeaders, 404);
     } catch (err) {
       console.error('[Worker] Unhandled error:', err);
       return json({ error: 'Internal server error', detail: err.message }, corsHeaders, 500);
@@ -54,7 +70,6 @@ export default {
   }
 };
 
-import { neon } from '@neondatabase/serverless';
 
 // ============================================================
 // Neon Postgres helper (uses @neondatabase/serverless)
@@ -63,10 +78,10 @@ async function query(env, sql, params = []) {
   if (!env.DATABASE_URL) throw new Error('DATABASE_URL not configured');
 
   const sqlClient = neon(env.DATABASE_URL);
-  
+
   // Executing the query using the official library
-  const result = await sqlClient.query(sql, params);
-  
+  const result = await sqlClient(sql, params);
+
   // existing code expects { rows: [...] }
   return { rows: result };
 }
@@ -371,7 +386,7 @@ async function ensureSchema(env) {
       created_at  TIMESTAMPTZ DEFAULT NOW()
     )`
   ];
-  
+
   await Promise.all(tables.map(t => query(env, t)));
 }
 
