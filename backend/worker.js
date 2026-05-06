@@ -235,14 +235,16 @@ async function handlePriceLookup(request, url, corsHeaders) {
     scrapeNapa(partNumber, brand),
     scrapeAutozone(partNumber, brand),
     scrapeAdvanceAuto(partNumber, brand),
+    scrapeRockAuto(partNumber, brand),
   ]);
 
   const napa = results[0].status === 'fulfilled' ? results[0].value : null;
   const autozone = results[1].status === 'fulfilled' ? results[1].value : null;
   const advance = results[2].status === 'fulfilled' ? results[2].value : null;
+  const rockauto = results[3].status === 'fulfilled' ? results[3].value : null;
 
   // Extract the best name available from any of the scrapers
-  const bestName = napa?.name || autozone?.name || advance?.name || null;
+  const bestName = rockauto?.name || napa?.name || autozone?.name || advance?.name || null;
 
   const prices = {
     partNumber,
@@ -250,7 +252,7 @@ async function handlePriceLookup(request, url, corsHeaders) {
     napa:      napa?.price || null,
     autozone:  autozone?.price || null,
     advance:   advance?.price || null,
-    rockauto:  null,
+    rockauto:  rockauto?.price || null,
     oreilly:   null,
     carquest:  null,
     fetchedAt: new Date().toISOString()
@@ -356,6 +358,33 @@ async function scrapeAdvanceAuto(partNumber, brand) {
   }
 }
 
+async function scrapeRockAuto(partNumber, brand) {
+  try {
+    const searchUrl = `https://www.rockauto.com/en/partsearch/?partnum=${encodeURIComponent(partNumber)}`;
+    const res = await fetch(searchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml',
+        'Accept-Language': 'en-US,en;q=0.9',
+      },
+      cf: { cacheTtl: 3600 }
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    const priceMatch = html.match(/<span[^>]*class="[^"]*ra-formatted-amount[^"]*"[^>]*>\$\s*([\d,]+\.[\d]{2})/i) || 
+                       html.match(/\$\s*([\d,]+\.[\d]{2})/);
+    const nameMatch = html.match(/<td[^>]*class="[^"]*partdesc[^"]*"[^>]*>([^<]+)/i) ||
+                      html.match(/<span[^>]*class="[^"]*partdesc[^"]*"[^>]*>([^<]+)/i);
+
+    return {
+      price: priceMatch ? parseFloat(priceMatch[1].replace(',', '')) : null,
+      name: nameMatch ? nameMatch[1].trim() : null
+    };
+  } catch {
+    return null;
+  }
+}
 
 // ============================================================
 // Schema bootstrap — idempotent, runs on first request

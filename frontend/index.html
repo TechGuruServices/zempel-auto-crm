@@ -1398,23 +1398,65 @@
           const data = await res.json();
           showToast('Product info fetched!', 'success');
 
-          // Autofill Part Name if available
+          // Autofill Part Name
           if (data.name) {
             const nameInput = document.querySelector('input[name="name"]');
             if (nameInput && (!nameInput.value || nameInput.value.trim() === "")) {
               nameInput.value = data.name;
             }
+
+            // Autofill Brand (Guess from first word of name)
+            const brandInput = document.querySelector('input[name="brand"]');
+            if (brandInput && (!brandInput.value || brandInput.value.trim() === "")) {
+              brandInput.value = data.name.split(' ')[0];
+            }
+
+            // Autofill Category (Guess from name keywords)
+            const catInput = document.querySelector('input[name="category"]');
+            if (catInput && (!catInput.value || catInput.value.trim() === "")) {
+              const n = data.name.toLowerCase();
+              if (n.includes('filter')) catInput.value = 'Filters';
+              else if (n.includes('brake') || n.includes('rotor') || n.includes('pad')) catInput.value = 'Brakes';
+              else if (n.includes('oil') || n.includes('fluid')) catInput.value = 'Fluids';
+              else if (n.includes('battery')) catInput.value = 'Batteries';
+              else if (n.includes('spark') || n.includes('plug') || n.includes('ignition')) catInput.value = 'Ignition';
+              else if (n.includes('belt') || n.includes('hose')) catInput.value = 'Belts & Hoses';
+              else catInput.value = 'General';
+            }
           }
 
-          // Autofill Price (10% discount off best competitor price)
-          if (data.autozone || data.napa || data.advance) {
-            const prices = [data.autozone, data.napa, data.advance].filter(p => p !== null && p > 0);
-            if (prices.length > 0) {
-              const lowest = Math.min(...prices);
-              const priceInput = document.querySelector('input[name="price"]');
-              if (priceInput && (!priceInput.value || priceInput.value == 0)) {
-                priceInput.value = (lowest * 0.9).toFixed(2);
-              }
+          // Autofill Price, Cost, and Supplier based on scraped data
+          const suppliers = [
+            { name: 'RockAuto', price: data.rockauto },
+            { name: 'AutoZone', price: data.autozone },
+            { name: 'NAPA', price: data.napa },
+            { name: 'Advance Auto', price: data.advance }
+          ].filter(s => s.price !== null && s.price > 0);
+
+          if (suppliers.length > 0) {
+            // Find lowest price
+            suppliers.sort((a, b) => a.price - b.price);
+            const bestSupplier = suppliers[0];
+            const lowest = bestSupplier.price;
+
+            // Autofill Supplier
+            const supplierInput = document.querySelector('input[name="supplier"]');
+            if (supplierInput && (!supplierInput.value || supplierInput.value.trim() === "")) {
+              supplierInput.value = bestSupplier.name;
+            }
+
+            // Autofill Cost (Assume lowest competitor price is the replacement cost benchmark)
+            const costInput = document.querySelector('input[name="cost"]');
+            if (costInput && (!costInput.value || costInput.value == 0)) {
+              costInput.value = lowest.toFixed(2);
+            }
+
+            // Autofill Price (Default markup or 10% off competitor depending on your strategy, using original 10% discount off retail logic)
+            const priceInput = document.querySelector('input[name="price"]');
+            if (priceInput && (!priceInput.value || priceInput.value == 0)) {
+              // Usually retail is marked up from cost, let's set to 40% markup if it's RockAuto, 
+              // or just use the existing logic (lowest * 0.9) to stay competitive.
+              priceInput.value = (lowest * 1.3).toFixed(2); // 30% markup from the lowest found price
             }
           }
         }
