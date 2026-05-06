@@ -770,45 +770,45 @@
     let windowDB = null;
 
     function sanitizeDB(db) {
-        if (!db) return;
-        // Ensure all decimals and numbers are correctly typed to prevent NaN in UI
-        if (db.inventory) {
-          db.inventory.forEach(item => {
-            item.cost = Number(item.cost) || 0;
-            item.price = Number(item.price) || 0;
-            item.stock = Number(item.stock) || 0;
-            item.minStock = Number(item.minStock) || 0;
-          });
-        }
-        if (db.sales) {
-          db.sales.forEach(sale => {
-            sale.total = Number(sale.total) || 0;
-            sale.margin = Number(sale.margin) || 0;
-            sale.laborHours = Number(sale.laborHours) || 0;
-            if (sale.lineItems) {
-              sale.lineItems.forEach(li => {
-                li.qty = Number(li.qty) || 0;
-                li.unitPrice = Number(li.unitPrice) || 0;
-              });
-            }
-          });
-        }
-        if (db.customers) {
-          db.customers.forEach(cust => {
-            cust.totalSpent = Number(cust.totalSpent) || 0;
-            cust.loyaltyPoints = Number(cust.loyaltyPoints) || 0;
-          });
-        }
-        if (db.vehicles) {
-          db.vehicles.forEach(v => {
-            v.mileage = Number(v.mileage) || 0;
-            if (v.services) {
-              v.services.forEach(s => {
-                s.cost = Number(s.cost) || 0;
-              });
-            }
-          });
-        }
+      if (!db) return;
+      // Ensure all decimals and numbers are correctly typed to prevent NaN in UI
+      if (db.inventory) {
+        db.inventory.forEach(item => {
+          item.cost = Number(item.cost) || 0;
+          item.price = Number(item.price) || 0;
+          item.stock = Number(item.stock) || 0;
+          item.minStock = Number(item.minStock) || 0;
+        });
+      }
+      if (db.sales) {
+        db.sales.forEach(sale => {
+          sale.total = Number(sale.total) || 0;
+          sale.margin = Number(sale.margin) || 0;
+          sale.laborHours = Number(sale.laborHours) || 0;
+          if (sale.lineItems) {
+            sale.lineItems.forEach(li => {
+              li.qty = Number(li.qty) || 0;
+              li.unitPrice = Number(li.unitPrice) || 0;
+            });
+          }
+        });
+      }
+      if (db.customers) {
+        db.customers.forEach(cust => {
+          cust.totalSpent = Number(cust.totalSpent) || 0;
+          cust.loyaltyPoints = Number(cust.loyaltyPoints) || 0;
+        });
+      }
+      if (db.vehicles) {
+        db.vehicles.forEach(v => {
+          v.mileage = Number(v.mileage) || 0;
+          if (v.services) {
+            v.services.forEach(s => {
+              s.cost = Number(s.cost) || 0;
+            });
+          }
+        });
+      }
     }
 
     function getDB() {
@@ -822,11 +822,11 @@
       windowDB = JSON.parse(JSON.stringify(data));
 
       // Cache locally for fast reads & offline fallback
-      try { 
+      try {
         if (typeof localforage !== 'undefined') {
           localforage.setItem(DB_KEY, windowDB).catch(e => console.error("localforage set error", e));
         } else {
-          localStorage.setItem(DB_KEY, JSON.stringify(data)); 
+          localStorage.setItem(DB_KEY, JSON.stringify(data));
         }
       } catch (e) { }
 
@@ -1312,7 +1312,7 @@
         const reader = new FileReader();
         reader.onload = function (e) {
           const img = new Image();
-          img.onload = function() {
+          img.onload = function () {
             let width = img.width;
             let height = img.height;
 
@@ -4067,7 +4067,7 @@
       const s = getAppSettings();
       Object.assign(s, updates);
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-      
+
       // Update the UI immediately
       const uiName = document.querySelector('.flex.items-center.gap-3 p.text-sm.font-medium.text-white');
       if (uiName && s.bizName) uiName.textContent = s.bizName;
@@ -4412,16 +4412,16 @@
     function importInventoryCSVFile(event) {
       const file = event.target.files[0];
       if (!file) return;
-      
+
       if (typeof Papa !== 'undefined') {
         showToast('Parsing CSV...', 'info');
         Papa.parse(file, {
           header: true,
           skipEmptyLines: true,
-          complete: function(results) {
+          complete: function (results) {
             processInventoryCSVData(results.data, results.meta.fields);
           },
-          error: function(err) {
+          error: function (err) {
             showToast('Error parsing CSV', 'danger');
             console.error(err);
           }
@@ -4552,24 +4552,24 @@
       try {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        
+
         let fullText = '';
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const textContent = await page.getTextContent();
-          
+
           let lastY = -1;
           for (const item of textContent.items) {
-             if (lastY !== -1 && Math.abs(lastY - item.transform[5]) > 2) {
-                 fullText += '\n';
-             }
-             fullText += item.str + ' ';
-             lastY = item.transform[5];
+            if (lastY !== -1 && Math.abs(lastY - item.transform[5]) > 2) {
+              fullText += '\n';
+            }
+            fullText += item.str + ' ';
+            lastY = item.transform[5];
           }
         }
 
         const newItems = extractPartsFromText(fullText);
-        
+
         if (newItems.length > 0) {
           if (confirm(`Import ${newItems.length} parts found in PDF?`)) {
             const db = getDB();
@@ -4604,12 +4604,12 @@
     function extractPartsFromText(text) {
       const items = [];
       const lines = text.split('\n');
-      
+
       for (const line of lines) {
         let pnMatch = line.match(/(?:PN|Part No|Part Number|Part#|SKU|Item)[\s:#]*([A-Za-z0-9-]+)/i);
         let qtyMatch = line.match(/(?:Qty|Quantity)[\s:#]*(\d+)/i);
         let priceMatch = line.match(/\$[\s]*([0-9,.]+)/);
-        
+
         if (pnMatch) {
           const item = {
             id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
@@ -4720,30 +4720,30 @@
     // ==================== INIT ====================
     document.addEventListener('DOMContentLoaded', async () => {
       initTheme();
-      
+
       // 1. Load from localforage (IndexedDB fallback)
       try {
         if (typeof localforage !== 'undefined') {
-            const stored = await localforage.getItem(DB_KEY);
-            if (stored) {
-                windowDB = stored;
-            } else {
-                // migrate from localStorage
-                const oldStored = localStorage.getItem(DB_KEY);
-                if (oldStored) {
-                    windowDB = JSON.parse(oldStored);
-                    await localforage.setItem(DB_KEY, windowDB);
-                } else {
-                    windowDB = JSON.parse(JSON.stringify(defaultData));
-                }
-            }
-        } else {
+          const stored = await localforage.getItem(DB_KEY);
+          if (stored) {
+            windowDB = stored;
+          } else {
+            // migrate from localStorage
             const oldStored = localStorage.getItem(DB_KEY);
-            if (oldStored) windowDB = JSON.parse(oldStored);
-            else windowDB = JSON.parse(JSON.stringify(defaultData));
+            if (oldStored) {
+              windowDB = JSON.parse(oldStored);
+              await localforage.setItem(DB_KEY, windowDB);
+            } else {
+              windowDB = JSON.parse(JSON.stringify(defaultData));
+            }
+          }
+        } else {
+          const oldStored = localStorage.getItem(DB_KEY);
+          if (oldStored) windowDB = JSON.parse(oldStored);
+          else windowDB = JSON.parse(JSON.stringify(defaultData));
         }
       } catch (e) {
-         windowDB = JSON.parse(JSON.stringify(defaultData));
+        windowDB = JSON.parse(JSON.stringify(defaultData));
       }
       sanitizeDB(windowDB);
 
@@ -4763,7 +4763,7 @@
           // DB is the source of truth — always use cloud data when available
           windowDB = Object.assign({}, defaultData, cloudData);
           sanitizeDB(windowDB);
-          
+
           if (cloudData.settings && Object.keys(cloudData.settings).length > 0) {
             localStorage.setItem(SETTINGS_KEY, JSON.stringify(cloudData.settings));
             // Update the UI immediately
@@ -4771,13 +4771,13 @@
             const uiName = document.querySelector('.flex.items-center.gap-3 p.text-sm.font-medium.text-white');
             if (uiName && s.bizName) uiName.textContent = s.bizName;
           }
-          
+
           if (typeof localforage !== 'undefined') {
-             localforage.setItem(DB_KEY, windowDB).catch(e => console.error("localforage set error", e));
+            localforage.setItem(DB_KEY, windowDB).catch(e => console.error("localforage set error", e));
           } else {
-             localStorage.setItem(DB_KEY, JSON.stringify(windowDB));
+            localStorage.setItem(DB_KEY, JSON.stringify(windowDB));
           }
-          
+
           renderView(); // re-render with authoritative cloud data
         }
       } catch (err) {
