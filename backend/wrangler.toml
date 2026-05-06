@@ -22,14 +22,25 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "production"
+ALLOWED_ORIGIN = "https://zempel-auto-crm.pages.dev"
+ADMIN_EMAIL = "admin@zempelauto.com"
 
 # Neon DATABASE_URL — set via: wrangler secret put DATABASE_URL
-# Never hardcode credentials here.
+# JWT_SECRET        — set via: wrangler secret put JWT_SECRET
+# ADMIN_PASSWORD_HASH — set via: wrangler secret put ADMIN_PASSWORD_HASH
+# Never hardcode secrets here.
 
 workers_dev = true
 
 [observability]
 enabled = true
+
+# ── KV Namespace (rate limiting, sessions, price cache) ──────
+# Create first: wrangler kv namespace create CRM_KV
+# Then paste the returned id below.
+[[kv_namespaces]]
+binding = "CRM_KV"
+id = "e1c7350d9277477bbf16105c0b5abb24"
 
 # ── Cloudflare Pages (static PWA) ────────────────────────────
 # Run separately:
@@ -39,3 +50,4 @@ enabled = true
 #   Pages → New Project → Connect to Git → select repo
 #   Build command:   (none — no build step needed)
 #   Output directory: .  (root)
+

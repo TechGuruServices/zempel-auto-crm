@@ -521,7 +521,7 @@
         regs.forEach(function (reg) {
           reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, { cache: 'no-store' })
             .then(function (r) { return r.text(); })
-            .then(function (t) { if (!t.includes('partscommand-v2.2')) reg.unregister(); })
+            .then(function (t) { if (!t.includes('partscommand-v3.0')) reg.unregister(); })
             .catch(function () { });
         });
       });

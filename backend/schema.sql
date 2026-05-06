@@ -63,8 +63,10 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   data        JSONB NOT NULL,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX IF NOT EXISTS idx_audit_logs_action    ON audit_logs ((data->>'action'));
-CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs ((data->>'timestamp'));
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action       ON audit_logs ((data->>'action'));
+CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp    ON audit_logs ((data->>'timestamp'));
+CREATE INDEX IF NOT EXISTS idx_audit_logs_ip           ON audit_logs ((data->>'ip'));
+CREATE INDEX IF NOT EXISTS idx_audit_logs_payload_hash ON audit_logs ((data->>'payload_hash'));
 
 -- Auto-update updated_at trigger
 CREATE OR REPLACE FUNCTION update_updated_at()
