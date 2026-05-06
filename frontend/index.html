@@ -4510,7 +4510,7 @@
           let lastY = -1;
           for (const item of textContent.items) {
              if (lastY !== -1 && Math.abs(lastY - item.transform[5]) > 2) {
-                 fullText += '\\n';
+                 fullText += '\n';
              }
              fullText += item.str + ' ';
              lastY = item.transform[5];
@@ -4552,18 +4552,18 @@
 
     function extractPartsFromText(text) {
       const items = [];
-      const lines = text.split('\\n');
+      const lines = text.split('\n');
       
       for (const line of lines) {
-        let pnMatch = line.match(/(?:PN|Part No|Part Number|Part#|SKU|Item)[\\s:#]*([A-Za-z0-9-]+)/i);
-        let qtyMatch = line.match(/(?:Qty|Quantity)[\\s:#]*(\\d+)/i);
-        let priceMatch = line.match(/\\$[\\s]*([0-9,.]+)/);
+        let pnMatch = line.match(/(?:PN|Part No|Part Number|Part#|SKU|Item)[\s:#]*([A-Za-z0-9-]+)/i);
+        let qtyMatch = line.match(/(?:Qty|Quantity)[\s:#]*(\d+)/i);
+        let priceMatch = line.match(/\$[\s]*([0-9,.]+)/);
         
         if (pnMatch) {
           const item = {
             id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
             partNumber: pnMatch[1].trim(),
-            name: line.replace(pnMatch[0], '').replace(/\\$[\\s]*[0-9,.]+/, '').replace(/(?:Qty|Quantity)[\\s:#]*\\d+/i, '').trim().substring(0, 40) || 'Imported Part',
+            name: line.replace(pnMatch[0], '').replace(/\$[\s]*[0-9,.]+/, '').replace(/(?:Qty|Quantity)[\s:#]*\d+/i, '').trim().substring(0, 40) || 'Imported Part',
             category: 'Uncategorized',
             brand: '',
             supplier: '',
@@ -4607,7 +4607,7 @@
           }
         } else {
           // Tabular format check: [PartNumber] [Description...] [Qty] [Price]
-          let tableMatch = line.trim().match(/^([A-Za-z0-9-]+)\\s+(.+?)\\s+(\\d+)\\s+\\$?([0-9,.]+)$/);
+          let tableMatch = line.trim().match(/^([A-Za-z0-9-]+)\s+(.+?)\s+(\d+)\s+\$?([0-9,.]+)$/);
           if (tableMatch) {
             items.push({
               id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),

@@ -4,7 +4,7 @@
  * Cache-first for static assets.
  */
 
-const CACHE_NAME = 'partscommand-v2.2.0';
+const CACHE_NAME = 'partscommand-v2.2.1';
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 // Same-origin assets that MUST be cached (hard fail is acceptable)
@@ -16,11 +16,11 @@ const PRECACHE_CORE = [
   '/assets/favicon-cropped1.PNG',
   '/assets/jspdf.umd.min.js',
   '/assets/jspdf.plugin.autotable.min.js',
+  '/assets/styles.css',
 ];
 
 // External CDN assets — cached opportunistically, failures are ignored
 const PRECACHE_OPTIONAL = [
-  'https://cdn.tailwindcss.com',
   'https://unpkg.com/@phosphor-icons/web',
   'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap',
@@ -79,7 +79,6 @@ self.addEventListener('fetch', (event) => {
   if (
     url.hostname === 'fonts.googleapis.com' ||
     url.hostname === 'fonts.gstatic.com' ||
-    url.hostname === 'cdn.tailwindcss.com' ||
     url.hostname === 'unpkg.com'
   ) {
     event.respondWith(cacheFirst(request));
