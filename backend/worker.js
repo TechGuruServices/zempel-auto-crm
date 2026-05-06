@@ -93,13 +93,14 @@ async function handleSyncGet(env, corsHeaders) {
   try {
     await ensureSchema(env);
 
-    const [inv, cust, veh, sales, prices, logs] = await Promise.all([
+    const [inv, cust, veh, sales, prices, logs, settings] = await Promise.all([
       query(env, 'SELECT data FROM inventory ORDER BY created_at'),
       query(env, 'SELECT data FROM customers ORDER BY created_at'),
       query(env, 'SELECT data FROM vehicles ORDER BY created_at'),
       query(env, 'SELECT data FROM sales ORDER BY created_at'),
       query(env, 'SELECT data FROM retailer_prices ORDER BY fetched_at DESC'),
       query(env, 'SELECT data FROM audit_logs ORDER BY created_at DESC LIMIT 500'),
+      query(env, 'SELECT data FROM settings WHERE id = $1', ['app_settings']),
     ]);
 
     const db = {
@@ -109,6 +110,7 @@ async function handleSyncGet(env, corsHeaders) {
       sales:         (sales.rows  || []).map(r => r.data),
       retailerPrices:(prices.rows || []).map(r => r.data),
       auditLogs:     (logs.rows   || []).map(r => r.data),
+      settings:      (settings.rows && settings.rows.length > 0) ? settings.rows[0].data : {},
     };
 
     return json(db, corsHeaders);
@@ -198,6 +200,15 @@ async function handleSyncPost(request, env, corsHeaders) {
           [l.id, JSON.stringify(l)]
         ));
       }
+    }
+
+    if (body.settings && Object.keys(body.settings).length > 0) {
+      ops.push(query(env,
+        `INSERT INTO settings (id, data, updated_at)
+         VALUES ($1, $2::jsonb, NOW())
+         ON CONFLICT (id) DO UPDATE SET data = $2::jsonb, updated_at = NOW()`,
+        ['app_settings', JSON.stringify(body.settings)]
+      ));
     }
 
     await Promise.allSettled(ops);
@@ -384,6 +395,11 @@ async function ensureSchema(env) {
       id          TEXT PRIMARY KEY,
       data        JSONB NOT NULL,
       created_at  TIMESTAMPTZ DEFAULT NOW()
+    )`,
+    `CREATE TABLE IF NOT EXISTS settings (
+      id          TEXT PRIMARY KEY,
+      data        JSONB NOT NULL,
+      updated_at  TIMESTAMPTZ DEFAULT NOW()
     )`
   ];
 

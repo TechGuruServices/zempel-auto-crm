@@ -98,3 +98,16 @@ DO $$ BEGIN
     BEFORE UPDATE ON sales
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- Settings
+CREATE TABLE IF NOT EXISTS settings (
+  id          TEXT PRIMARY KEY,
+  data        JSONB NOT NULL,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+DO $$ BEGIN
+  CREATE TRIGGER trg_settings_updated_at
+    BEFORE UPDATE ON settings
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

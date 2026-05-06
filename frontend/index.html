@@ -833,12 +833,14 @@
       // ── DATABASE IS THE SOURCE OF TRUTH ──
       // Cloud sync is mandatory — notify user on failure so they can retry
       if (IS_PROD && navigator.onLine) {
+        const payload = Object.assign({}, data);
+        payload.settings = getAppSettings(); // Attach settings for global persistence
         const _c2 = new AbortController();
         setTimeout(() => _c2.abort(), 8000);
         fetch(`${API_URL}/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
           signal: _c2.signal
         }).then(res => {
           if (!res.ok) {
@@ -4023,6 +4025,13 @@
       const s = getAppSettings();
       Object.assign(s, updates);
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+      
+      // Update the UI immediately
+      const uiName = document.querySelector('.flex.items-center.gap-3 p.text-sm.font-medium.text-white');
+      if (uiName && s.bizName) uiName.textContent = s.bizName;
+
+      // Trigger cloud sync
+      if (windowDB) saveDB(windowDB);
     }
 
     function toggleSetting(key, trackId) {
@@ -4712,6 +4721,14 @@
           // DB is the source of truth — always use cloud data when available
           windowDB = Object.assign({}, defaultData, cloudData);
           sanitizeDB(windowDB);
+          
+          if (cloudData.settings && Object.keys(cloudData.settings).length > 0) {
+            localStorage.setItem(SETTINGS_KEY, JSON.stringify(cloudData.settings));
+            // Update the UI immediately
+            const s = getAppSettings();
+            const uiName = document.querySelector('.flex.items-center.gap-3 p.text-sm.font-medium.text-white');
+            if (uiName && s.bizName) uiName.textContent = s.bizName;
+          }
           
           if (typeof localforage !== 'undefined') {
              localforage.setItem(DB_KEY, windowDB).catch(e => console.error("localforage set error", e));
