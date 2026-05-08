@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
-    "wrangler": "^4.87.0"
+    "jsonwebtoken": "^9.0.3",
+    "wrangler": "^4.87.0",
+    "zod": "^4.4.3"
   }
 }

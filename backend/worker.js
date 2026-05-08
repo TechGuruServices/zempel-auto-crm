@@ -46,7 +46,7 @@ export default {
     const url = new URL(request.url);
     const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
 
-    const ALLOWED_ORIGIN = env.ALLOWED_ORIGIN || '*';
+    const ALLOWED_ORIGIN = env.ALLOWED_ORIGIN || '*'; 
     const origin = request.headers.get('Origin') || '';
     const corsOrigin = ALLOWED_ORIGIN === '*' ? '*' : ALLOWED_ORIGIN;
 
@@ -131,9 +131,10 @@ export default {
 };
 
 // ── DB Helper ────────────────────────────────────────────────
-async function query(env, sql, params = []) {
+async function query(env, sqlStr, params = []) {
   if (!env.DATABASE_URL) throw new Error('DATABASE_URL not configured');
-  const result = await neon(env.DATABASE_URL)(sql, params);
+  const sql = neon(env.DATABASE_URL);
+  const result = await sql.query(sqlStr, params);
   return { rows: result };
 }
 
