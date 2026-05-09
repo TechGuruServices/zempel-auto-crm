@@ -48,7 +48,23 @@ export default {
 
     const ALLOWED_ORIGIN = env.ALLOWED_ORIGIN || '*'; 
     const origin = request.headers.get('Origin') || '';
-    const corsOrigin = ALLOWED_ORIGIN === '*' ? '*' : ALLOWED_ORIGIN;
+    
+    let corsOrigin = ALLOWED_ORIGIN === '*' ? '*' : ALLOWED_ORIGIN;
+    let isOriginAllowed = (ALLOWED_ORIGIN === '*' || !origin || origin === ALLOWED_ORIGIN);
+
+    // Dynamically allow Cloudflare Pages preview URLs matching the base domain
+    if (ALLOWED_ORIGIN !== '*' && origin && origin !== ALLOWED_ORIGIN) {
+      try {
+        const originHost = new URL(origin).hostname;
+        const allowedHost = new URL(ALLOWED_ORIGIN).hostname;
+        if (originHost.endsWith('.' + allowedHost) || originHost === allowedHost) {
+          corsOrigin = origin;
+          isOriginAllowed = true;
+        }
+      } catch (e) {
+        // Ignore parsing errors
+      }
+    }
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': corsOrigin,
@@ -71,7 +87,7 @@ export default {
     }
 
     // Strict origin check when ALLOWED_ORIGIN is set
-    if (ALLOWED_ORIGIN !== '*' && origin && origin !== ALLOWED_ORIGIN) {
+    if (!isOriginAllowed) {
       return json({ error: 'Forbidden origin' }, hdrs, 403);
     }
 
