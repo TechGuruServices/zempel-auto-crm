@@ -7,7 +7,7 @@
 
 <br>
 
-[![Version](https://img.shields.io/badge/Version-2.0-0ea5e9?style=for-the-badge&logo=semver&logoColor=white)](https://github.com/TechGuruServices/zempel-auto-crm)
+[![Version](https://img.shields.io/badge/Version-3.0.0-0ea5e9?style=for-the-badge&logo=semver&logoColor=white)](https://github.com/TechGuruServices/zempel-auto-crm)
 [![License](https://img.shields.io/badge/License-Proprietary-8b5cf6?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-PWA-10b981?style=for-the-badge&logo=pwa&logoColor=white)](https://parts-command-crm.pages.dev)
 [![Backend](https://img.shields.io/badge/Backend-Cloudflare%20Workers-f59e0b?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com)
@@ -133,8 +133,8 @@
 <td width="50%">
 
 ### 🏷️ Competitive Price Intelligence
-- Real-time scraping from **NAPA**, **AutoZone**, **Advance Auto Parts**
-- Edge-cached via Cloudflare Worker (1hr TTL)
+- Real-time scraping from **NAPA**, **AutoZone**, **Advance Auto Parts**, and **RockAuto**
+- Edge-cached via Cloudflare Worker & Dedicated Python Microservice
 - Side-by-side price comparison view
 - Margin optimization recommendations
 
@@ -196,8 +196,16 @@
 │  │  /sync       │  │  /prices             │             │
 │  │  GET  → Pull │  │  GET → Competitor    │             │
 │  │  POST → Push │  │  price proxy (1h TTL)│             │
-│  └──────┬───────┘  └──────────────────────┘             │
-└─────────┼───────────────────────────────────────────────┘
+│  └──────┬───────┘  └───────┬──────────────┘             │
+└─────────┼──────────────────┼────────────────────────────┘
+          │                  │
+          │                  ▼
+          │      ┌───────────────────────────┐
+          │      │   PYTHON MICROSERVICE     │
+          │      │    (FastAPI Scraper)      │
+          │      │   RockAuto API / Proxies  │
+          │      └───────────────────────────┘
+          │
           │ Connection Pooling
 ┌─────────┼───────────────────────────────────────────────┐
 │         ▼  NEON SERVERLESS POSTGRESQL                   │
@@ -226,6 +234,7 @@
 | 📄 | **jsPDF + AutoTable** | Client-side PDF invoice generation |
 | 🎭 | **Phosphor Icons** | Elegant icon system |
 | ⚡ | **Cloudflare Workers** | Edge-deployed API (global <50ms latency) |
+| 🐍 | **Python & FastAPI** | Microservice for advanced RockAuto scraping |
 | 🗃️ | **Neon PostgreSQL** | Serverless, branchable, auto-scaling DB |
 | 📱 | **Service Worker** | Offline caching + background sync |
 | 💾 | **localStorage** | Offline-first data with conflict resolution |
@@ -339,12 +348,16 @@ zempel-auto-crm/
 │
 ├── backend/                           # Cloudflare Workers API
 │   ├── worker.js                      # Main sync API worker
-│   ├── worker-prices-route.js         # Competitor price scraper worker
 │   ├── wrangler.toml                  # Cloudflare Workers config
 │   ├── schema.sql                     # PostgreSQL schema definition
 │   ├── package.json                   # Backend dependencies
 │   └── tests/
 │       └── run-tests.js               # Integration test suite
+│
+├── python-service/                    # FastApi Scraper Microservice
+│   ├── src/
+│   │   └── main.py                    # Service Entrypoint
+│   └── pyproject.toml                 # Service dependencies
 │
 ├── .github/
 │   └── instructions/                  # AI coding guidelines
@@ -411,12 +424,11 @@ audit_logs        — id, data (JSONB), created_at
 - [x] ~~Cloudflare Workers edge API deployment~~
 - [x] ~~Neon PostgreSQL cloud database integration~~
 - [x] ~~Multi-format barcode scanner (camera-based)~~
-- [x] ~~Competitor price intelligence (NAPA, AutoZone, Advance Auto)~~
+- [x] ~~Competitor price intelligence (NAPA, AutoZone, Advance Auto, RockAuto)~~
 - [x] ~~PDF invoice/estimate generation~~
 - [x] ~~Notification system with alert bell~~
 - [ ] RBAC: Admin / Technician / Sales roles with permission matrix
 - [ ] Push notifications for low-stock alerts (Web Push API)
-- [ ] Expand price sources: RockAuto, O'Reilly Auto Parts
 - [ ] Supplier PO workflow + automated reorder thresholds
 - [ ] Customer portal (read-only vehicle & service history)
 - [ ] Theme toggle (dark ↔ light) with OS preference detection
