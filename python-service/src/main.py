@@ -4,7 +4,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
-from src.dependencies import verify_auth_key, get_client
+from .dependencies import verify_auth_key, get_client
 from rockauto_api import RockAutoClient
 
 limiter = Limiter(key_func=get_remote_address)
