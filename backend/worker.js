@@ -49,20 +49,28 @@ export default {
     const ALLOWED_ORIGIN = env.ALLOWED_ORIGIN || '*'; 
     const origin = request.headers.get('Origin') || '';
     
-    let corsOrigin = ALLOWED_ORIGIN === '*' ? '*' : ALLOWED_ORIGIN;
-    let isOriginAllowed = (ALLOWED_ORIGIN === '*' || !origin || origin === ALLOWED_ORIGIN);
+    let corsOrigin = ALLOWED_ORIGIN === '*' ? '*' : ALLOWED_ORIGIN.split(',')[0].trim();
+    let isOriginAllowed = (ALLOWED_ORIGIN === '*' || !origin);
 
-    // Dynamically allow Cloudflare Pages preview URLs matching the base domain
-    if (ALLOWED_ORIGIN !== '*' && origin && origin !== ALLOWED_ORIGIN) {
-      try {
-        const originHost = new URL(origin).hostname;
-        const allowedHost = new URL(ALLOWED_ORIGIN).hostname;
-        if (originHost.endsWith('.' + allowedHost) || originHost === allowedHost) {
-          corsOrigin = origin;
-          isOriginAllowed = true;
+    if (ALLOWED_ORIGIN !== '*' && origin) {
+      const allowedList = ALLOWED_ORIGIN.split(',').map(s => s.trim());
+      if (allowedList.includes(origin)) {
+        corsOrigin = origin;
+        isOriginAllowed = true;
+      } else {
+        try {
+          const originHost = new URL(origin).hostname;
+          for (const allowed of allowedList) {
+            const allowedHost = new URL(allowed).hostname;
+            if (originHost.endsWith('.' + allowedHost) || originHost === allowedHost) {
+              corsOrigin = origin;
+              isOriginAllowed = true;
+              break;
+            }
+          }
+        } catch (e) {
+          // Ignore parsing errors
         }
-      } catch (e) {
-        // Ignore parsing errors
       }
     }
 
