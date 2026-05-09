@@ -134,8 +134,17 @@ export default {
 async function query(env, sqlStr, params = []) {
   if (!env.DATABASE_URL) throw new Error('DATABASE_URL not configured');
   const sql = neon(env.DATABASE_URL);
-  const result = await sql.query(sqlStr, params);
-  return { rows: result };
+  
+  // Neon's neon() returns a function that can be used as a tagged template.
+  // To use it with a string and params, we must use the .query() method.
+  // The error message specifies: sql.query("SELECT $1", [value], options)
+  try {
+    const rows = await sql.query(sqlStr, params);
+    return { rows: rows || [] };
+  } catch (err) {
+    console.error('[DB Error]', { sql: sqlStr, params, error: err.message });
+    throw err;
+  }
 }
 
 // ── SHA Helper ───────────────────────────────────────────────

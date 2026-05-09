@@ -23,7 +23,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/zod@3.22.4/lib/index.umd.js"></script>
+
   <script>
     if (window.pdfjsLib) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -540,7 +540,7 @@
         <a href="#" onclick="navigate('dashboard')" title="Zempel Auto – PartsCommand CRM" class="inline-block">
           <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo" loading="eager" decoding="sync" />
         </a>
-        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.0
         </p>
       </div>
 
@@ -684,7 +684,7 @@
           <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo-overlay" loading="eager"
             decoding="sync" />
         </a>
-        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v2.0
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.0
         </p>
       </div>
       <nav class="flex-1 overflow-y-auto px-3 pb-6">
@@ -1462,6 +1462,7 @@
         }
       } catch (e) {
         console.error('[fetchPriceInfoFromBarcode] error:', e);
+        showToast('Could not fetch pricing info — check connection', 'warning');
       }
     }
 

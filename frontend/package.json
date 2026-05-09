@@ -1,10 +1,11 @@
 {
   "name": "zempel-auto-frontend",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "dev": "npx serve .",
     "build": "mkdir -p dist && cp -r index.html sw.js manifest.json assets dist/",
+    "build:win": "powershell -Command \"New-Item -ItemType Directory -Force -Path dist | Out-Null; Copy-Item index.html,sw.js,manifest.json -Destination dist; Copy-Item -Recurse -Force assets dist/\"",
     "preview": "npx serve dist"
   },
   "devDependencies": {

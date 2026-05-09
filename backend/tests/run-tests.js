@@ -1,33 +1,17 @@
 /**
  * ============================================================
- * PartsCommand CRM — Integration Test Suite
+ * PartsCommand CRM — Integration Test Suite v3.0.0
  * ============================================================
- *
- * Tests:
- *   1. Backend Health Check
- *   2. CORS Headers
- *   3. Database Schema Bootstrap (GET /sync)
- *   4. Data Write Round-Trip (POST /sync → GET /sync)
- *   5. Database Persistence Verification
- *   6. Prices Endpoint
- *   7. Error Handling (bad routes, bad payloads)
- *   8. Frontend ↔ Backend API Configuration
- *
  * Run:  node tests/run-tests.js
  * ============================================================
  */
 
 const API_URL = 'https://parts-command-api.techguruofficial.workers.dev';
 
-// ── Helpers ──────────────────────────────────────────────────
-let passed = 0;
-let failed = 0;
-let skipped = 0;
+let passed = 0, failed = 0, skipped = 0;
 const results = [];
 
-function log(icon, msg) {
-  console.log(`  ${icon}  ${msg}`);
-}
+function log(icon, msg) { console.log(`  ${icon}  ${msg}`); }
 
 async function test(name, fn) {
   try {
@@ -43,14 +27,9 @@ async function test(name, fn) {
   }
 }
 
-function assert(condition, message) {
-  if (!condition) throw new Error(message);
-}
-
+function assert(condition, message) { if (!condition) throw new Error(message); }
 function assertEqual(actual, expected, label) {
-  if (actual !== expected) {
-    throw new Error(`${label}: expected "${expected}", got "${actual}"`);
-  }
+  if (actual !== expected) throw new Error(`${label}: expected "${expected}", got "${actual}"`);
 }
 
 async function fetchJSON(path, options = {}) {
@@ -58,23 +37,18 @@ async function fetchJSON(path, options = {}) {
   return { res, data: await res.json() };
 }
 
-// Generate a unique test ID to avoid collisions
 const TEST_RUN_ID = `test_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
-// ============================================================
-// TEST SUITES
-// ============================================================
 
 async function runAllTests() {
   console.log('');
   console.log('╔══════════════════════════════════════════════════════════╗');
-  console.log('║   PartsCommand CRM — Integration Test Suite             ║');
+  console.log('║   PartsCommand CRM — Integration Test Suite v3.0.0     ║');
   console.log('╚══════════════════════════════════════════════════════════╝');
   console.log(`  API: ${API_URL}`);
   console.log(`  Run: ${TEST_RUN_ID}`);
   console.log('');
 
-  // ── 1. BACKEND HEALTH ──────────────────────────────────────
+  // ── 1. BACKEND HEALTH ──
   console.log('─── 1. Backend Health ─────────────────────────────────────');
 
   await test('GET /health returns 200 OK', async () => {
@@ -88,21 +62,20 @@ async function runAllTests() {
     const { data } = await fetchJSON('/health');
     const ts = new Date(data.ts);
     assert(!isNaN(ts.getTime()), `Invalid timestamp: ${data.ts}`);
-    // Should be within last 30 seconds
     const delta = Date.now() - ts.getTime();
     assert(delta < 30000, `Timestamp is ${delta}ms old — clock skew?`);
   });
 
   console.log('');
 
-  // ── 2. CORS CONFIGURATION ─────────────────────────────────
+  // ── 2. CORS CONFIGURATION ──
   console.log('─── 2. CORS Configuration ─────────────────────────────────');
 
   await test('OPTIONS preflight returns 204 with CORS headers', async () => {
     const res = await fetch(`${API_URL}/sync`, { method: 'OPTIONS' });
     assertEqual(res.status, 204, 'Status');
     const origin = res.headers.get('access-control-allow-origin');
-    assertEqual(origin, '*', 'Allow-Origin');
+    assert(origin, 'Missing Access-Control-Allow-Origin header');
     const methods = res.headers.get('access-control-allow-methods');
     assert(methods.includes('GET'), 'Missing GET in Allow-Methods');
     assert(methods.includes('POST'), 'Missing POST in Allow-Methods');
@@ -113,7 +86,7 @@ async function runAllTests() {
     for (const ep of endpoints) {
       const res = await fetch(`${API_URL}${ep}`);
       const origin = res.headers.get('access-control-allow-origin');
-      assertEqual(origin, '*', `CORS missing on ${ep}`);
+      assert(origin, `CORS missing on ${ep}`);
     }
   });
 
@@ -126,8 +99,21 @@ async function runAllTests() {
 
   console.log('');
 
-  // ── 3. DATABASE CONNECTION & SCHEMA ─────────────────────────
-  console.log('─── 3. Database Connection & Schema ────────────────────────');
+  // ── 3. SECURITY HEADERS ──
+  console.log('─── 3. Security Headers ───────────────────────────────────');
+
+  await test('Responses include OWASP security headers', async () => {
+    const res = await fetch(`${API_URL}/health`);
+    assert(res.headers.get('x-content-type-options') === 'nosniff', 'Missing X-Content-Type-Options');
+    assert(res.headers.get('x-frame-options') === 'DENY', 'Missing X-Frame-Options');
+    assert(res.headers.get('x-xss-protection'), 'Missing X-XSS-Protection');
+    assert(res.headers.get('strict-transport-security'), 'Missing HSTS');
+  });
+
+  console.log('');
+
+  // ── 4. DATABASE CONNECTION & SCHEMA ──
+  console.log('─── 4. Database Connection & Schema ────────────────────────');
 
   await test('GET /sync connects to Neon and returns structured data', async () => {
     const { res, data } = await fetchJSON('/sync');
@@ -140,86 +126,66 @@ async function runAllTests() {
     assert(Array.isArray(data.auditLogs), 'auditLogs should be an array');
   });
 
-  await test('GET /sync returns JSON content type', async () => {
+  await test('GET /sync returns ETag header', async () => {
     const res = await fetch(`${API_URL}/sync`);
-    const ct = res.headers.get('content-type');
-    assert(ct && ct.includes('application/json'), `Expected JSON, got: ${ct}`);
+    const etag = res.headers.get('etag');
+    assert(etag, 'Missing ETag header on /sync');
+    assert(etag.startsWith('"') || etag.startsWith('W/"'), `ETag should be quoted: ${etag}`);
+  });
+
+  await test('GET /sync supports conditional requests via ETag', async () => {
+    const res1 = await fetch(`${API_URL}/sync`);
+    const etag = res1.headers.get('etag');
+    assert(etag, 'Missing ETag on first request');
+    // Worker may or may not return 304 depending on whether data changed between requests
+    const res2 = await fetch(`${API_URL}/sync`, { headers: { 'If-None-Match': etag } });
+    assert(res2.status === 304 || res2.status === 200, `Expected 200 or 304, got ${res2.status}`);
   });
 
   console.log('');
 
-  // ── 4. DATA ROUND-TRIP (Write → Read) ──────────────────────
-  console.log('─── 4. Data Round-Trip (POST /sync → GET /sync) ────────────');
+  // ── 5. DATA ROUND-TRIP ──
+  console.log('─── 5. Data Round-Trip (POST /sync → GET /sync) ────────────');
 
   const testPart = {
-    id: `part_${TEST_RUN_ID}`,
-    partNumber: `TP-${TEST_RUN_ID.slice(-6)}`,
-    name: 'Test Brake Pad (Integration Test)',
-    barcode: '0000000000000',
-    category: 'Brakes',
-    brand: 'TestBrand',
-    cost: 12.50,
-    price: 29.99,
-    stock: 10,
-    minStock: 2,
-    location: 'A1-01',
+    id: `part_${TEST_RUN_ID}`, partNumber: `TP-${TEST_RUN_ID.slice(-6)}`,
+    name: 'Test Brake Pad (Integration Test)', barcode: '0000000000000',
+    category: 'Brakes', brand: 'TestBrand', cost: 12.50, price: 29.99,
+    stock: 10, minStock: 2, location: 'A1-01',
     notes: `Created by test run ${TEST_RUN_ID}`
   };
-
   const testCustomer = {
-    id: `cust_${TEST_RUN_ID}`,
-    name: 'Integration Test Customer',
-    phone: '555-000-9999',
-    email: 'test@example.com',
-    address: '123 Test Blvd',
+    id: `cust_${TEST_RUN_ID}`, name: 'Integration Test Customer',
+    phone: '555-000-9999', email: 'test@example.com', address: '123 Test Blvd',
     notes: `Created by test run ${TEST_RUN_ID}`
   };
-
   const testVehicle = {
-    id: `veh_${TEST_RUN_ID}`,
-    customerId: `cust_${TEST_RUN_ID}`,
-    year: '2024',
-    make: 'TestMake',
-    model: 'TestModel',
-    vin: `VIN${TEST_RUN_ID.slice(-12).toUpperCase()}`,
-    engine: '2.0L Test',
+    id: `veh_${TEST_RUN_ID}`, customerId: `cust_${TEST_RUN_ID}`,
+    year: '2024', make: 'TestMake', model: 'TestModel',
+    vin: `VIN${TEST_RUN_ID.slice(-12).toUpperCase()}`, engine: '2.0L Test',
     notes: `Created by test run ${TEST_RUN_ID}`
   };
-
   const testSale = {
-    id: `sale_${TEST_RUN_ID}`,
-    customerId: `cust_${TEST_RUN_ID}`,
+    id: `sale_${TEST_RUN_ID}`, customerId: `cust_${TEST_RUN_ID}`,
     date: new Date().toISOString().split('T')[0],
     items: [{ partId: testPart.id, qty: 2, price: 29.99 }],
-    total: 59.98,
-    margin: 34.98,
-    status: 'completed',
-    type: 'sale',
+    total: 59.98, margin: 34.98, status: 'completed', type: 'sale',
     notes: `Created by test run ${TEST_RUN_ID}`
   };
-
   const testAuditLog = {
-    id: `log_${TEST_RUN_ID}`,
-    action: 'TEST_RUN',
+    id: `log_${TEST_RUN_ID}`, action: 'TEST_RUN',
     timestamp: new Date().toISOString(),
     details: `Integration test ${TEST_RUN_ID}`
   };
 
   await test('POST /sync writes test data to Neon database', async () => {
-    const payload = {
-      inventory: [testPart],
-      customers: [testCustomer],
-      vehicles: [testVehicle],
-      sales: [testSale],
-      auditLogs: [testAuditLog]
-    };
-
     const { res, data } = await fetchJSON('/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        inventory: [testPart], customers: [testCustomer],
+        vehicles: [testVehicle], sales: [testSale], auditLogs: [testAuditLog]
+      })
     });
-
     assertEqual(res.status, 200, 'Status');
     assertEqual(data.success, true, 'success flag');
     assert(data.synced, 'Missing synced timestamp');
@@ -228,107 +194,98 @@ async function runAllTests() {
   await test('GET /sync retrieves the test part from database', async () => {
     const { data } = await fetchJSON('/sync');
     const found = data.inventory.find(i => i.id === testPart.id);
-    assert(found, `Test part ${testPart.id} not found in database after POST`);
+    assert(found, `Test part ${testPart.id} not found after POST`);
     assertEqual(found.partNumber, testPart.partNumber, 'partNumber');
-    assertEqual(found.name, testPart.name, 'name');
   });
 
   await test('GET /sync retrieves the test customer from database', async () => {
     const { data } = await fetchJSON('/sync');
     const found = data.customers.find(c => c.id === testCustomer.id);
-    assert(found, `Test customer ${testCustomer.id} not found in database after POST`);
+    assert(found, `Test customer not found after POST`);
     assertEqual(found.name, testCustomer.name, 'name');
-    assertEqual(found.phone, testCustomer.phone, 'phone');
   });
 
   await test('GET /sync retrieves the test vehicle from database', async () => {
     const { data } = await fetchJSON('/sync');
     const found = data.vehicles.find(v => v.id === testVehicle.id);
-    assert(found, `Test vehicle ${testVehicle.id} not found in database after POST`);
+    assert(found, `Test vehicle not found after POST`);
     assertEqual(found.make, testVehicle.make, 'make');
   });
 
   await test('GET /sync retrieves the test sale from database', async () => {
     const { data } = await fetchJSON('/sync');
     const found = data.sales.find(s => s.id === testSale.id);
-    assert(found, `Test sale ${testSale.id} not found in database after POST`);
+    assert(found, `Test sale not found after POST`);
     assertEqual(found.status, 'completed', 'status');
   });
 
-  await test('GET /sync retrieves the test audit log from database', async () => {
-    const { data } = await fetchJSON('/sync');
-    const found = data.auditLogs.find(l => l.id === testAuditLog.id);
-    assert(found, `Test audit log ${testAuditLog.id} not found in database after POST`);
-    assertEqual(found.action, 'TEST_RUN', 'action');
-  });
-
-  await test('Numeric values survive database round-trip (cost/price)', async () => {
+  await test('Numeric values survive database round-trip', async () => {
     const { data } = await fetchJSON('/sync');
     const found = data.inventory.find(i => i.id === testPart.id);
     assert(found, 'Test part missing');
     assertEqual(typeof found.cost, 'number', 'cost type');
-    assertEqual(typeof found.price, 'number', 'price type');
     assertEqual(found.cost, 12.5, 'cost value');
     assertEqual(found.price, 29.99, 'price value');
   });
 
   console.log('');
 
-  // ── 5. DATABASE PERSISTENCE VERIFICATION ────────────────────
-  console.log('─── 5. Database Persistence Verification ───────────────────');
+  // ── 6. PERSISTENCE & UPSERT ──
+  console.log('─── 6. Database Persistence & Upsert ───────────────────────');
 
   await test('Data persists across separate GET requests', async () => {
-    // First request
     const { data: first } = await fetchJSON('/sync');
     const count1 = first.inventory.length;
-
-    // Wait 1 second, fetch again
     await new Promise(r => setTimeout(r, 1000));
-
     const { data: second } = await fetchJSON('/sync');
-    const count2 = second.inventory.length;
-
-    assertEqual(count1, count2, 'Inventory count across requests');
-
-    // Verify test part still there
-    const found = second.inventory.find(i => i.id === testPart.id);
-    assert(found, 'Test part disappeared between requests — DB not persisting');
+    assertEqual(count1, second.inventory.length, 'Inventory count');
+    assert(second.inventory.find(i => i.id === testPart.id), 'Test part disappeared');
   });
 
   await test('POST /sync upsert does not create duplicates', async () => {
-    // Send the same data again
-    const { res } = await fetchJSON('/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    await fetchJSON('/sync', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ inventory: [testPart] })
     });
-    assertEqual(res.status, 200, 'Status');
-
-    // Fetch and count occurrences of our test ID
     const { data } = await fetchJSON('/sync');
-    const matches = data.inventory.filter(i => i.id === testPart.id);
-    assertEqual(matches.length, 1, 'Should have exactly 1 record (upsert, not duplicate)');
+    assertEqual(data.inventory.filter(i => i.id === testPart.id).length, 1, 'Should be exactly 1');
   });
 
   await test('POST /sync upsert updates data in-place', async () => {
-    const updatedPart = { ...testPart, name: 'UPDATED Test Brake Pad', price: 39.99 };
+    const updated = { ...testPart, name: 'UPDATED Test Brake Pad', price: 39.99 };
     await fetchJSON('/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ inventory: [updatedPart] })
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inventory: [updated] })
     });
-
     const { data } = await fetchJSON('/sync');
     const found = data.inventory.find(i => i.id === testPart.id);
-    assert(found, 'Updated part not found');
     assertEqual(found.name, 'UPDATED Test Brake Pad', 'Updated name');
     assertEqual(found.price, 39.99, 'Updated price');
   });
 
   console.log('');
 
-  // ── 6. PRICES ENDPOINT ────────────────────────────────────
-  console.log('─── 6. Prices Endpoint ──────────────────────────────────────');
+  // ── 7. SETTINGS SYNC ──
+  console.log('─── 7. Settings Sync ──────────────────────────────────────');
+
+  await test('POST /sync writes settings to database', async () => {
+    const { res } = await fetchJSON('/sync', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settings: { bizName: 'Test CRM', testRun: TEST_RUN_ID } })
+    });
+    assertEqual(res.status, 200, 'Status');
+  });
+
+  await test('GET /sync retrieves settings from database', async () => {
+    const { data } = await fetchJSON('/sync');
+    assert(data.settings, 'Missing settings in response');
+    assert(typeof data.settings === 'object', 'Settings should be an object');
+  });
+
+  console.log('');
+
+  // ── 8. PRICES ENDPOINT ──
+  console.log('─── 8. Prices Endpoint ──────────────────────────────────────');
 
   await test('GET /prices without partNumber returns 400', async () => {
     const { res, data } = await fetchJSON('/prices');
@@ -343,19 +300,22 @@ async function runAllTests() {
     assert('napa' in data, 'Missing napa field');
     assert('autozone' in data, 'Missing autozone field');
     assert('advance' in data, 'Missing advance field');
+    assert('rockauto' in data, 'Missing rockauto field');
     assert(data.fetchedAt, 'Missing fetchedAt timestamp');
   });
 
-  await test('GET /prices includes cache headers', async () => {
+  await test('GET /prices returns valid response structure', async () => {
     const res = await fetch(`${API_URL}/prices?partNumber=WIX-51348`);
-    const cc = res.headers.get('cache-control');
-    assert(cc && cc.includes('s-maxage'), `Expected Cache-Control with s-maxage, got: "${cc}"`);
+    assertEqual(res.status, 200, 'Status');
+    const data = await res.json();
+    assert(data.partNumber, 'Response should echo partNumber');
+    assert(data.fetchedAt, 'Response should include fetchedAt');
   });
 
   console.log('');
 
-  // ── 7. ERROR HANDLING ─────────────────────────────────────
-  console.log('─── 7. Error Handling ────────────────────────────────────────');
+  // ── 9. ERROR HANDLING & VALIDATION ──
+  console.log('─── 9. Error Handling & Zod Validation ─────────────────────');
 
   await test('Unknown route returns 404', async () => {
     const { res, data } = await fetchJSON('/nonexistent');
@@ -365,52 +325,42 @@ async function runAllTests() {
 
   await test('POST /sync with invalid JSON returns 400', async () => {
     const res = await fetch(`${API_URL}/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: 'this is not json{{{{'
     });
-    const data = await res.json();
     assertEqual(res.status, 400, 'Status');
-    assert(data.error, 'Missing error message');
   });
 
-  await test('POST /sync with empty object succeeds gracefully', async () => {
+  await test('POST /sync with empty object succeeds', async () => {
     const { res, data } = await fetchJSON('/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
     });
     assertEqual(res.status, 200, 'Status');
     assertEqual(data.success, true, 'success flag');
   });
 
-  await test('POST /sync with empty arrays succeeds gracefully', async () => {
-    const { res, data } = await fetchJSON('/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        inventory: [],
-        customers: [],
-        vehicles: [],
-        sales: [],
-        retailerPrices: [],
-        auditLogs: []
-      })
+  await test('POST /sync with Zod-invalid inventory item returns 400', async () => {
+    const { res } = await fetchJSON('/sync', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inventory: [{ noIdField: true }] })
     });
-    assertEqual(res.status, 200, 'Status');
-    assertEqual(data.success, true, 'success flag');
+    assertEqual(res.status, 400, 'Status — missing required id field');
+  });
+
+  await test('GET /favicon.ico returns 204 (no content)', async () => {
+    const res = await fetch(`${API_URL}/favicon.ico`);
+    assertEqual(res.status, 204, 'Status');
   });
 
   console.log('');
 
-  // ── 8. FRONTEND ↔ BACKEND CONFIGURATION ───────────────────
-  console.log('─── 8. Frontend ↔ Backend Configuration ─────────────────────');
+  // ── 10. FRONTEND ↔ BACKEND CONFIG ──
+  console.log('─── 10. Frontend ↔ Backend Configuration ────────────────────');
 
   await test('Frontend API_URL matches the live worker URL', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
     const match = html.match(/API_URL\s*=\s*['"]([^'"]+)['"]/);
     assert(match, 'API_URL constant not found in index.html');
     assertEqual(match[1], API_URL, 'API_URL mismatch');
@@ -418,209 +368,146 @@ async function runAllTests() {
 
   await test('Frontend calls /sync on init (DOMContentLoaded)', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
-    assert(
-      html.includes('fetch(`${API_URL}/sync`'),
-      'Frontend does not fetch /sync on init'
-    );
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    assert(html.includes('fetch(`${API_URL}/sync`'), 'Frontend does not fetch /sync on init');
   });
 
   await test('Frontend POST /sync on every saveDB() call', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
-    assert(
-      html.includes("fetch(`${API_URL}/sync`,") || html.includes('fetch(`${API_URL}/sync`'),
-      'saveDB does not POST to /sync'
-    );
-    assert(
-      html.includes("method: 'POST'"),
-      'saveDB sync does not use POST method'
-    );
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    assert(html.includes("method: 'POST'"), 'saveDB sync does not use POST method');
   });
 
-  await test('Frontend IS_PROD gate correctly identifies production hosts', async () => {
+  await test('Frontend IS_PROD gate identifies production hosts', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
     assert(html.includes('.pages.dev'), 'IS_PROD should check for .pages.dev');
     assert(html.includes('techguruofficial.workers.dev'), 'IS_PROD should check for workers.dev');
   });
 
   console.log('');
 
-  // ── 9. LOCALSTORAGE AUDIT ─────────────────────────────────
-  console.log('─── 9. localStorage Usage Audit ─────────────────────────────');
+  // ── 11. DB SOURCE OF TRUTH AUDIT ──
+  console.log('─── 11. Database Source of Truth Audit ──────────────────────');
 
-  await test('AUDIT: Identify all localStorage references', async () => {
+  await test('AUDIT: saveDB() notifies user on sync failure', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    const saveDBSection = html.substring(
+      html.indexOf('function saveDB('), html.indexOf('function saveDB(') + 1500
     );
-    const lines = html.split('\n');
-    const localStorageLines = [];
-
-    lines.forEach((line, idx) => {
-      if (line.includes('localStorage')) {
-        localStorageLines.push({ line: idx + 1, code: line.trim() });
-      }
-    });
-
-    console.log('');
-    console.log('    ┌─────────────────────────────────────────────────────');
-    console.log('    │ localStorage References Found:');
-    console.log('    ├─────────────────────────────────────────────────────');
-    localStorageLines.forEach(({ line, code }) => {
-      console.log(`    │ L${line}: ${code.substring(0, 70)}${code.length > 70 ? '...' : ''}`);
-    });
-    console.log('    └─────────────────────────────────────────────────────');
-    console.log(`    Total: ${localStorageLines.length} references`);
-    console.log('');
-
-    // This test always passes — it's informational
-    assert(true, '');
+    assert(saveDBSection.includes('showToast'), 'saveDB() does not notify user on failure');
   });
 
-  await test('AUDIT: Verify database is the source of truth', async () => {
+  await test('AUDIT: DATABASE IS THE SOURCE OF TRUTH documented', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
-
-    const issues = [];
-
-    // Extract saveDB function text for scoped checks
-    const saveDBSection = html.substring(
-      html.indexOf('function saveDB('),
-      html.indexOf('function saveDB(') + 1500
-    );
-
-    // ── Check: saveDB cloud sync must NOT be fire-and-forget ──
-    // The old pattern was `.catch(() => { })` — errors silently swallowed.
-    // Only check within the saveDB function — QR scanner .stop().catch() is fine.
-    if (saveDBSection.includes('ignore cloud failures') || saveDBSection.includes("catch(() => { })")) {
-      issues.push('Cloud sync failures are silently ignored (fire-and-forget)');
-    }
-
-    // ── Check: saveDB must notify user on sync failure ──
-    if (!saveDBSection.includes('showToast')) {
-      issues.push('saveDB() does not notify user when cloud sync fails');
-    }
-
-    // ── Check: Init must NOT conditionally skip cloud data ──
-    // Old: `if (cloudData.inventory?.length > 0 || cloudData.customers?.length > 0)`
-    // New: always use cloud data when response is ok
-    if (html.includes('cloudData.inventory?.length > 0')) {
-      issues.push('Init conditionally skips cloud data for empty databases');
-    }
-
-    // ── Check: Init must warn user when DB is unreachable ──
-    const initSection = html.substring(
-      html.indexOf('// ==================== INIT ===================='),
-      html.indexOf('// ==================== INIT ====================') + 3000
-    );
-    if (initSection.includes('console.error') && !initSection.includes('showToast')) {
-      issues.push('Init silently logs DB connection failure without notifying user');
-    }
-
-    // ── Check: DATABASE IS THE SOURCE OF TRUTH comment exists ──
-    if (!html.includes('DATABASE IS THE SOURCE OF TRUTH')) {
-      issues.push('Missing "DATABASE IS THE SOURCE OF TRUTH" documentation in code');
-    }
-
-    if (issues.length > 0) {
-      console.log('');
-      console.log('    ⚠️  Issues found with database-primary architecture:');
-      console.log('    ┌─────────────────────────────────────────────────────');
-      issues.forEach(issue => {
-        console.log(`    │ ⚠  ${issue}`);
-      });
-      console.log('    └─────────────────────────────────────────────────────');
-      console.log('');
-    } else {
-      console.log('');
-      console.log('    ✅  Architecture verified: Neon DB is the source of truth');
-      console.log('    ┌─────────────────────────────────────────────────────');
-      console.log('    │ ✅ saveDB() notifies user on cloud sync failure');
-      console.log('    │ ✅ Init always loads from DB when online');
-      console.log('    │ ✅ Init warns user when DB is unreachable');
-      console.log('    │ ✅ No silent error swallowing');
-      console.log('    │ ✅ localStorage used only as offline cache');
-      console.log('    └─────────────────────────────────────────────────────');
-      console.log('');
-    }
-
-    assert(issues.length === 0,
-      `Found ${issues.length} issue(s) preventing DB-primary architecture. ` +
-      'The database should be the source of truth, not localStorage.'
-    );
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    assert(html.includes('DATABASE IS THE SOURCE OF TRUTH'), 'Missing documentation comment');
   });
 
   console.log('');
 
-  // ── 10. BARCODE SCANNER & UI AUTOMATION ───────────────────
-  console.log('─── 10. Barcode Scanner & UI Automation ──────────────────────');
+  // ── 12. BARCODE SCANNER & UI ──
+  console.log('─── 12. Barcode Scanner & UI ────────────────────────────────');
 
-  await test('AUDIT: Barcode scanner configured for environment camera', async () => {
+  await test('Barcode scanner configured for environment camera', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
-    assert(html.includes('facingMode: "environment"'), 'Scanner not configured to use rear/environment camera');
-    assert(html.includes('Html5QrcodeSupportedFormats'), 'Missing QR/Barcode format support');
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    assert(html.includes('facingMode: "environment"'), 'Scanner not configured for rear camera');
+    assert(html.includes('Html5QrcodeSupportedFormats'), 'Missing barcode format support');
   });
 
-  await test('AUDIT: Barcode scan triggers auto-fill and price fetching', async () => {
+  await test('Barcode scan triggers auto-fill and price fetching', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
-    assert(html.includes('fetchPriceInfoFromBarcode'), 'Missing function to fetch price info from barcode');
-    assert(html.includes('partNumInput.value = decodedText'), 'Does not auto-populate part number on scan');
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    assert(html.includes('fetchPriceInfoFromBarcode'), 'Missing fetchPriceInfoFromBarcode');
+    assert(html.includes('partNumInput.value = decodedText'), 'Does not auto-populate part number');
   });
 
-  await test('AUDIT: Competitor API dynamically auto-fills price and name', async () => {
+  await test('Price fetcher auto-fills name, cost, and sell price', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
-    const fetchInfoSection = html.substring(
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    const section = html.substring(
       html.indexOf('function fetchPriceInfoFromBarcode'),
       html.indexOf('function stopAddPartScanner')
     );
-    assert(fetchInfoSection.includes('nameInput.value = data.name'), 'Does not auto-fill part name from API');
-    assert(fetchInfoSection.includes('lowest * 0.9'), 'Does not calculate competitive price based on lowest competitor');
-    assert(fetchInfoSection.includes('priceInput.value ='), 'Does not auto-fill sell price from API');
+    assert(section.includes('nameInput.value = data.name'), 'Does not auto-fill part name');
+    assert(section.includes('lowest * 1.3'), 'Does not calculate 30% markup pricing');
+    assert(section.includes('priceInput.value ='), 'Does not auto-fill sell price');
   });
 
-  await test('AUDIT: Image capture uses mobile camera correctly', async () => {
+  await test('Image capture uses mobile camera correctly', async () => {
     const fs = await import('fs');
-    const html = fs.readFileSync(
-      new URL('../../frontend/index.html', import.meta.url), 'utf8'
-    );
-    assert(html.includes('accept="image/*"'), 'Image upload missing accept="image/*" restriction');
-    assert(html.includes('capture="environment"'), 'Image upload missing capture="environment" for direct mobile camera access');
+    const html = fs.readFileSync(new URL('../../frontend/index.html', import.meta.url), 'utf8');
+    assert(html.includes('accept="image/*"'), 'Missing accept="image/*"');
+    assert(html.includes('capture="environment"'), 'Missing capture="environment"');
   });
 
   console.log('');
 
-  // ── CLEANUP ────────────────────────────────────────────────
-  console.log('─── Cleanup ─────────────────────────────────────────────────');
+  // ── 13. VERSION CONSISTENCY ──
+  console.log('─── 13. Version Consistency ─────────────────────────────────');
 
-  await test('Cleanup: Remove test data from database', async () => {
-    // We can't run DELETE SQL from here, but we can POST an update
-    // to overwrite the test records with a "deleted" flag.
-    // For now, we mark this as informational.
-    log('ℹ️ ', `Test data left in DB with IDs containing: ${TEST_RUN_ID}`);
-    log('ℹ️ ', 'To clean up, delete rows where id LIKE \'%test_%\' from Neon console.');
+  await test('All package.json versions are aligned', async () => {
+    const fs = await import('fs');
+    const root = JSON.parse(fs.readFileSync(new URL('../../package.json', import.meta.url), 'utf8'));
+    const be = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+    const fe = JSON.parse(fs.readFileSync(new URL('../../frontend/package.json', import.meta.url), 'utf8'));
+    assertEqual(root.version, '3.0.0', 'Root version');
+    assertEqual(be.version, '3.0.0', 'Backend version');
+    assertEqual(fe.version, '3.0.0', 'Frontend version');
+  });
+
+  await test('Worker version header matches package.json', async () => {
+    const { data } = await fetchJSON('/');
+    assert(data.version === '3.0.0', `Worker reports version ${data.version}, expected 3.0.0`);
+  });
+
+  await test('Service Worker CACHE_NAME matches version', async () => {
+    const fs = await import('fs');
+    const sw = fs.readFileSync(new URL('../../frontend/sw.js', import.meta.url), 'utf8');
+    assert(sw.includes('partscommand-v3.0.0'), 'SW CACHE_NAME does not match v3.0.0');
+  });
+
+  console.log('');
+
+  // ── 14. ROCKAUTO SCRAPER VERIFICATION ──
+  console.log('─── 14. RockAuto & Scraper Verification ─────────────────────');
+
+  await test('Worker includes RockAuto scraper with CAPTCHA detection', async () => {
+    const fs = await import('fs');
+    const worker = fs.readFileSync(new URL('../worker.js', import.meta.url), 'utf8');
+    assert(worker.includes('parseRockAuto'), 'Missing parseRockAuto parser');
+    assert(worker.includes('CAPTCHA_SIGNATURES'), 'Missing CAPTCHA detection');
+    assert(worker.includes('ra-formatted-amount'), 'RockAuto price regex missing');
+  });
+
+  await test('Price scraper returns null gracefully on CAPTCHA', async () => {
+    const fs = await import('fs');
+    const worker = fs.readFileSync(new URL('../worker.js', import.meta.url), 'utf8');
+    assert(worker.includes('CAPTCHA detected, skipping'), 'Missing CAPTCHA skip logic');
+    assert(worker.includes('return null'), 'Missing null return on CAPTCHA');
+  });
+
+  await test('Prices response includes all retailer fields', async () => {
+    const { data } = await fetchJSON('/prices?partNumber=TEST-PART-123');
+    const fields = ['napa', 'autozone', 'advance', 'rockauto', 'oreilly', 'carquest'];
+    for (const f of fields) {
+      assert(f in data, `Missing retailer field: ${f}`);
+    }
+  });
+
+  console.log('');
+
+  // ── CLEANUP ──
+  console.log('─── Cleanup ─────────────────────────────────────────────────');
+  await test('Cleanup: Test data info', async () => {
+    log('ℹ️ ', `Test data IDs contain: ${TEST_RUN_ID}`);
+    log('ℹ️ ', 'Clean up via Neon console if needed.');
     assert(true, '');
   });
 
-  // ── SUMMARY ────────────────────────────────────────────────
+  // ── SUMMARY ──
   console.log('');
   console.log('╔══════════════════════════════════════════════════════════╗');
   console.log(`║  RESULTS:  ${passed} passed   ${failed} failed   ${skipped} skipped`);

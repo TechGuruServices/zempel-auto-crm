@@ -88,6 +88,22 @@ async def get_parts(
     client: RockAutoClient = Depends(get_client)
 ):
     try:
-        return await client.search_parts(carcode)
+        return await client.search_parts_by_number(carcode)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/rockauto/search")
+@limiter.limit("5/second")
+async def search_by_name(
+    request: Request,
+    q: str = "",
+    auth: str = Depends(verify_auth_key),
+    client: RockAutoClient = Depends(get_client)
+):
+    """Search by part name/description via what_is_part_called"""
+    if not q:
+        raise HTTPException(status_code=400, detail="Missing query parameter 'q'")
+    try:
+        return await client.what_is_part_called(q)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

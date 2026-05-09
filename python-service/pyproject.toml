@@ -7,6 +7,6 @@ requires-python = ">=3.11"
 dependencies = [
     "fastapi[standard]>=0.110.0",
     "slowapi>=0.1.9",
-    "rockauto-api==1.0.0",
+    "rockauto-api>=1.0.4",
     "pydantic>=2.0.0"
 ]
