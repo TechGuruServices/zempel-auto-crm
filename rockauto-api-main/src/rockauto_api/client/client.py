@@ -122,7 +122,6 @@ class RockAutoClient(BaseClient):
             # Extract _nck token from JavaScript
             html_content = response.text
             # Look for window._nck = "token"; pattern
-            import re
             nck_match = re.search(r'window\._nck\s*=\s*"([^"]+)"', html_content)
             if nck_match:
                 self._nck_token = nck_match.group(1)

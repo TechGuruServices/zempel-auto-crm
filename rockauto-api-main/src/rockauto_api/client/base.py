@@ -247,8 +247,15 @@ class BaseClient:
         }
 
     async def _make_api_request(self, func: str, payload: dict) -> dict:
-        """Make a request to the RockAuto catalogapi.php endpoint."""
+        """Make a request to the RockAuto catalogapi.php endpoint.
+
+        Includes _jnck CAPTCHA bypass token when available.
+        """
         try:
+            # Ensure session is initialized to extract _nck token for CAPTCHA bypass
+            if hasattr(self, '_initialize_session'):
+                await self._initialize_session()
+
             data = {
                 "func": func,
                 "payload": json.dumps(payload),
@@ -257,6 +264,11 @@ class BaseClient:
                 "scbeenloaded": "false",
                 "curCartGroupID": "",
             }
+
+            # Include CAPTCHA bypass token if available
+            if hasattr(self, '_nck_token') and self._nck_token:
+                import urllib.parse
+                data["_jnck"] = urllib.parse.quote(self._nck_token, safe='')
 
             # Use AJAX-specific headers for API requests (based on Playwright analysis)
             api_headers = {
@@ -268,6 +280,10 @@ class BaseClient:
                 "Sec-Fetch-Mode": "cors",
                 "Sec-Fetch-Site": "same-origin"
             }
+
+            # Add mobile fingerprint headers when using mobile profile
+            if self.use_mobile_profile:
+                api_headers["sec-ch-ua-mobile"] = "?1"
 
             response = await self.session.post(self.API_ENDPOINT, data=data, headers=api_headers)
             response.raise_for_status()
@@ -361,9 +377,9 @@ class BaseClient:
             # Update legacy cookies dict
             self.cookies = dict(self.session.cookies)
 
-        except Exception as e:
+        except Exception:
             # Don't fail the main request if navigation simulation fails
-            # but log the issue for debugging
+            # Navigation simulation is best-effort for CAPTCHA avoidance
             pass
 
     async def __aenter__(self):

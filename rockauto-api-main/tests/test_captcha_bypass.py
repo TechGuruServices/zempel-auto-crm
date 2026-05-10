@@ -31,7 +31,7 @@ async def test_mobile_profile_captcha_bypass():
 
         # Test specific year to verify navigation context
         print("\n🔧 Testing models for ACURA 2005...")
-        models = await client.get_models_for_make_year("ACURA", "2005")
+        models = await client.get_models_for_make_year("ACURA", 2005)
         print(f"✅ Retrieved {models.count} models for ACURA 2005")
 
         print("\n🎉 All tests passed! Mobile CAPTCHA bypass strategy working.")

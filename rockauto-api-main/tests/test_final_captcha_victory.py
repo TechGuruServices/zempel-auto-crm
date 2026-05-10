@@ -18,7 +18,9 @@ async def final_victory_test():
     async with RockAutoClient() as client:
         try:
             # Full workflow test
-            make, year, model = "HONDA", "2010", "CIVIC"
+            make = "HONDA"
+            year = 2010  # int, not str
+            model = "CIVIC"
             print(f"🎯 Target vehicle: {make} {year} {model}")
 
             # Navigation with context simulation
@@ -35,35 +37,37 @@ async def final_victory_test():
             print(f"   ✅ {engines.count} engines retrieved")
 
             if engines.engines:
-                engine_desc = engines.engines[0].description
-                print(f"   🔧 Using engine: {engine_desc}")
+                selected_engine = engines.engines[0]
+                print(f"   🔧 Using engine: {selected_engine.description} (carcode: {selected_engine.carcode})")
 
                 print(f"\n4️⃣ THE CRITICAL TEST: Getting part categories...")
-                categories = await client.get_part_categories(make, year, model, engine_desc)
+                # Use carcode, not description
+                categories = await client.get_part_categories(make, year, model, selected_engine.carcode)
                 print(f"   🎉 {categories.count} categories retrieved!")
 
                 if categories.categories:
-                    category_name = categories.categories[0].name
-                    print(f"   📦 First category: {category_name}")
+                    first_category = categories.categories[0]
+                    print(f"   📦 First category: {first_category.name}")
 
                     print(f"\n5️⃣ ULTIMATE TEST: Getting actual parts...")
                     parts = await client.get_parts_by_category(
                         make=make,
                         year=year,
                         model=model,
-                        engine=engine_desc,
-                        category=category_name
+                        carcode=selected_engine.carcode,
+                        category_group_name=first_category.group_name
                     )
                     print(f"   🚀 {parts.count} parts retrieved!")
 
                     if parts.parts:
                         part = parts.parts[0]
-                        print(f"   💰 Sample part: {part.brand} {part.part_number} - ${part.price}")
+                        print(f"   💰 Sample part: {part.brand} {part.part_number}")
 
             print(f"\n📊 Session stats:")
             print(f"   📍 Navigation context: {client.last_navigation_context}")
             print(f"   📅 Year context: {client.current_year_context}")
             print(f"   🍪 Active cookies: {len(client.cookies)}")
+            print(f"   🛡️  _nck token: {'Present' if client._nck_token else 'Not found'}")
 
             print(f"\n🎉 SUCCESS: Complete workflow executed without CAPTCHA!")
             return True
@@ -75,6 +79,8 @@ async def final_victory_test():
                 return False
             else:
                 print(f"\n⚠️ Other error: {e}")
+                import traceback
+                traceback.print_exc()
                 # Still consider this a success if it's not CAPTCHA-related
                 return "captcha" not in error_msg
 
@@ -83,10 +89,10 @@ async def rapid_fire_test():
     print(f"\n🔥 RAPID FIRE TEST: 10 quick vehicle lookups...")
 
     vehicles = [
-        ("TOYOTA", "2015"), ("HONDA", "2012"), ("FORD", "2018"),
-        ("CHEVROLET", "2019"), ("NISSAN", "2016"), ("BMW", "2014"),
-        ("MERCEDES-BENZ", "2017"), ("AUDI", "2013"), ("LEXUS", "2020"),
-        ("VOLKSWAGEN", "2011")
+        ("TOYOTA", 2015), ("HONDA", 2012), ("FORD", 2018),
+        ("CHEVROLET", 2019), ("NISSAN", 2016), ("BMW", 2014),
+        ("MERCEDES-BENZ", 2017), ("AUDI", 2013), ("LEXUS", 2020),
+        ("VOLKSWAGEN", 2011)
     ]
 
     successes = 0
@@ -140,4 +146,6 @@ if __name__ == "__main__":
         print(f"\n⏹️ Test interrupted")
     except Exception as e:
         print(f"\n💥 Test failed: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)

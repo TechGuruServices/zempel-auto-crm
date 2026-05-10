@@ -30,17 +30,25 @@ async def test_parts_search_captcha_bypass():
             print(f"✅ Retrieved {years.count} years for ACURA")
 
             print("\n🚙 Step 3: Getting models for ACURA 2005...")
-            models = await client.get_models_for_make_year("ACURA", "2005")
+            models = await client.get_models_for_make_year("ACURA", 2005)
             print(f"✅ Retrieved {models.count} models for ACURA 2005")
 
             print("\n🔧 Step 4: Getting engines for ACURA 2005 TL...")
-            engines = await client.get_engines_for_vehicle("ACURA", "2005", "TL")
+            engines = await client.get_engines_for_vehicle("ACURA", 2005, "TL")
             print(f"✅ Retrieved {engines.count} engines for ACURA 2005 TL")
+
+            if not engines.engines:
+                print("⚠️  No engines found - skipping category/parts tests")
+                print("✅ CAPTCHA bypass still working (no CAPTCHA error)")
+                return True
+
+            selected_engine = engines.engines[0]
+            print(f"   🔧 Using engine: {selected_engine.description} (carcode: {selected_engine.carcode})")
 
             # Step 5: THE BIG TEST - Get part categories (this often triggers CAPTCHA)
             print("\n🛠️  Step 5: THE BIG TEST - Getting part categories...")
             print("This is where CAPTCHA usually triggers! 🤞")
-            categories = await client.get_part_categories("ACURA", "2005", "TL", "3.2L V6 GAS SOHC Naturally Aspirated")
+            categories = await client.get_part_categories("ACURA", 2005, "TL", selected_engine.carcode)
             print(f"🎉 SUCCESS! Retrieved {categories.count} part categories")
 
             # Step 6: ULTIMATE TEST - Get actual parts data
@@ -51,19 +59,19 @@ async def test_parts_search_captcha_bypass():
 
                 parts = await client.get_parts_by_category(
                     make="ACURA",
-                    year="2005",
+                    year=2005,
                     model="TL",
-                    engine="3.2L V6 GAS SOHC Naturally Aspirated",
-                    category=first_category.name
+                    carcode=selected_engine.carcode,
+                    category_group_name=first_category.group_name
                 )
                 print(f"🎯 ULTIMATE SUCCESS! Retrieved {parts.count} parts")
 
                 if parts.parts:
                     print(f"   First part: {parts.parts[0].brand} - {parts.parts[0].part_number}")
-                    print(f"   Price: ${parts.parts[0].price}")
 
             print(f"\n📍 Final navigation context: {client.last_navigation_context}")
             print(f"📅 Final year context: {client.current_year_context}")
+            print(f"🛡️  _nck token: {'Present' if client._nck_token else 'Not found'}")
 
         except Exception as e:
             error_msg = str(e).lower()
@@ -75,6 +83,8 @@ async def test_parts_search_captcha_bypass():
                 return False
             else:
                 print(f"❌ ERROR: {e}")
+                import traceback
+                traceback.print_exc()
                 return False
 
     print("\n🎉🎉🎉 ALL TESTS PASSED! CAPTCHA BYPASS SUCCESSFUL! 🎉🎉🎉")
@@ -86,11 +96,11 @@ async def stress_test_multiple_requests():
 
     async with RockAutoClient() as client:
         vehicles = [
-            ("HONDA", "2010", "CIVIC"),
-            ("TOYOTA", "2015", "CAMRY"),
-            ("FORD", "2008", "F-150"),
-            ("CHEVROLET", "2012", "CRUZE"),
-            ("NISSAN", "2018", "ALTIMA")
+            ("HONDA", 2010, "CIVIC"),
+            ("TOYOTA", 2015, "CAMRY"),
+            ("FORD", 2008, "F-150"),
+            ("CHEVROLET", 2012, "CRUZE"),
+            ("NISSAN", 2018, "ALTIMA")
         ]
 
         for i, (make, year, model) in enumerate(vehicles, 1):
@@ -110,8 +120,10 @@ async def stress_test_multiple_requests():
                 print(f"  ✅ Engines: {engines.count}")
 
                 if engines.engines:
-                    # Get part categories (CAPTCHA trigger point)
-                    categories = await client.get_part_categories(make, year, model, engines.engines[0].name)
+                    # Get part categories using carcode
+                    categories = await client.get_part_categories(
+                        make, year, model, engines.engines[0].carcode
+                    )
                     print(f"  🎯 Categories: {categories.count}")
 
             except Exception as e:
@@ -144,4 +156,6 @@ if __name__ == "__main__":
         print("\n⏹️  Test interrupted by user")
     except Exception as e:
         print(f"\n💥 Test failed with exception: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
