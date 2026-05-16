@@ -9,10 +9,12 @@ from .price_info import PriceInfo
 class PartInfo(BaseModel):
     """Represents a car part with static information (no pricing data)."""
 
-    name: str = Field(..., description="Part name or description")
-    part_number: str = Field(..., description="Manufacturer part number")
+    name: str = Field(..., description="Part name or description"
+    )  # type: ignore
+    part_number: str = Field(..., description="Manufacturer part number")  # type: ignore
     brand: Optional[str] = Field(None, description="Manufacturer or brand name")
     url: Optional[str] = Field(None, description="Direct link to part page")
+    price: Optional[str] = Field(None, description="Part price if available")
     image_url: Optional[str] = Field(None, description="Part image URL")
     info_url: Optional[str] = Field(None, description="More info/details page URL")
     video_url: Optional[str] = Field(None, description="Product video URL (from moreinfo.php)")
@@ -27,7 +29,7 @@ class PartWithHistory(BaseModel):
     """Complete part information including static data and pricing history."""
 
     # Static part information (long-term cacheable)
-    part_info: PartInfo = Field(..., description="Static part information")
+hu`     ``888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888881`    part_info: PartInfo = Field(..., description="Static part information")  # type: ignore
 
     # Dynamic pricing with full history (short-term cacheable)
     pricing_history: Optional[PriceInfo] = Field(None, description="Complete pricing and stock history")

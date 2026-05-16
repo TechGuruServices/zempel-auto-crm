@@ -1,7 +1,7 @@
 """Base client functionality for RockAuto API."""
 
 import json
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import httpx
 
@@ -233,7 +233,7 @@ class BaseClient:
         except Exception as e:
             raise Exception(f"Logout failed: {str(e)}")
 
-    def get_authentication_status(self) -> Dict[str, any]:
+    def get_authentication_status(self) -> Dict[str, Any]:
         """
         Get current authentication status.
 
@@ -293,7 +293,7 @@ class BaseClient:
         except Exception as e:
             raise Exception(f"API request failed: {str(e)}")
 
-    async def _simulate_navigation_context(self, make: str = None, year: str = None) -> None:
+    async def _simulate_navigation_context(self, make: Optional[str] = None, year: Optional[str] = None) -> None:
         """
         Simulate browser navigation context to avoid CAPTCHA detection.
 

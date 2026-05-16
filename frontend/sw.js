@@ -209,3 +209,10 @@ self.addEventListener('notificationclick', (event) => {
     event.waitUntil(clients.openWindow(event.notification.data.url));
   }
 });
+
+// ── Message handler (SKIP_WAITING from sw_cache_update.js) ───────────────────
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});

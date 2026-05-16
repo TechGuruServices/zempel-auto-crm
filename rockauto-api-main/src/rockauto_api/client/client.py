@@ -205,7 +205,7 @@ class RockAutoClient(BaseClient):
 
             makes = set()
             for link in soup.find_all("a", href=True):
-                href = link.get("href", "")
+                href = str(link.get("href", ""))
                 if "/catalog/" in href and href.count("/") >= 3:
                     parts = href.strip("/").split("/")
                     if len(parts) >= 2 and parts[1] != "catalog":
@@ -234,7 +234,7 @@ class RockAutoClient(BaseClient):
 
             years = set()
             for link in soup.find_all("a", href=True):
-                href = link.get("href", "")
+                href = str(link.get("href", ""))
                 if f"/{make.lower()}," in href:
                     parts = href.split(",")
                     if len(parts) >= 2:
@@ -261,7 +261,7 @@ class RockAutoClient(BaseClient):
 
             models = set()
             for link in soup.find_all("a", href=True):
-                href = link.get("href", "")
+                href = str(link.get("href", ""))
                 if f"/{make.lower()},{year}," in href:
                     parts = href.split(",")
                     if len(parts) >= 3:
@@ -341,7 +341,7 @@ class RockAutoClient(BaseClient):
 
                 engines = []
                 for link in soup.find_all("a", href=True):
-                    href = link.get("href", "")
+                    href = str(link.get("href", ""))
                     if f"/{make.lower()},{year},{model.lower()}," in href:
                         parts = href.split(",")
                         if len(parts) >= 5:
@@ -398,7 +398,7 @@ class RockAutoClient(BaseClient):
 
                 for link in soup.find_all("a", href=True):
                     text = link.get_text(strip=True)
-                    href = link.get("href", "")
+                    href = str(link.get("href", ""))
 
                     if text and len(text) > 2:
                         # Extract group name from href for API calls
@@ -459,7 +459,7 @@ class RockAutoClient(BaseClient):
                 navlabel_links = soup.find_all("a", class_="navlabellink")
 
                 for link in navlabel_links:
-                    href = link.get("href", "")
+                    href = str(link.get("href", ""))
                     text = link.get_text(strip=True)
 
                     # This looks like a subcategory if it has a catalog URL but no price info
@@ -736,7 +736,7 @@ class RockAutoClient(BaseClient):
 
             # Find all tool category links - look for specific patterns from the main page
             for link in soup.find_all("a", href=True):
-                href = link.get("href", "")
+                href = str(link.get("href", ""))
                 text = link.get_text(strip=True)
 
                 # Look for tool category links matching the pattern we saw
@@ -883,8 +883,12 @@ class RockAutoClient(BaseClient):
             # Extract tool name
             name_candidates = [text for text in cell_texts if text and "$" not in text and len(text) > 5]
             if name_candidates:
-                longest_candidate = max(name_candidates, key=len)
-                clean_name = self._clean_tool_name(longest_candidate, tool_info["brand"], tool_info["part_number"])
+                longest_candidate = str(max(name_candidates, key=len))
+                clean_name = self._clean_tool_name(
+                    longest_candidate,
+                    tool_info["brand"] or "",
+                    tool_info["part_number"] or "Unknown"
+                )
                 tool_info["name"] = clean_name if clean_name else longest_candidate
 
             # Extract URLs from row
@@ -894,7 +898,7 @@ class RockAutoClient(BaseClient):
             if tool_info["price"] or tool_info["part_number"] != "Unknown":
                 return ToolInfo(
                     name=tool_info["name"] or "Unknown Tool",
-                    part_number=tool_info["part_number"],
+                    part_number=str(tool_info["part_number"]),
                     price=tool_info["price"],
                     brand=tool_info["brand"],
                     description=tool_info["description"],
@@ -930,7 +934,7 @@ class RockAutoClient(BaseClient):
         # Look for main tool link
         main_links = row.find_all("a", href=True)
         for link in main_links:
-            href = link.get("href", "")
+            href = str(link.get("href", ""))
             if "/en/tools/" in href and "moreinfo" not in href:
                 tool_info["url"] = self._format_tool_url(href)
                 break
@@ -988,7 +992,7 @@ class RockAutoClient(BaseClient):
 
             manufacturers = []
             for option in manufacturer_select.find_all("option"):
-                value = option.get("value", "")
+                value = str(option.get("value", ""))
                 text = option.get_text(strip=True)
                 if text:  # Skip empty options
                     manufacturers.append(PartSearchOption(value=value, text=text))
@@ -1030,7 +1034,7 @@ class RockAutoClient(BaseClient):
 
             part_groups = []
             for option in part_group_select.find_all("option"):
-                value = option.get("value", "")
+                value = str(option.get("value", ""))
                 text = option.get_text(strip=True)
                 if text:  # Skip empty options
                     part_groups.append(PartSearchOption(value=value, text=text))
@@ -1072,7 +1076,7 @@ class RockAutoClient(BaseClient):
 
             part_types = []
             for option in part_type_select.find_all("option"):
-                value = option.get("value", "")
+                value = str(option.get("value", ""))
                 text = option.get_text(strip=True)
                 if text:  # Skip empty options
                     part_types.append(PartSearchOption(value=value, text=text))
@@ -1287,17 +1291,17 @@ class RockAutoClient(BaseClient):
             href = ""
             link = row.find("a", href=True)
             if link:
-                href = link.get("href", "")
+                href = str(link.get("href", ""))
                 if href and not href.startswith("http"):
                     href = f"https://www.rockauto.com{href}"
 
             return PartInfo(
+                name="Unknown Part",
                 part_number=part_number,
                 brand="Unknown",
                 price="Unknown",
-                description="Unknown",
-                href=href,
-                specifications={}
+                url=href,
+                specifications=None
             )
 
         except Exception:
@@ -1372,8 +1376,8 @@ class RockAutoClient(BaseClient):
         # Clear part cache
         if self._part_cache:
             stats = self._part_cache.get_cache_stats()
-            cleared["parts_cleared"] = stats["cached_parts"]
-            cleared["searches_cleared"] = stats["cached_results"]
+            cleared["parts_cleared"] = int(stats["cached_parts"])
+            cleared["searches_cleared"] = int(stats["cached_results"])
             self._part_cache.clear_all()
 
         return cleared
@@ -1677,7 +1681,7 @@ class RockAutoClient(BaseClient):
         for pattern in date_patterns:
             date_match = soup.find(text=pattern)
             if date_match:
-                match = pattern.search(date_match.strip())
+                match = pattern.search(str(date_match).strip())
                 if match:
                     order_status.order_date = match.group(1).strip()
                     break
@@ -1714,8 +1718,10 @@ class RockAutoClient(BaseClient):
                             part_number = text
                         elif "qty" in text.lower() or text.isdigit():
                             try:
-                                quantity = int(re.search(r"\d+", text).group())
-                            except:
+                                qty_match = re.search(r"\d+", text)
+                                if qty_match:
+                                    quantity = int(qty_match.group())
+                            except (ValueError, AttributeError):
                                 pass
                         elif "$" in text:
                             if "." in text:
@@ -1757,14 +1763,14 @@ class RockAutoClient(BaseClient):
             for pattern in tracking_patterns:
                 tracking_match = soup.find(text=pattern)
                 if tracking_match:
-                    match = pattern.search(tracking_match.strip())
+                    match = pattern.search(str(tracking_match).strip())
                     if match:
                         tracking_number = match.group(1).strip()
-                        if "ups" in tracking_match.lower():
+                        if "ups" in str(tracking_match).lower():
                             carrier = "UPS"
-                        elif "fedex" in tracking_match.lower():
+                        elif "fedex" in str(tracking_match).lower():
                             carrier = "FedEx"
-                        elif "usps" in tracking_match.lower():
+                        elif "usps" in str(tracking_match).lower():
                             carrier = "USPS"
                         break
 
@@ -1778,7 +1784,7 @@ class RockAutoClient(BaseClient):
             for pattern in shipping_patterns:
                 cost_match = soup.find(text=pattern)
                 if cost_match:
-                    match = pattern.search(cost_match.strip())
+                    match = pattern.search(str(cost_match).strip())
                     if match:
                         shipping_cost = match.group(1)
                         break
@@ -1810,7 +1816,7 @@ class RockAutoClient(BaseClient):
             for pattern in total_patterns:
                 total_match = soup.find(text=pattern)
                 if total_match:
-                    match = pattern.search(total_match.strip())
+                    match = pattern.search(str(total_match).strip())
                     if match:
                         total = match.group(1)
                         break
@@ -1824,7 +1830,7 @@ class RockAutoClient(BaseClient):
             for pattern in subtotal_patterns:
                 subtotal_match = soup.find(text=pattern)
                 if subtotal_match:
-                    match = pattern.search(subtotal_match.strip())
+                    match = pattern.search(str(subtotal_match).strip())
                     if match:
                         subtotal = match.group(1)
                         break
@@ -1854,7 +1860,7 @@ class RockAutoClient(BaseClient):
             # Look for any text containing error keywords
             error_text = soup.find(text=re.compile(r"error|not found|invalid|failed", re.I))
             if error_text:
-                return error_text.strip()
+                return str(error_text).strip()
 
             return "Order lookup failed"
 
@@ -1880,7 +1886,7 @@ class RockAutoClient(BaseClient):
 
         # If order_number doesn't match what we searched for, likely localization
         actual_order_num = getattr(order_status, 'order_number', '')
-        if actual_order_num and str(actual_order_num) != str(order_number):
+        if actual_order_num and actual_order_num != str(order_number):
             return False
 
         # Check if we have meaningful item count or billing info
@@ -1901,8 +1907,8 @@ class RockAutoClient(BaseClient):
 
         # If we have a reasonable status, date, and items, it's probably real
         return (
-            item_count > 0 or has_billing or
-            (len(str(status)) < 100 and status.lower() not in ['unknown', ''])
+            bool(item_count > 0 or has_billing or
+            (len(str(status)) < 100 and status.lower() not in ['unknown', '']))
         )
 
     # === AUTHENTICATED ACCOUNT METHODS ===
@@ -1951,7 +1957,7 @@ class RockAutoClient(BaseClient):
 
             # Add security token if found
             if security_token:
-                form_data["_nck"] = security_token
+                form_data["_nck"] = str(security_token)
 
             # Submit request
             headers = {

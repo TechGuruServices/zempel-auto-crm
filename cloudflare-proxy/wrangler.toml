@@ -1,0 +1,29 @@
+# ============================================================
+# Zempel RockAuto Proxy — Cloudflare Worker Config
+# ============================================================
+# Deploy: cd cloudflare-proxy && wrangler deploy
+# Secrets: ./wrangler_secrets.sh
+# ============================================================
+
+name                = "zempel-rockauto-proxy"
+main                = "worker_routes.js"
+compatibility_date  = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev         = true
+
+[observability]
+enabled = true
+
+[vars]
+ENVIRONMENT = "production"
+
+# ── KV Namespace (rate limiting + response cache) ─────────────
+# Create first: wrangler kv namespace create PROXY_KV
+# Then paste the returned id below.
+# [[kv_namespaces]]
+# binding = "PROXY_KV"
+# id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# ── Secrets (set via wrangler_secrets.sh) ─────────────────────
+# PYTHON_SERVICE_URL  — Full URL of Render-deployed Python service
+# SERVICE_AUTH_KEY    — Shared API key for proxy→Python auth
