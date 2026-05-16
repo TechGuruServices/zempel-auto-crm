@@ -2,7 +2,7 @@ FROM python:3.11-slim AS builder
 WORKDIR /build
 COPY pyproject.toml .
 RUN pip install --no-cache-dir --prefix=/install .
-COPY src/ ./
+COPY src/ ./src/
 RUN python -m compileall src/
 
 FROM python:3.11-slim AS runtime
@@ -14,8 +14,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     RATE_LIMIT_RPS=5
 WORKDIR /app
 COPY --from=builder /install /usr/local
-COPY --from=builder /build/src ./
-EXPOSE ${APP_PORT}
+COPY --from=builder /build/src ./src/
+EXPOSE 8000
+# Use shell form so $APP_PORT expands correctly
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${APP_PORT}/health')" || exit 1
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "${APP_PORT}", "--workers", "2", "--log-level", "info"]
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:' + __import__('os').environ.get('APP_PORT','8000') + '/health')" || exit 1
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--log-level", "info"]

@@ -45,6 +45,9 @@
 
 ```
 zempel-autoparts-crm/
+├── src/                       # FastAPI Python service source
+│   ├── main.py                # Routes, middleware, Pydantic models
+│   └── dependencies.py        # DI: asyncpg pool, httpx, RockAutoClient
 ├── frontend/                  # PWA (Cloudflare Pages)
 │   ├── index.html             # Single-page app (227 KB)
 │   ├── sw.js                  # Service Worker — offline-first + ETag
@@ -53,7 +56,7 @@ zempel-autoparts-crm/
 │   ├── sw_cache_update.js     # SW cache coordination utility
 │   ├── manifest.json          # PWA manifest
 │   └── assets/                # Images, fonts, vendor JS
-├── backend/                   # Cloudflare Worker (legacy D1 API)
+├── backend/                   # Cloudflare Worker (CRM auth/sync API)
 │   ├── worker.js              # Main worker — auth, CRUD, sync
 │   ├── schema.sql             # D1/Neon table definitions
 │   ├── wrangler.toml          # Worker config + KV/D1 bindings
@@ -62,16 +65,12 @@ zempel-autoparts-crm/
 │   ├── worker_routes.js       # Proxy routes — cache, CORS, retry
 │   ├── wrangler.toml          # Worker config
 │   └── wrangler_secrets.sh    # Secret setup script
-├── python-service/            # FastAPI microservice
-│   ├── src/
-│   │   ├── main.py            # Routes, middleware, Pydantic models
-│   │   └── dependencies.py    # DI: asyncpg pool, httpx, RockAutoClient
-│   ├── Dockerfile             # Multi-stage (builder → slim runtime)
-│   ├── koyeb.yaml             # (Optional) Koyeb configuration
-│   └── pyproject.toml         # Pinned dependencies
 ├── deploy/                    # Deployment scripts
 │   ├── deploy.sh              # Full-stack deploy
 │   └── verify.sh              # Post-deploy health checks
+├── Dockerfile                 # Multi-stage Python build (root-level for Koyeb)
+├── pyproject.toml             # Pinned Python dependencies
+├── .dockerignore              # Docker build exclusions
 └── rockauto-api-main/         # rockauto-api==1.0.0 vendored source
 ```
 
@@ -125,8 +124,8 @@ cd backend && npm install && cd ..
 # Frontend
 cd frontend && npm install && cd ..
 
-# Python service
-cd python-service && pip install -e . && cd ..
+# Python service (files are at repo root)
+pip install -e .
 ```
 
 ### 2. Environment Variables
@@ -165,8 +164,8 @@ cd backend && npx wrangler dev
 # Terminal 2: Frontend
 cd frontend && npx wrangler pages dev .
 
-# Terminal 3: Python Service
-cd python-service && uvicorn src.main:app --reload --port 8000
+# Terminal 3: Python Service (from repo root)
+uvicorn src.main:app --reload --port 8000
 ```
 
 ### 4. Deploy to Production

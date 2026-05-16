@@ -25,5 +25,5 @@ ENVIRONMENT = "production"
 # id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
 # ── Secrets (set via wrangler_secrets.sh) ─────────────────────
-# PYTHON_SERVICE_URL  — Full URL of Render-deployed Python service
+# PYTHON_SERVICE_URL  — Full URL of Koyeb-deployed Python service (e.g. https://your-app.koyeb.app)
 # SERVICE_AUTH_KEY    — Shared API key for proxy→Python auth

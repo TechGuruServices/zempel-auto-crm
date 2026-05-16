@@ -149,7 +149,7 @@ export default {
       return json({ error: 'Not found', path: url.pathname }, hdrs, 404);
     } catch (err) {
       console.error('[Worker] Unhandled:', err);
-      return json({ error: 'Internal server error', detail: err.message }, hdrs, 500);
+      return json({ error: 'Internal server error' }, hdrs, 500);
     }
   }
 };

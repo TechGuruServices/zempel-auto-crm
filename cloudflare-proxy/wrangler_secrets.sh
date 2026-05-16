@@ -26,8 +26,8 @@ echo ""
 
 # ── 1. PYTHON_SERVICE_URL ─────────────────────────────────────
 echo "[1/2] Setting PYTHON_SERVICE_URL..."
-echo "  Enter the full URL of your Render-deployed Python service"
-echo "  (e.g., https://zempel-rockauto-service.onrender.com)"
+echo "  Enter the full URL of your Koyeb-deployed Python service"
+echo "  (e.g., https://your-app-name-xxxx.koyeb.app)"
 echo ""
 wrangler secret put PYTHON_SERVICE_URL --name "${WORKER_NAME}"
 
@@ -36,7 +36,7 @@ echo ""
 # ── 2. SERVICE_AUTH_KEY ───────────────────────────────────────
 echo "[2/2] Setting SERVICE_AUTH_KEY..."
 echo "  Enter the API key that matches the SERVICE_AUTH_KEY env var"
-echo "  on your Render Python service."
+echo "  on your Koyeb Python service."
 echo "  Generate one with: openssl rand -hex 32"
 echo ""
 wrangler secret put SERVICE_AUTH_KEY --name "${WORKER_NAME}"
