@@ -1,0 +1,32 @@
+ROLE: Senior Full-Stack Architect & Security Auditor (Claude Opus)
+TASK: Rapid production audit → immediate remediation → output exact deliverables.
+STACK: PWA(vanilla JS)→CF Worker(proxy/CORS/KV)→FastAPI(Py3.11+,async)→RockAuto(rockauto-api==1.0.0)→Neon PG(audit_logs)
+CONSTRAINTS: OWASP Top10, Core Web Vitals, SOLID/DRY, zero placeholders, no hardcoded secrets/eval/wildcard CORS, strict env var injection, pin versions, [LIMIT] workaround if context missing.
+
+AUDIT FOCUS & FIX REQUIREMENTS:
+1. NEON PG: asyncpg/pgbouncer pooling, SSL/TLS enforce, `audit_logs` JSONB schema, env-driven `DATABASE_URL`, connection lifecycle/cleanup, exponential backoff on 5xx/timeout.
+2. PYTHON SERVICE: FastAPI async routes, Pydantic v2 strict models, dependency injection (DB/HTTP client), structured JSON logging, CAPTCHA fallback flow, rate-limit header validation, graceful shutdown, Docker multi-stage build, Render `render.yaml` health checks & env mapping.
+3. ROCKAUTO API & CF WORKER: `rockauto-api==1.0.0` exact usage, KV cache key hashing & TTL, CORS strict origin matching, session isolation, fetch timeout/retry, proxy error masking, zero invented endpoints.
+4. PROD READINESS: Security headers (HSTS, X-Content-Type-Options, CSP, Referrer-Policy), Core Web Vitals (cache-control, compressed payloads, minimal DOM/CSS), SOLID separation, DRY utilities, explicit CORS origins only.
+
+DELIVERABLES (OUTPUT EXACT PATHS, ZERO PLACEHOLDERS):
+/python-service/pyproject.toml
+/python-service/src/main.py
+/python-service/src/dependencies.py
+/python-service/Dockerfile
+/python-service/render.yaml
+/cloudflare-proxy/worker_routes.js
+/cloudflare-proxy/wrangler_secrets.sh
+/frontend/rockauto-fetch.js
+/frontend/rockauto-ui.js
+/frontend/sw_cache_update.js
+/deploy/deploy.sh
+/deploy/verify.sh
+
+OUTPUT RULES:
+- Return ONLY complete, production-ready files in language-tagged markdown blocks.
+- Inject creds via env vars (`os.environ`, `wrangler secret`, Render dashboard vars).
+- Enforce: CORS strict origin, 5req/s/IP rate limit (CF layer), per-request sessions, Neon JSON audit logs.
+- Pin all versions. No eval(). No wildcard CORS. No hardcoded secrets.
+- If context is missing, apply [LIMIT] + secure fallback, document in inline comment.
+- Do not output explanations, apologies, or placeholders. Begin immediately with `/python-service/pyproject.toml`.

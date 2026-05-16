@@ -50,14 +50,14 @@ if [ "$SKIP_PYTHON" = false ]; then
   cd "${REPO_ROOT}"
 
   # Validate Dockerfile exists
-  if [ ! -f "python-service/Dockerfile" ]; then
-    echo "  ✗ python-service/Dockerfile not found!"
+  if [ ! -f "Dockerfile" ]; then
+    echo "  ✗ Dockerfile not found!"
     exit 1
   fi
 
   # Validate pyproject.toml
-  if [ ! -f "python-service/pyproject.toml" ]; then
-    echo "  ✗ python-service/pyproject.toml not found!"
+  if [ ! -f "pyproject.toml" ]; then
+    echo "  ✗ pyproject.toml not found!"
     exit 1
   fi
 
