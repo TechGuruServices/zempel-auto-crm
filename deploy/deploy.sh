@@ -3,13 +3,13 @@
 # Zempel Auto Parts CRM — Full-Stack Deploy Script v3.1.0
 # ============================================================
 # Deploys all three tiers:
-#   1. Python FastAPI service → Koyeb (via Docker)
+#   1. Python FastAPI service → Hugging Face Spaces (Docker)
 #   2. CF Worker proxy        → Cloudflare Workers
 #   3. Frontend PWA           → Cloudflare Pages
 #
 # Prerequisites:
 #   - wrangler CLI installed and authenticated
-#   - Git push to main to trigger Koyeb deploy
+#   - Hugging Face Space created (Docker template)
 #   - All secrets configured (see wrangler_secrets.sh)
 #
 # Usage:
@@ -44,9 +44,9 @@ echo "  Zempel Auto Parts CRM — Deploy (${TIMESTAMP})"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
-# ── 1. Python Service (Koyeb) ────────────────────────────────
+# ── 1. Python Service (Hugging Face) ─────────────────────────
 if [ "$SKIP_PYTHON" = false ]; then
-  echo "▶ [1/3] Python service — pushing to trigger Koyeb deploy..."
+  echo "▶ [1/3] Python service — pushing to Hugging Face..."
   cd "${REPO_ROOT}"
 
   # Validate Dockerfile exists
@@ -62,8 +62,9 @@ if [ "$SKIP_PYTHON" = false ]; then
   fi
 
   echo "  ✓ Python service files validated"
-  echo "  ℹ Koyeb auto-deploys on git push to main branch."
-  echo "    Run: git add -A && git commit -m 'deploy: python-service ${TIMESTAMP}' && git push origin main"
+  echo "  ℹ Hugging Face deploys on git push to their remote."
+  echo "    Ensure you have added HF as a git remote: git remote add hf https://huggingface.co/spaces/YOUR_NAME/YOUR_SPACE"
+  echo "    Run: git push hf main"
   echo ""
 else
   echo "▷ [1/3] Python service — SKIPPED"
