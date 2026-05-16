@@ -35,7 +35,7 @@
 |------|-----------|---------|
 | **Frontend** | Vanilla JS PWA, Service Worker, glassmorphism UI | Cloudflare Pages |
 | **Proxy** | Cloudflare Worker, KV cache, rate limiting | Cloudflare Workers |
-| **API** | FastAPI, Pydantic v2, structlog, slowapi | Render (Docker) |
+| **API** | FastAPI, Pydantic v2, structlog, slowapi | Koyeb (Docker) |
 | **Database** | Neon PostgreSQL, asyncpg, JSONB audit logs | Neon |
 | **Scraper** | `rockauto-api==1.0.0` with CAPTCHA bypass | Bundled |
 
@@ -67,8 +67,8 @@ zempel-autoparts-crm/
 │   │   ├── main.py            # Routes, middleware, Pydantic models
 │   │   └── dependencies.py    # DI: asyncpg pool, httpx, RockAutoClient
 │   ├── Dockerfile             # Multi-stage (builder → slim runtime)
-│   ├── pyproject.toml         # Pinned dependencies
-│   └── render.yaml            # Render deployment manifest
+│   ├── koyeb.yaml             # (Optional) Koyeb configuration
+│   └── pyproject.toml         # Pinned dependencies
 ├── deploy/                    # Deployment scripts
 │   ├── deploy.sh              # Full-stack deploy
 │   └── verify.sh              # Post-deploy health checks
@@ -148,7 +148,7 @@ chmod +x wrangler_secrets.sh
 # Prompts for: PYTHON_SERVICE_URL, SERVICE_AUTH_KEY
 ```
 
-**Python Service** (Render dashboard or local `.env`):
+**Python Service** (Koyeb dashboard or local `.env`):
 
 ```env
 DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
@@ -267,7 +267,7 @@ CREATE TABLE audit_logs (
 | Frontend PWA | Cloudflare Pages | `wrangler pages deploy` |
 | Backend Worker | Cloudflare Workers | `wrangler deploy` (from `/backend`) |
 | RockAuto Proxy | Cloudflare Workers | `wrangler deploy` (from `/cloudflare-proxy`) |
-| Python Service | Render | Git push to `main` (auto-deploy) |
+| Python Service | Koyeb | Git push to `main` (auto-deploy) |
 | Database | Neon | Always-on serverless PG |
 
 ---
@@ -287,7 +287,7 @@ CREATE TABLE audit_logs (
 | Scraping | rockauto-api 1.0.0, httpx |
 | Logging | structlog (JSON), slowapi |
 | Container | Docker (multi-stage, slim-bookworm) |
-| Deploy | Render, Cloudflare, GitHub Actions |
+| Deploy | Koyeb, Cloudflare, GitHub Actions |
 
 ---
 

@@ -5,7 +5,7 @@
 # Validates all three tiers are reachable and healthy.
 #
 # Checks:
-#   1. Python FastAPI service /health (Render)
+#   1. Python FastAPI service /health (Koyeb)
 #   2. CF Worker proxy /health
 #   3. Frontend PWA (Cloudflare Pages) — HTTP 200
 #   4. Security headers on all endpoints
@@ -16,7 +16,7 @@
 #   ./deploy/verify.sh
 #
 # Environment (override defaults):
-#   PYTHON_URL   — Render service URL
+#   PYTHON_URL   — Koyeb service URL
 #   PROXY_URL    — CF Worker proxy URL
 #   FRONTEND_URL — CF Pages URL
 # ============================================================
@@ -24,7 +24,7 @@
 set -euo pipefail
 
 # ── Defaults (override via env vars) ─────────────────────────
-PYTHON_URL="${PYTHON_URL:-https://zempel-rockauto-service.onrender.com}"
+PYTHON_URL="${PYTHON_URL:-https://zempel-rockauto-service.koyeb.app}"
 PROXY_URL="${PROXY_URL:-https://zempel-rockauto-proxy.techguruofficial.workers.dev}"
 FRONTEND_URL="${FRONTEND_URL:-https://zempel-auto-crm.pages.dev}"
 ALLOWED_ORIGIN="https://zempel-auto-crm.pages.dev"
@@ -89,7 +89,7 @@ echo "  Zempel Auto Parts CRM — Post-Deploy Verification"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
-# ── 1. Python Service (Render) ────────────────────────────────
+# ── 1. Python Service (Koyeb) ────────────────────────────────
 echo "[1/5] Python FastAPI Service (${PYTHON_URL})"
 check "Health endpoint" "${PYTHON_URL}/health" "200"
 echo ""
