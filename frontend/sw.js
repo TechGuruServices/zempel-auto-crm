@@ -1,9 +1,9 @@
 /**
- * PartsCommand CRM — Service Worker v3.0.0
+ * PartsCommand CRM — Service Worker v3.0.1
  * Offline-first with ETag cache-busting for /sync endpoint.
  */
 
-const CACHE_NAME = 'partscommand-v3.0.0';
+const CACHE_NAME = 'partscommand-v3.0.1';
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [

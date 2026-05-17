@@ -3953,6 +3953,18 @@
                 </div>
                 <i class="ph ph-cloud text-slate-400 group-hover:text-blue-400 transition-colors"></i>
               </button>
+              <button onclick="hardRefreshCache()" class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-purple-500/40 transition-all group">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-lg bg-purple-500/15 flex items-center justify-center">
+                    <i class="ph-bold ph-plugs text-purple-400"></i>
+                  </div>
+                  <div class="text-left">
+                    <p class="text-sm font-medium text-white">Clear Cache & Fetch Fresh</p>
+                    <p class="text-xs text-slate-500">Bypass cache to load latest cloud data</p>
+                  </div>
+                </div>
+                <i class="ph ph-arrows-clockwise text-slate-400 group-hover:text-purple-400 transition-colors"></i>
+              </button>
               <label class="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-green-500/40 transition-all cursor-pointer group">
                 <div class="flex items-center gap-3">
                   <div class="w-9 h-9 rounded-lg bg-green-500/15 flex items-center justify-center">
@@ -4706,6 +4718,39 @@
       setTimeout(function () { location.reload(); }, 1400);
     }
 
+    function hardRefreshCache() {
+      if (!confirm('This will clear all offline browser caches and force-fetch the latest data from the server. Any unsynced local changes will be lost. Continue?')) return;
+
+      showToast('Clearing caches...', 'info');
+
+      // Unregister Service Workers
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          for (let registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+
+      // Clear CacheStorage API
+      if ('caches' in window) {
+        caches.keys().then(function (names) {
+          for (let name of names) caches.delete(name);
+        });
+      }
+
+      // Clear localforage / localStorage
+      if (typeof localforage !== 'undefined') {
+        localforage.removeItem(DB_KEY);
+      }
+      localStorage.removeItem(DB_KEY);
+
+      setTimeout(() => {
+        showToast('Fetching fresh data...', 'warning');
+        window.location.reload(true);
+      }, 1000);
+    }
+
     // Close modal on overlay click
     document.getElementById('modalContainer').addEventListener('click', function (e) {
       if (e.target === this) closeModal();
@@ -4749,7 +4794,16 @@
         const _ctrl = new AbortController();
         const _tid = setTimeout(() => _ctrl.abort(), 8000);
         let response;
-        try { response = await fetch(`${API_URL}/sync`, { signal: _ctrl.signal }); } finally { clearTimeout(_tid); }
+        try {
+          response = await fetch(`${API_URL}/sync?_t=${Date.now()}`, {
+            signal: _ctrl.signal,
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
+          });
+        } finally { clearTimeout(_tid); }
         if (!response) throw new Error('Worker unreachable');
         if (response.ok) {
           const cloudData = await response.json();
