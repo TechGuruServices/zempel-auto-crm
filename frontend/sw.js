@@ -3,7 +3,7 @@
  * Offline-first with ETag cache-busting for /sync endpoint.
  */
 
-const CACHE_NAME = 'partscommand-v3.0.1';
+const CACHE_NAME = 'partscommand-v3.1.0';
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
@@ -62,15 +62,10 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   if (url.protocol === 'chrome-extension:') return;
 
-  // API /sync — Network first with ETag/If-None-Match support
-  if (url.origin === new URL(API_ORIGIN).origin && url.pathname === '/sync') {
-    event.respondWith(networkFirstWithETag(request));
-    return;
-  }
-
-  // Other API calls — Network first, fall back to cache
+  // ALL API calls — Network ONLY (never cache API responses)
+  // The database is the source of truth. Caching API data causes stale records.
   if (url.origin === new URL(API_ORIGIN).origin) {
-    event.respondWith(networkFirstWithCache(request));
+    event.respondWith(networkOnly(request));
     return;
   }
 
@@ -88,63 +83,21 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(staleWhileRevalidate(request));
 });
 
-// ── Strategy: Network first with ETag (sync endpoint) ─────────────────────────
-async function networkFirstWithETag(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cachedResponse = await cache.match(request);
-
-  // Build request with If-None-Match from cached ETag
-  const fetchHeaders = new Headers(request.headers);
-  if (cachedResponse) {
-    const etag = cachedResponse.headers.get('ETag');
-    if (etag) fetchHeaders.set('If-None-Match', etag);
-  }
-
-  try {
-    const networkResponse = await fetch(new Request(request.url, {
-      method: request.method,
-      headers: fetchHeaders,
-      credentials: request.credentials,
-    }));
-
-    // 304 — data unchanged, serve cached copy
-    if (networkResponse.status === 304 && cachedResponse) {
-      return cachedResponse;
-    }
-
-    // 200 — fresh data, update cache
-    if (networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  } catch {
-    // Offline — serve from cache
-    if (cachedResponse) return cachedResponse;
-    return new Response(JSON.stringify({ error: 'Offline — no cached sync data' }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-}
-
-// ── Strategy: Network first (other API calls) ────────────────────────────────
-async function networkFirstWithCache(request) {
-  const cache = await caches.open(CACHE_NAME);
+// ── Strategy: Network ONLY (API calls — never cache dynamic data) ─────────────
+async function networkOnly(request) {
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
     return networkResponse;
   } catch {
-    const cached = await cache.match(request);
-    if (cached) return cached;
-    return new Response(JSON.stringify({ error: 'Offline — no cached data available' }), {
+    // Offline — return error (do NOT serve stale cached API data)
+    return new Response(JSON.stringify({ error: 'Offline — database unreachable' }), {
       status: 503,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 }
+
+// (networkFirstWithCache removed — API calls now use networkOnly above)
 
 // ── Strategy: Cache first (CDN assets) ───────────────────────────────────────
 async function cacheFirst(request) {

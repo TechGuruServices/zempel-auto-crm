@@ -6,7 +6,7 @@
 const SWCacheUpdate = (() => {
   'use strict';
 
-  const CACHE_NAME = 'partscommand-v3.0.0';
+  const CACHE_NAME = 'partscommand-v3.1.0';
   const ROCKAUTO_PATH_PREFIX = '/v1/rockauto/';
 
   /**

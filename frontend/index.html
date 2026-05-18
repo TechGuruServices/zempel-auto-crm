@@ -7,6 +7,7 @@
   <title>Zempel Auto CRM</title>
   <link rel="icon" type="image/png" href="assets/favicon-cropped1.PNG">
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0f1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -514,7 +515,7 @@
         regs.forEach(function (reg) {
           reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, { cache: 'no-store' })
             .then(function (r) { return r.text(); })
-            .then(function (t) { if (!t.includes('partscommand-v3.0')) reg.unregister(); })
+            .then(function (t) { if (!t.includes('partscommand-v3.1')) reg.unregister(); })
             .catch(function () { });
         });
       });
@@ -4714,6 +4715,11 @@
       if (code !== 'RESET') { showToast('Reset cancelled', 'info'); return; }
       windowDB = null;
       localStorage.removeItem(DB_KEY);
+      localStorage.removeItem(SETTINGS_KEY);
+      // Also clear localforage (IndexedDB) — the primary storage
+      if (typeof localforage !== 'undefined') {
+        localforage.removeItem(DB_KEY).catch(() => {});
+      }
       showToast('All data cleared. Reloading...', 'warning');
       setTimeout(function () { location.reload(); }, 1400);
     }
@@ -4799,8 +4805,7 @@
             signal: _ctrl.signal,
             headers: {
               'Cache-Control': 'no-cache, no-store, must-revalidate',
-              'Pragma': 'no-cache',
-              'Expires': '0'
+              'Pragma': 'no-cache'
             }
           });
         } finally { clearTimeout(_tid); }

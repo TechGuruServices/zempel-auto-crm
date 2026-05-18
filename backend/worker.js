@@ -77,7 +77,7 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': corsOrigin,
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, If-None-Match',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, If-None-Match, Cache-Control, Pragma',
       'Access-Control-Expose-Headers': 'ETag',
       'Access-Control-Max-Age': '86400',
     };
@@ -269,7 +269,14 @@ async function handleSyncGet(env, request, hdrs) {
 
     return new Response(payload, {
       status: 200,
-      headers: { ...hdrs, 'Content-Type': 'application/json', ETag: etag }
+      headers: {
+        ...hdrs,
+        'Content-Type': 'application/json',
+        ETag: etag,
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
     });
   } catch (err) {
     console.error('[GET /sync]', err);
@@ -379,6 +386,60 @@ async function handleSyncPost(request, env, hdrs, user, clientIP, ctx) {
        ON CONFLICT (id) DO NOTHING`, [auditEntry.id, JSON.stringify(auditEntry)]));
 
     await Promise.allSettled(ops);
+
+    // ── DELETE rows no longer in the client payload ──
+    // This is critical: without this, deleted records persist in Neon forever
+    // and get re-fetched on next GET /sync, causing stale data.
+    const deleteOps = [];
+
+    // Inventory: delete rows not in payload
+    if (vb.inventory) {
+      const ids = vb.inventory.map(i => i.id);
+      if (ids.length > 0) {
+        deleteOps.push(query(env,
+          `DELETE FROM inventory WHERE NOT (id = ANY($1::text[]))`, [ids]));
+      } else {
+        deleteOps.push(query(env, `DELETE FROM inventory`));
+      }
+    }
+
+    // Customers: delete rows not in payload
+    if (vb.customers) {
+      const ids = vb.customers.map(c => c.id);
+      if (ids.length > 0) {
+        deleteOps.push(query(env,
+          `DELETE FROM customers WHERE NOT (id = ANY($1::text[]))`, [ids]));
+      } else {
+        deleteOps.push(query(env, `DELETE FROM customers`));
+      }
+    }
+
+    // Vehicles: delete rows not in payload
+    if (vb.vehicles) {
+      const ids = vb.vehicles.map(v => v.id);
+      if (ids.length > 0) {
+        deleteOps.push(query(env,
+          `DELETE FROM vehicles WHERE NOT (id = ANY($1::text[]))`, [ids]));
+      } else {
+        deleteOps.push(query(env, `DELETE FROM vehicles`));
+      }
+    }
+
+    // Sales: delete rows not in payload
+    if (vb.sales) {
+      const ids = vb.sales.map(s => s.id);
+      if (ids.length > 0) {
+        deleteOps.push(query(env,
+          `DELETE FROM sales WHERE NOT (id = ANY($1::text[]))`, [ids]));
+      } else {
+        deleteOps.push(query(env, `DELETE FROM sales`));
+      }
+    }
+
+    if (deleteOps.length > 0) {
+      await Promise.allSettled(deleteOps);
+    }
+
     return json({ success: true, synced: new Date().toISOString() }, hdrs);
   } catch (err) {
     console.error('[POST /sync]', err);
