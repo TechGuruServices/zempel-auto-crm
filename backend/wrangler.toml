@@ -22,7 +22,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 ENVIRONMENT = "production"
-ALLOWED_ORIGIN = "https://zempelauto.techguruofficial.us, https://zempel-auto-crm.pages.dev"
+ALLOWED_ORIGIN = "https://zempelauto.techguruofficial.us, https://zempel-auto-crm.pages.dev, http://localhost, http://localhost:5050"
 ADMIN_EMAIL = "admin@zempelauto.com"
 
 # Neon DATABASE_URL — set via: wrangler secret put DATABASE_URL
