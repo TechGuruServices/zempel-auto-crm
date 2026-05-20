@@ -559,6 +559,12 @@
 
         <div class="px-4 mt-6 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
           Operations</div>
+        <a href="#" onclick="navigate('comparison')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-view="comparison">
+          <i class="ph ph-git-diff text-xl text-amber-400"></i> <span class="font-medium">Compare</span>
+        </a>
+        <a href="#" onclick="navigate('rockauto')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-view="rockauto">
+          <i class="ph ph-wrench text-xl text-red-400"></i> <span class="font-medium">RockAuto Catalog</span>
+        </a>
         <a href="#" onclick="navigate('sales')"
           class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="sales">
           <i class="ph ph-receipt text-lg"></i> Sales & Estimates
@@ -700,6 +706,12 @@
           <i class="ph ph-car text-lg"></i> Vehicles
         </a>
         <div class="px-1 mb-2 mt-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Operations</div>
+        <a href="#" onclick="navigate('comparison');toggleMobileNav()" class="mobile-nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400" data-view="comparison">
+          <i class="ph ph-git-diff text-xl text-amber-400"></i> <span class="font-medium">Compare Parts</span>
+        </a>
+        <a href="#" onclick="navigate('rockauto');toggleMobileNav()" class="mobile-nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400" data-view="rockauto">
+          <i class="ph ph-wrench text-xl text-red-400"></i> <span class="font-medium">RockAuto Catalog</span>
+        </a>
         <a href="#" onclick="navigate('sales');toggleMobileNav()"
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-receipt text-lg"></i> Sales & Estimates
@@ -938,6 +950,7 @@
         case 'vehicles': renderVehicles(main); break;
         case 'sales': renderSales(main); break;
         case 'comparison': renderComparison(main); break;
+        case 'rockauto': renderRockAuto(main); break;
         case 'audit': renderAudit(main); break;
         case 'settings': renderSettings(main); break;
       }
@@ -3361,6 +3374,116 @@
       closeModal();
       showToast(`Prices updated for ${data.retailer}`, 'success');
       renderView();
+    }
+
+    // ==================== ROCKAUTO CATALOG ====================
+    function renderRockAuto(el) {
+      el.innerHTML = `
+        <div class="animate-slide-in">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                <i class="ph-bold ph-wrench text-red-400"></i> RockAuto Catalog
+              </h2>
+              <p class="text-sm text-slate-400">Browse parts and pricing directly</p>
+            </div>
+            <div id="rockauto-breadcrumbs" class="text-xs text-slate-400 font-mono tracking-wider flex items-center gap-2"></div>
+          </div>
+          <div class="glass-card rounded-xl p-5 border border-slate-700/50">
+            <div id="rockauto-content" class="min-h-[400px]"></div>
+          </div>
+        </div>
+      `;
+
+      const content = document.getElementById('rockauto-content');
+      const breadcrumbs = document.getElementById('rockauto-breadcrumbs');
+
+      const state = { make: null, year: null, model: null, engine: null, carcode: null };
+
+      function updateBreadcrumbs() {
+        const parts = [];
+        if (state.make) parts.push(state.make);
+        if (state.year) parts.push(state.year);
+        if (state.model) parts.push(state.model);
+        if (state.engine) parts.push(state.engine);
+        
+        breadcrumbs.innerHTML = parts.length > 0 ? 
+          parts.map(p => `<span class="text-white">${p}</span>`).join(' > ') + 
+          ` <button class="px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-300 ml-2" id="btn-ra-reset"><i class="ph ph-arrow-counter-clockwise"></i> Reset</button>` 
+          : '';
+          
+        if (parts.length > 0) {
+          document.getElementById('btn-ra-reset').onclick = loadMakes;
+        }
+      }
+
+      function loadMakes() {
+        state.make = state.year = state.model = state.engine = state.carcode = null;
+        updateBreadcrumbs();
+        RockAutoUI.showLoading(content);
+        RockAutoFetch.getMakes().then(res => {
+          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          RockAutoUI.renderMakes(content, res.data.makes || res.data);
+          document.querySelectorAll('.rockauto-make-btn').forEach(btn => {
+            btn.onclick = () => { state.make = btn.parentElement.dataset.make; loadYears(); };
+          });
+        });
+      }
+
+      function loadYears() {
+        state.year = state.model = state.engine = state.carcode = null;
+        updateBreadcrumbs();
+        RockAutoUI.showLoading(content);
+        RockAutoFetch.getYears(state.make).then(res => {
+          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          RockAutoUI.renderYears(content, res.data);
+          document.querySelectorAll('.rockauto-year-btn').forEach(btn => {
+            btn.onclick = () => { state.year = btn.dataset.year; loadModels(); };
+          });
+        });
+      }
+
+      function loadModels() {
+        state.model = state.engine = state.carcode = null;
+        updateBreadcrumbs();
+        RockAutoUI.showLoading(content);
+        RockAutoFetch.getModels(state.make, state.year).then(res => {
+          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          RockAutoUI.renderModels(content, res.data);
+          document.querySelectorAll('.rockauto-model-btn').forEach(btn => {
+            btn.onclick = () => { state.model = btn.dataset.model; loadEngines(); };
+          });
+        });
+      }
+
+      function loadEngines() {
+        state.engine = state.carcode = null;
+        updateBreadcrumbs();
+        RockAutoUI.showLoading(content);
+        RockAutoFetch.getEngines(state.make, state.year, state.model).then(res => {
+          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          RockAutoUI.renderEngines(content, res.data);
+          document.querySelectorAll('.rockauto-engine-btn').forEach(btn => {
+            btn.onclick = () => { 
+              state.carcode = btn.parentElement.dataset.carcode; 
+              state.engine = btn.textContent.split('(')[0].trim();
+              loadParts(); 
+            };
+          });
+        });
+      }
+
+      function loadParts() {
+        updateBreadcrumbs();
+        RockAutoUI.showLoading(content);
+        RockAutoFetch.getParts(state.carcode).then(res => {
+          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          RockAutoUI.renderParts(content, res.data);
+        });
+      }
+
+      // Init
+      loadMakes();
     }
 
     // ==================== AUDIT LOGS ====================

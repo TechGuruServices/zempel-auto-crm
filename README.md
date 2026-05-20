@@ -1,313 +1,234 @@
-<![CDATA[# Zempel Auto Parts CRM — PartsCommand
+<div align="center">
+<img src="https://zempelauto.techguruofficial.us/favicon.ico" alt="Zempel Auto Parts Logo" width="100" />
 
-<p align="center">
-  <strong>Production-grade auto parts inventory, customer, and sales management platform.</strong><br>
-  <em>PWA → Cloudflare Worker → FastAPI → RockAuto → Neon PostgreSQL</em>
-</p>
+# Zempel Auto Parts CRM — PartsCommand
 
-<p align="center">
-  <img src="https://img.shields.io/badge/version-3.1.0-blue" alt="Version 3.1.0">
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License MIT">
-  <img src="https://img.shields.io/badge/python-3.11+-yellow" alt="Python 3.11+">
-  <img src="https://img.shields.io/badge/cloudflare-workers-orange" alt="Cloudflare Workers">
-  <img src="https://img.shields.io/badge/database-Neon%20PG-purple" alt="Neon PG">
-</p>
+Production-grade auto parts inventory, customer, and sales management platform.
+
+*PWA → Cloudflare Worker → FastAPI → RockAuto → Neon PostgreSQL*
+
+<br />
+
+[![Version](https://img.shields.io/badge/version-3.1.0-blue.svg?style=for-the-badge)](https://github.com/TechGuruServices/zempel-auto-crm)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-yellow.svg?style=for-the-badge&logo=python)](https://www.python.org/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+[![Neon PG](https://img.shields.io/badge/Neon_PG-00E599?style=for-the-badge&logo=postgresql&logoColor=black)](https://neon.tech/)
+
+</div>
 
 ---
 
-## Architecture
+## 🌟 Overview
 
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────────┐     ┌──────────┐
-│   PWA Frontend   │────▶│  CF Worker Proxy  │────▶│  Python FastAPI     │────▶│  RockAuto │
-│  (Cloudflare     │     │  (Rate Limit +    │     │  (Pydantic v2 +     │     │  API 1.0  │
-│   Pages)         │◀────│   KV Cache)       │◀────│   asyncpg + SSL)    │     └──────────┘
-└─────────────────┘     └──────────────────┘     └────────┬────────────┘
-                                                          │
-                                                          ▼
-                                                   ┌──────────────┐
-                                                   │  Neon PG      │
-                                                   │  (audit_logs) │
-                                                   └──────────────┘
+**Zempel Auto Parts CRM** is an enterprise-grade solution engineered to handle inventory, customer tracking, and dynamic parts sourcing seamlessly. Leveraging a cutting-edge serverless architecture, it delivers exceptional performance and reliability.
+
+### Key Features
+- **📦 Inventory Management** — CRUD operations, barcode scanning via QR reader, and low-stock alerts.
+- **👥 Customer Tracking** — Contact details, loyalty points, and purchase history.
+- **🚗 Vehicle Registry** — Make, model, year, and VIN tracking, seamlessly linked to customers and service records.
+- **💰 Sales & Estimates** — Real-time line-item invoices, robust PDF exports (`jsPDF`), and dynamic margin calculations.
+- **⚡ Live Price Comparison** — Direct integration with RockAuto via a hardened proxy pipeline.
+- **🔒 Audit Logging** — Immutable, structured JSONB logs directly stored in Neon PostgreSQL.
+
+---
+
+## 🏗️ Architecture
+
+The platform follows a highly resilient, offline-first microservices architecture:
+
+```mermaid
+graph LR
+  A[📱 PWA Frontend\nCloudflare Pages] <--> B[🛡️ CF Worker Proxy\nKV Cache & Rate Limit]
+  B <--> C[🐍 Python FastAPI\nKoyeb]
+  C <--> D[🛒 RockAuto API\nScraper]
+  C --> E[(🐘 Neon PG\nAudit Logs)]
 ```
 
-| Tier | Technology | Hosting |
+| Tier | Tech Stack | Hosting |
 |------|-----------|---------|
-| **Frontend** | Vanilla JS PWA, Service Worker, glassmorphism UI | Cloudflare Pages |
-| **Proxy** | Cloudflare Worker, KV cache, rate limiting | Cloudflare Workers |
-| **API** | FastAPI, Pydantic v2, structlog, slowapi | Koyeb (Docker) |
-| **Database** | Neon PostgreSQL, asyncpg, JSONB audit logs | Neon |
-| **Scraper** | `rockauto-api==1.0.0` with CAPTCHA bypass | Bundled |
+| **Frontend** | Vanilla JS PWA, Service Worker, Glassmorphism UI | **Cloudflare Pages** |
+| **Proxy API** | Cloudflare Workers, KV Cache, Rate Limiting | **Cloudflare Workers** |
+| **Microservice** | FastAPI, Pydantic v2, Structlog, SlowAPI | **Koyeb (Docker)** |
+| **Database** | Neon PostgreSQL, `asyncpg`, JSONB Audit Logs | **Neon** |
+| **Scraper** | `rockauto-api==1.0.0` with CAPTCHA Bypass | **Bundled in Python** |
 
 ---
 
-## Repository Structure
+## 📁 Repository Structure
 
-```
-zempel-autoparts-crm/
-├── src/                       # FastAPI Python service source
-│   ├── main.py                # Routes, middleware, Pydantic models
-│   └── dependencies.py        # DI: asyncpg pool, httpx, RockAutoClient
-├── frontend/                  # PWA (Cloudflare Pages)
-│   ├── index.html             # Single-page app (227 KB)
-│   ├── sw.js                  # Service Worker — offline-first + ETag
-│   ├── rockauto-fetch.js      # Fetch wrapper — timeout, retry, dedup
-│   ├── rockauto-ui.js         # DOM renderers — SOLID per data type
-│   ├── sw_cache_update.js     # SW cache coordination utility
-│   ├── manifest.json          # PWA manifest
-│   └── assets/                # Images, fonts, vendor JS
-├── backend/                   # Cloudflare Worker (CRM auth/sync API)
-│   ├── worker.js              # Main worker — auth, CRUD, sync
-│   ├── schema.sql             # D1/Neon table definitions
-│   ├── wrangler.toml          # Worker config + KV/D1 bindings
-│   └── package.json           # Dependencies (zod, @neon, jwt)
-├── cloudflare-proxy/          # CF Worker Proxy (RockAuto relay)
-│   ├── worker_routes.js       # Proxy routes — cache, CORS, retry
-│   ├── wrangler.toml          # Worker config
-│   └── wrangler_secrets.sh    # Secret setup script
-├── deploy/                    # Deployment scripts
-│   ├── deploy.sh              # Full-stack deploy
-│   └── verify.sh              # Post-deploy health checks
-├── Dockerfile                 # Multi-stage Python build (root-level for Koyeb)
-├── pyproject.toml             # Pinned Python dependencies
-├── .dockerignore              # Docker build exclusions
-└── rockauto-api-main/         # rockauto-api==1.0.0 vendored source
+```text
+zempel-auto-crm/
+├── frontend/                  # Static PWA (HTML/JS/CSS)
+│   ├── index.html             # Main entry point (Glassmorphism UI)
+│   ├── sw.js                  # Service Worker (Offline-first strategy)
+│   └── lib/rockauto-fetch.js  # Smart fetch wrappers with exponential backoff
+├── backend/                   # Main Cloudflare Worker (CRM API)
+│   ├── worker.js              # Auth, CRUD operations, and sync logic
+│   ├── schema.sql             # Neon table definitions
+│   └── wrangler.toml          # Cloudflare configuration
+├── cloudflare-proxy/          # Proxy Worker for RockAuto Integrations
+│   ├── worker_routes.js       # Route management and caching
+│   └── wrangler.toml          # Proxy configuration
+├── src/                       # FastAPI Microservice
+│   ├── main.py                # Pydantic models, rate limiting, app routes
+│   └── dependencies.py        # Database pooling and API client DI
+├── deploy/                    # CI/CD & Deployment scripts
+├── pyproject.toml             # Python dependencies
+└── Dockerfile                 # Multi-stage production build for Koyeb
 ```
 
 ---
 
-## Features
+## 🚀 Beginner's Guide: Seamless Setup & Deployment
 
-### CRM Core
-
-- **Inventory Management** — CRUD with barcode scanning (QR reader), low-stock alerts
-- **Customer Tracking** — Contact details, loyalty points, purchase history
-- **Vehicle Registry** — Make/model/year/VIN, linked to customers and service records
-- **Sales & Estimates** — Line-item invoices, PDF export (jsPDF), margin calculation
-- **Price Comparison** — Live RockAuto pricing via proxy pipeline
-- **Audit Logs** — JSONB structured logging to Neon PG
-
-### Technical
-
-- **Offline-First PWA** — Service Worker with stale-while-revalidate + ETag sync
-- **Glassmorphism UI** — Dark/light mode, animations, responsive (mobile-first)
-- **KV Response Cache** — SHA-256 hashed keys, 1h TTL, auto-invalidation
-- **Rate Limiting** — 5 req/s/IP at proxy + Python layers
-- **CAPTCHA Fallback** — 503 + `Retry-After: 60` when RockAuto triggers CAPTCHA
-- **OWASP Headers** — HSTS, CSP, X-Frame-Options, X-Content-Type-Options on all responses
-- **Strict CORS** — No wildcards — explicit origin matching only
-- **Structured Logging** — JSON via structlog (Python), console (Workers)
-- **Graceful Shutdown** — Connection pool + HTTP client cleanup on SIGTERM
-
----
-
-## Quick Start
+Welcome! Let's get your development environment up and running in a few simple steps.
 
 ### Prerequisites
+Before you start, ensure you have the following installed:
+1. **[Node.js (v18+)](https://nodejs.org/)** - For the frontend and Cloudflare Wrangler CLI.
+2. **[Python (v3.11+)](https://www.python.org/downloads/)** - For the backend FastAPI microservice.
+3. **[Docker (v24+)](https://www.docker.com/)** - *Optional but recommended* for local Python container testing.
+4. **Cloudflare Account** - [Sign up for a Cloudflare account](https://dash.cloudflare.com/sign-up).
+5. **Neon Postgres Account** - [Sign up for a Neon Postgres account](https://neon.tech/).
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Node.js | 18+ | Frontend dev server, wrangler CLI |
-| Python | 3.11+ | FastAPI service |
-| Wrangler | 4.x | Cloudflare deployment |
-| Docker | 24+ | Python service containerization |
+---
 
-### 1. Clone and Install
+### Step 1: Clone and Install Dependencies
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/TechGuruServices/zempel-auto-crm.git
 cd zempel-auto-crm
 
-# Backend (Cloudflare Worker)
-cd backend && npm install && cd ..
+# 2. Install Backend Worker dependencies
+cd backend
+npm install
+cd ..
 
-# Frontend
-cd frontend && npm install && cd ..
+# 3. Install Frontend dependencies
+cd frontend
+npm install
+cd ..
 
-# Python service (files are at repo root)
+# 4. Install Python Service dependencies (from root)
 pip install -e .
 ```
 
-### 2. Environment Variables
+### Step 2: Configure the Database (Neon)
 
-**Backend Worker** (`backend/.env` or wrangler secrets):
+1. Go to your **Neon Dashboard** and create a new project.
+2. Copy your Postgres connection string (`postgresql://user:pass@host/dbname?sslmode=require`).
+3. Run the initial schema file to create your tables:
 
-```env
-DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
-JWT_SECRET=your-jwt-secret
-ADMIN_PASSWORD_HASH=your-bcrypt-hash
+   ```bash
+   # You can run this using a tool like psql or directly in Neon's SQL editor
+   psql "your_neon_connection_string" -f backend/schema.sql
+   ```
+
+### Step 3: Setup Environment Variables & Secrets
+
+**1. Main Backend API Worker:**
+
+```bash
+# Log in to Cloudflare
+npx wrangler login
+
+cd backend
+# Set secrets for the worker
+npx wrangler secret put DATABASE_URL
+# (Paste your Neon Connection String)
+npx wrangler secret put JWT_SECRET
+# (Enter a secure random string)
+npx wrangler secret put ADMIN_PASSWORD_HASH
+# (Enter a bcrypt hash of your desired admin password)
 ```
 
-**Cloudflare Proxy** (wrangler secrets):
+**2. Cloudflare Proxy:**
 
 ```bash
 cd cloudflare-proxy
 chmod +x wrangler_secrets.sh
 ./wrangler_secrets.sh
-# Prompts for: PYTHON_SERVICE_URL, SERVICE_AUTH_KEY
+# Follow the prompts to add PYTHON_SERVICE_URL and SERVICE_AUTH_KEY
 ```
 
-**Python Service** (Koyeb dashboard or local `.env`):
+**3. Python FastAPI Local Environment:**
+
+Create a `.env` file at the root of the project:
 
 ```env
-DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
-SERVICE_AUTH_KEY=your-shared-api-key
-ALLOWED_ORIGINS=https://zempel-auto-crm.pages.dev,https://zempelauto.techguruofficial.us
+DATABASE_URL=postgresql://user:pass@host/dbname?sslmode=require
+SERVICE_AUTH_KEY=your-secure-auth-key
+ALLOWED_ORIGINS=http://localhost:8788,https://zempel-auto-crm.pages.dev
 ```
 
-### 3. Local Development
+### Step 4: Run Locally
+
+Fire up all three tiers simultaneously to test the full stack locally:
 
 ```bash
-# Terminal 1: Backend Worker
-cd backend && npx wrangler dev
+# Terminal 1: Run the Backend API Worker
+cd backend
+npx wrangler dev
 
-# Terminal 2: Frontend
-cd frontend && npx wrangler pages dev .
+# Terminal 2: Run the Frontend App
+cd frontend
+npx wrangler pages dev .
 
-# Terminal 3: Python Service (from repo root)
+# Terminal 3: Run the Python Microservice (from the root directory)
 uvicorn src.main:app --reload --port 8000
 ```
 
-### 4. Deploy to Production
+Open your browser to the local URL provided by Wrangler (usually `http://localhost:8788`) to see the app!
+
+---
+
+### Step 5: Deploy to Production
+
+Once you are satisfied with local testing, deploying to production is fully automated:
 
 ```bash
+# Ensure scripts are executable
 chmod +x deploy/deploy.sh deploy/verify.sh
 
-# Deploy all three tiers
+# Run the deployment script
 ./deploy/deploy.sh
 
-# Verify health, security headers, CORS
+# Run post-deployment verification to check health and security headers
 ./deploy/verify.sh
 ```
 
----
+- **Frontend** deploys directly to Cloudflare Pages.
+- **Backend/Proxy** deploy to Cloudflare Workers.
+- **Python API** can be deployed via the Dockerfile to platforms like Koyeb, Render, or Railway by linking your GitHub repo.
 
-## API Reference
-
-### Cloudflare Proxy (`/v1/rockauto/*`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/health` | Proxy health check |
-| `GET` | `/v1/rockauto/makes` | All vehicle makes |
-| `GET` | `/v1/rockauto/years/:make` | Years for a make |
-| `GET` | `/v1/rockauto/models/:make/:year` | Models for make + year |
-| `GET` | `/v1/rockauto/engines/:make/:year/:model` | Engines for vehicle |
-| `GET` | `/v1/rockauto/parts/:carcode` | Parts by carcode |
-| `GET` | `/v1/rockauto/search?q=` | Part name search |
-
-**Headers**: All responses include OWASP security headers + `X-Cache: HIT|MISS`.
-
-**Rate Limit**: 5 requests/second/IP. Exceeded requests return `429` with `Retry-After`.
-
-### Python Service (`/api/rockauto/*`)
-
-Same routes as proxy, prefixed `/api/` instead of `/v1/`. Requires `X-Service-Auth-Key` header.
-
-### Backend Worker (`/sync`, `/auth/*`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/sync` | Full database sync (ETag support) |
-| `POST` | `/sync` | Bulk upsert all records |
-| `POST` | `/auth/login` | JWT authentication |
+- **Frontend** deploys directly to Cloudflare Pages.
+- **Backend/Proxy** deploy to Cloudflare Workers.
+- **Python API** can be deployed via the Dockerfile to platforms like Koyeb, Render, or Railway by linking your GitHub repo.
 
 ---
 
-## Security
+## 🛡️ Security Posture
 
-| Control | Implementation |
-|---------|---------------|
-| **CORS** | Strict origin matching — no `*` wildcards |
-| **Authentication** | JWT (backend), `X-Service-Auth-Key` (service-to-service) |
-| **TLS/SSL** | Enforced on all Neon PG connections (`sslmode=require`) |
-| **Secrets** | Environment variables only — never committed to source |
-| **Rate Limiting** | 5 req/s/IP at proxy (KV) + Python (slowapi) layers |
-| **Error Masking** | Internal errors never leaked to clients |
-| **Headers** | HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy |
-| **Non-root** | Docker container runs as `appuser` (non-root) |
+| Feature | Implementation Details |
+|---------|-----------------------|
+| **CORS** | Strict explicit origin matching; absolute rejection of `*` wildcards. |
+| **Authentication** | Industry-standard JWT for UI, and encrypted `X-Service-Auth-Key` for service-to-service communication. |
+| **Rate Limiting** | Dual-layer protection: Cloudflare KV (Proxy) + `slowapi` (Python). Caps at 5 req/sec/IP. |
+| **Database Encryption** | Fully enforced TLS/SSL via Neon (`sslmode=require`). |
+| **Hardened Headers** | Implemented OWASP Top 10 standards: `HSTS`, `CSP`, `X-Frame-Options`, and strict `Referrer-Policy`. |
+| **Privilege Drops** | Docker container utilizes a strict non-root `appuser`. |
 
 ---
 
-## Database
+## 📄 License
 
-### Neon PostgreSQL Schema
-
-```sql
-CREATE TABLE audit_logs (
-    id       TEXT PRIMARY KEY,
-    data     JSONB NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-**JSONB `data` structure**:
-
-```json
-{
-  "action": "API_REQUEST",
-  "route": "/api/rockauto/makes",
-  "method": "GET",
-  "client_ip": "203.0.113.1",
-  "user_agent": "Mozilla/5.0...",
-  "status_code": 200,
-  "params": {},
-  "error": null,
-  "timestamp": "2026-05-16T14:30:00Z"
-}
-```
-
----
-
-## Deployment Targets
-
-| Service | Platform | Trigger |
-|---------|----------|---------|
-| Frontend PWA | Cloudflare Pages | `wrangler pages deploy` |
-| Backend Worker | Cloudflare Workers | `wrangler deploy` (from `/backend`) |
-| RockAuto Proxy | Cloudflare Workers | `wrangler deploy` (from `/cloudflare-proxy`) |
-| Python Service | Koyeb | Git push to `main` (auto-deploy) |
-| Database | Neon | Always-on serverless PG |
-
----
-
-## Tech Stack
-
-| Category | Technologies |
-|----------|-------------|
-| Frontend | HTML5, Vanilla JS, CSS3, Service Workers, Web APIs |
-| Icons | Phosphor Icons 2.1.2 |
-| PDF | jsPDF + AutoTable |
-| Scanning | html5-qrcode |
-| Backend | Cloudflare Workers, KV, D1 |
-| Proxy | Cloudflare Workers, KV cache |
-| API | FastAPI 0.115, Pydantic 2.11, uvicorn |
-| Database | Neon PostgreSQL, asyncpg 0.30 |
-| Scraping | rockauto-api 1.0.0, httpx |
-| Logging | structlog (JSON), slowapi |
-| Container | Docker (multi-stage, slim-bookworm) |
-| Deploy | Koyeb, Cloudflare, GitHub Actions |
-
----
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <p align="center">
   <strong>Zempel Auto</strong> · PartsCommand CRM v3.1.0<br>
-  <em>Built by <a href="https://github.com/TechGuruServices">TechGuruServices</a></em>
+  <em>Built with ❤️ by <a href="https://github.com/TechGuruServices">TechGuruServices</a></em>
 </p>
-]]>

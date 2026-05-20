@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 /**
  * ============================================================
- * PartsCommand CRM — Cloudflare Worker v3.0.0
+ * PartsCommand CRM — Cloudflare Worker v3.1.0
  * ============================================================
  * Production-hardened: JWT/RBAC, Zod validation, ETag,
  * rate limiting, audit logging, OWASP headers, CAPTCHA detection.
@@ -39,6 +39,18 @@ const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
+
+// ── RockAuto Proxy Config ────────────────────────────────────
+const ROCKAUTO_ROUTE_MAP = {
+  '/v1/rockauto/makes': '/api/rockauto/makes',
+  '/v1/rockauto/search': '/api/rockauto/search',
+};
+const ROCKAUTO_DYNAMIC_ROUTES = [
+  { pattern: /^\/v1\/rockauto\/engines\/([^/]+)\/(\d+)\/([^/]+)$/, upstream: (m) => `/api/rockauto/engines/${m[1]}/${m[2]}/${m[3]}` },
+  { pattern: /^\/v1\/rockauto\/models\/([^/]+)\/(\d+)$/, upstream: (m) => `/api/rockauto/models/${m[1]}/${m[2]}` },
+  { pattern: /^\/v1\/rockauto\/years\/([^/]+)$/, upstream: (m) => `/api/rockauto/years/${m[1]}` },
+  { pattern: /^\/v1\/rockauto\/parts\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/parts/${m[1]}` },
+];
 
 // ── Main Handler ─────────────────────────────────────────────
 export default {
@@ -110,7 +122,7 @@ export default {
 
       // ── Public Routes ──
       if (url.pathname === '/' || url.pathname === '/index.html' || url.pathname === '') {
-        return json({ message: 'PartsCommand CRM API', status: 'online', version: '3.0.0' }, hdrs);
+        return json({ message: 'PartsCommand CRM API', status: 'online', version: '3.1.0' }, hdrs);
       }
       if (url.pathname === '/favicon.ico') return new Response(null, { status: 204, headers: hdrs });
       if (url.pathname === '/health') return json({ status: 'ok', ts: new Date().toISOString() }, hdrs);
@@ -138,6 +150,9 @@ export default {
       }
 
       // ── Protected Routes ──
+      if (url.pathname.startsWith('/v1/rockauto/')) {
+        return handleRockAutoProxy(url, request, env, hdrs, ctx, clientIP);
+      }
       if (url.pathname === '/sync') {
         if (request.method === 'GET') return handleSyncGet(env, request, hdrs);
         if (request.method === 'POST') return handleSyncPost(request, env, hdrs, user, clientIP, ctx);
@@ -583,6 +598,78 @@ function parseRockAuto(html) {
     price: priceMatch ? parseFloat(priceMatch[1].replace(',', '')) : null,
     name: nameMatch ? nameMatch[1].trim() : null
   };
+}
+
+// ── RockAuto Proxy ───────────────────────────────────────────
+async function handleRockAutoProxy(url, request, env, hdrs, ctx, clientIP) {
+  let upstreamPath = ROCKAUTO_ROUTE_MAP[url.pathname] || null;
+  if (!upstreamPath) {
+    for (const route of ROCKAUTO_DYNAMIC_ROUTES) {
+      const match = url.pathname.match(route.pattern);
+      if (match) {
+        upstreamPath = route.upstream(match);
+        break;
+      }
+    }
+  }
+  if (!upstreamPath) return json({ error: 'Not found' }, hdrs, 404);
+
+  const fullUpstreamPath = `${upstreamPath}${url.search || ''}`;
+  const cacheKeyStr = `rockauto:${fullUpstreamPath}`;
+  const hashArray = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(cacheKeyStr))));
+  const cacheKey = `cache:${hashArray.map(b => b.toString(16).padStart(2, '0')).join('')}`;
+
+  if (env.CRM_KV) {
+    const cached = await env.CRM_KV.get(cacheKey, 'text');
+    if (cached) {
+      return new Response(cached, { status: 200, headers: { ...hdrs, 'Content-Type': 'application/json', 'X-Cache': 'HIT', 'Cache-Control': 'public, s-maxage=3600' } });
+    }
+  }
+
+  const pythonUrl = env.PYTHON_SERVICE_URL;
+  if (!pythonUrl) return json({ error: 'Service configuration error' }, hdrs, 503);
+  
+  const upstreamUrl = `${pythonUrl.replace(/\/$/, '')}${fullUpstreamPath}`;
+  
+  let lastError = null;
+  for (let attempt = 0; attempt <= 2; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const upstreamRes = await fetch(upstreamUrl, {
+        method: 'GET',
+        headers: {
+          'X-Service-Auth-Key': env.SERVICE_AUTH_KEY || '',
+          'Accept': 'application/json',
+          'X-Forwarded-For': clientIP,
+          'X-Request-Id': crypto.randomUUID(),
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (upstreamRes.ok) {
+        const body = await upstreamRes.text();
+        if (env.CRM_KV && body.length < 512000) {
+          ctx.waitUntil(env.CRM_KV.put(cacheKey, body, { expirationTtl: 3600 }));
+        }
+        return new Response(body, { status: 200, headers: { ...hdrs, 'Content-Type': 'application/json', 'X-Cache': 'MISS', 'Cache-Control': 'public, s-maxage=3600' } });
+      }
+      
+      if (upstreamRes.status >= 400 && upstreamRes.status < 500) {
+        const status = upstreamRes.status === 429 ? 429 : upstreamRes.status;
+        const retryHeaders = status === 429 ? { 'Retry-After': '60' } : {};
+        return json({ error: status === 429 ? 'Rate limited — retry later' : 'Request failed' }, { ...hdrs, ...retryHeaders }, status);
+      }
+      lastError = new Error(`Upstream ${upstreamRes.status}`);
+    } catch (err) {
+      lastError = err;
+    }
+    if (attempt < 2) await delay(500 * Math.pow(2, attempt));
+  }
+  
+  console.error('[Proxy] Upstream failed:', lastError?.message);
+  return json({ error: 'Service temporarily unavailable' }, { ...hdrs, 'Retry-After': '30' }, 503);
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }

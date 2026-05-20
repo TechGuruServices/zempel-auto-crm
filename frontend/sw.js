@@ -1,5 +1,5 @@
 /**
- * PartsCommand CRM — Service Worker v3.0.1
+ * PartsCommand CRM — Service Worker v3.1.0
  * Offline-first with ETag cache-busting for /sync endpoint.
  */
 
@@ -14,7 +14,11 @@ const PRECACHE_CORE = [
   '/assets/favicon-cropped1.PNG',
   '/assets/jspdf.umd.min.js',
   '/assets/jspdf.plugin.autotable.min.js',
+  '/assets/html5-qrcode.min.js',
   '/assets/styles.css',
+  '/rockauto-fetch.js',
+  '/rockauto-ui.js',
+  '/sw_cache_update.js',
 ];
 
 const PRECACHE_OPTIONAL = [
