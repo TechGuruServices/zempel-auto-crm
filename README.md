@@ -1,5 +1,5 @@
 <div align="center">
-<img src="https://zempelauto.techguruofficial.us/favicon.ico" alt="Zempel Auto Parts Logo" width="100" />
+<img src"zempel-auto-img" alt="Zempel Auto Parts Logo" width="100" />
 
 # Zempel Auto Parts CRM — PartsCommand
 
