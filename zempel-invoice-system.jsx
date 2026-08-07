@@ -116,9 +116,9 @@ const InvoiceStorage = {
 
 const defaultSettings = {
   businessName: "Zempel Auto",
-  businessAddress: "Dixon, MT 59831",
-  businessPhone: "",
-  businessEmail: "",
+  businessAddress: "38742 HOLT DR.",
+  businessPhone: "(406) 529-8595",
+  businessEmail: "darwinzempel@icloud.com",
   businessWebsite: "zempelauto.techguruofficial.us",
   logoUrl: "https://zempelauto.techguruofficial.us/assets/z-auto-9.jpeg",
   taxRate: 0,
@@ -527,7 +527,7 @@ const InvoicePrintView = ({ invoice, settings }) => {
       {/* Footer */}
       <div style={{ marginTop: 40, paddingTop: 16, borderTop: "2px solid #0a0f1a", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ fontSize: 11, color: "#94a3b8" }}>
-          PARTS COMMAND · CRM — {settings.businessWebsite}
+          ZEMPEL AUTO | CRM — {settings.businessWebsite}
         </div>
         <div style={{ fontSize: 11, color: "#94a3b8" }}>
           Generated {new Date().toLocaleDateString("en-US")}
