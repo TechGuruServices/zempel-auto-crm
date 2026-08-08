@@ -3,7 +3,7 @@
  * Offline-first with ETag cache-busting for /sync endpoint.
  */
 
-const CACHE_NAME = 'partscommand-v3.1.0';
+const CACHE_NAME = 'partscommand-v3.2.0';
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
@@ -18,6 +18,7 @@ const PRECACHE_CORE = [
   '/assets/styles.css',
   '/rockauto-fetch.js',
   '/rockauto-ui.js',
+  '/invoices.js',
   '/sw_cache_update.js',
 ];
 
