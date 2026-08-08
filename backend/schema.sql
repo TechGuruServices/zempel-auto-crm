@@ -50,6 +50,17 @@ CREATE INDEX IF NOT EXISTS idx_sales_customer_id ON sales ((data->>'customerId')
 CREATE INDEX IF NOT EXISTS idx_sales_status      ON sales ((data->>'status'));
 CREATE INDEX IF NOT EXISTS idx_sales_date        ON sales ((data->>'date'));
 
+-- Invoices
+CREATE TABLE IF NOT EXISTS invoices (
+  id          TEXT PRIMARY KEY,
+  data        JSONB NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_invoices_number      ON invoices ((data->>'number'));
+CREATE INDEX IF NOT EXISTS idx_invoices_customer_id ON invoices ((data->>'customerId'));
+CREATE INDEX IF NOT EXISTS idx_invoices_status      ON invoices ((data->>'status'));
+
 -- Retailer Prices (cache)
 CREATE TABLE IF NOT EXISTS retailer_prices (
   part_number TEXT PRIMARY KEY,
@@ -98,6 +109,12 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN
   CREATE TRIGGER trg_sales_updated_at
     BEFORE UPDATE ON sales
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  CREATE TRIGGER trg_invoices_updated_at
+    BEFORE UPDATE ON invoices
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 

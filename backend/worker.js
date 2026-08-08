@@ -30,6 +30,7 @@ const SyncPayloadSchema = z.object({
   customers: z.array(z.object({ id: z.string() }).passthrough()).optional(),
   vehicles: z.array(z.object({ id: z.string() }).passthrough()).optional(),
   sales: z.array(z.object({ id: z.string() }).passthrough()).optional(),
+  invoices: z.array(z.object({ id: z.string() }).passthrough()).optional(),
   retailerPrices: z.array(z.object({ partNumber: z.string() }).passthrough()).optional(),
   auditLogs: z.array(z.object({ id: z.string(), action: z.string() }).passthrough()).optional(),
   settings: z.record(z.string(), z.any()).optional(),
@@ -256,23 +257,25 @@ async function handleLogout(request, env, hdrs) {
 async function handleSyncGet(env, request, hdrs) {
   try {
     await ensureSchema(env);
-    const [inv, cust, veh, sales, prices, logs, settings] = await Promise.all([
+    const [inv, cust, veh, sales, invoices, prices, logs, settings] = await Promise.all([
       query(env, 'SELECT data FROM inventory ORDER BY created_at'),
       query(env, 'SELECT data FROM customers ORDER BY created_at'),
       query(env, 'SELECT data FROM vehicles ORDER BY created_at'),
       query(env, 'SELECT data FROM sales ORDER BY created_at'),
+      query(env, 'SELECT data FROM invoices ORDER BY created_at'),
       query(env, 'SELECT data FROM retailer_prices ORDER BY fetched_at DESC'),
       query(env, 'SELECT data FROM audit_logs ORDER BY created_at DESC LIMIT 500'),
       query(env, 'SELECT data FROM settings WHERE id = $1', ['app_settings']),
     ]);
 
     const db = {
-      inventory:      (inv.rows    || []).map(r => r.data),
-      customers:      (cust.rows   || []).map(r => r.data),
-      vehicles:       (veh.rows    || []).map(r => r.data),
-      sales:          (sales.rows  || []).map(r => r.data),
-      retailerPrices: (prices.rows || []).map(r => r.data),
-      auditLogs:      (logs.rows   || []).map(r => r.data),
+      inventory:      (inv.rows      || []).map(r => r.data),
+      customers:      (cust.rows     || []).map(r => r.data),
+      vehicles:       (veh.rows      || []).map(r => r.data),
+      sales:          (sales.rows    || []).map(r => r.data),
+      invoices:       (invoices.rows || []).map(r => r.data),
+      retailerPrices: (prices.rows   || []).map(r => r.data),
+      auditLogs:      (logs.rows     || []).map(r => r.data),
       settings:       (settings.rows && settings.rows.length > 0) ? settings.rows[0].data : {},
     };
 
@@ -360,6 +363,14 @@ async function handleSyncPost(request, env, hdrs, user, clientIP, ctx) {
           [s.id, JSON.stringify(s)]));
       }
     }
+    if (vb.invoices?.length) {
+      for (const iv of vb.invoices) {
+        ops.push(query(env,
+          `INSERT INTO invoices (id, data, created_at) VALUES ($1, $2::jsonb, NOW())
+           ON CONFLICT (id) DO UPDATE SET data = $2::jsonb, updated_at = NOW()`,
+          [iv.id, JSON.stringify(iv)]));
+      }
+    }
     if (vb.retailerPrices?.length) {
       for (const p of vb.retailerPrices) {
         ops.push(query(env,
@@ -397,6 +408,7 @@ async function handleSyncPost(request, env, hdrs, user, clientIP, ctx) {
         customers: vb.customers?.length || 0,
         vehicles: vb.vehicles?.length || 0,
         sales: vb.sales?.length || 0,
+        invoices: vb.invoices?.length || 0,
       }
     };
     ops.push(query(env,
@@ -451,6 +463,17 @@ async function handleSyncPost(request, env, hdrs, user, clientIP, ctx) {
           `DELETE FROM sales WHERE NOT (id = ANY($1::text[]))`, [ids]));
       } else {
         deleteOps.push(query(env, `DELETE FROM sales`));
+      }
+    }
+
+    // Invoices: delete rows not in payload
+    if (vb.invoices) {
+      const ids = vb.invoices.map(iv => iv.id);
+      if (ids.length > 0) {
+        deleteOps.push(query(env,
+          `DELETE FROM invoices WHERE NOT (id = ANY($1::text[]))`, [ids]));
+      } else {
+        deleteOps.push(query(env, `DELETE FROM invoices`));
       }
     }
 
@@ -684,6 +707,7 @@ async function ensureSchema(env) {
     `CREATE TABLE IF NOT EXISTS customers (id TEXT PRIMARY KEY, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW())`,
     `CREATE TABLE IF NOT EXISTS vehicles (id TEXT PRIMARY KEY, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW())`,
     `CREATE TABLE IF NOT EXISTS sales (id TEXT PRIMARY KEY, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW())`,
+    `CREATE TABLE IF NOT EXISTS invoices (id TEXT PRIMARY KEY, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW())`,
     `CREATE TABLE IF NOT EXISTS retailer_prices (part_number TEXT PRIMARY KEY, data JSONB NOT NULL, fetched_at TIMESTAMPTZ DEFAULT NOW())`,
     `CREATE TABLE IF NOT EXISTS audit_logs (id TEXT PRIMARY KEY, data JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW())`,
     `CREATE TABLE IF NOT EXISTS settings (id TEXT PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ DEFAULT NOW())`,
