@@ -515,7 +515,7 @@
         regs.forEach(function (reg) {
           reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, { cache: 'no-store' })
             .then(function (r) { return r.text(); })
-            .then(function (t) { if (!t.includes('partscommand-v3.1')) reg.unregister(); })
+            .then(function (t) { if (!t.includes('partscommand-v3.2')) reg.unregister(); })
             .catch(function () { });
         });
       });
@@ -572,6 +572,10 @@
         <a href="#" onclick="navigate('comparison')"
           class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="comparison">
           <i class="ph ph-arrows-left-right text-lg"></i> Price Comparison
+        </a>
+        <a href="#" onclick="navigate('invoices')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="invoices">
+          <i class="ph ph-file-text text-lg"></i> Invoices
         </a>
 
         <div class="px-4 mt-6 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Logs
@@ -720,6 +724,10 @@
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-arrows-left-right text-lg"></i> Price Comparison
         </a>
+        <a href="#" onclick="navigate('invoices');toggleMobileNav()"
+          class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
+          <i class="ph ph-file-text text-lg"></i> Invoices
+        </a>
         <div class="px-1 mb-2 mt-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Logs</div>
         <a href="#" onclick="navigate('audit');toggleMobileNav()"
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
@@ -770,7 +778,8 @@
       vehicles: [],
       sales: [],
       retailerPrices: [],
-      auditLogs: []
+      auditLogs: [],
+      invoices: []
     };
 
     let windowDB = null;
@@ -815,6 +824,7 @@
           }
         });
       }
+      if (typeof sanitizeInvoices === 'function') sanitizeInvoices(db);
     }
 
     function getDB() {
@@ -951,6 +961,7 @@
         case 'sales': renderSales(main); break;
         case 'comparison': renderComparison(main); break;
         case 'rockauto': renderRockAuto(main); break;
+        case 'invoices': renderInvoices(main); break;
         case 'audit': renderAudit(main); break;
         case 'settings': renderSettings(main); break;
       }
@@ -2317,6 +2328,9 @@
                 <span class="text-xs text-slate-400">${s.laborHours}h labor</span>
                 <span class="text-sm font-bold text-green-400">$${s.total.toFixed(2)}</span>
               </div>
+              <button onclick="createInvoiceFromSale('${s.id}')" class="w-full mt-2 py-1.5 rounded-lg text-xs text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/10 flex items-center justify-center gap-1.5">
+                <i class="ph-bold ph-file-text"></i> Generate Invoice
+              </button>
             </div>
           `).join('')}
       </div>
@@ -3043,16 +3057,19 @@
         </div>
       </div>
 
-      ${sale.status === 'Pending' ? `
-        <div class="flex gap-2 mt-4">
+      <div class="flex gap-2 mt-4">
+        <button onclick="createInvoiceFromSale('${sale.id}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-cyan-400 flex items-center justify-center gap-2">
+          <i class="ph-bold ph-file-text"></i> Generate Invoice
+        </button>
+        ${sale.status === 'Pending' ? `
           <button onclick="closeModal();updateSaleStatus('${sale.id}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
             <i class="ph-bold ph-check-circle"></i> Complete Sale
           </button>
           <button onclick="deleteSale('${sale.id}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
             <i class="ph-bold ph-trash"></i>
           </button>
-        </div>
-      ` : ''}
+        ` : ''}
+      </div>
     </div>
   `;
     }
@@ -3907,6 +3924,9 @@
               </button>
             </div>
           </div>
+
+          <!-- Invoicing -->
+          ${invoiceSettingsCardHtml()}
 
           <!-- Export Data -->
           <div class="glass-card rounded-2xl p-6">
@@ -5019,6 +5039,7 @@
   <!-- RockAuto Integration Modules v3.1.0 -->
   <script src="rockauto-fetch.js"></script>
   <script src="rockauto-ui.js"></script>
+  <script src="invoices.js"></script>
   <script src="sw_cache_update.js"></script>
 </body>
 
