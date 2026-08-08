@@ -129,36 +129,39 @@ export default {
       if (url.pathname === '/auth/login' && request.method === 'POST') return handleLogin(request, env, hdrs);
       if (url.pathname === '/auth/logout' && request.method === 'POST') return handleLogout(request, env, hdrs);
 
-      // ── JWT Auth Middleware (enforced when JWT_SECRET is set) ──
-      let user = null;
+      // ── App Routes (origin-restricted above via ALLOWED_ORIGIN, not JWT-gated) ──
+      // BUGFIX (2026-08-08): the PWA frontend has no login screen and never sends an
+      // Authorization header (confirmed: zero references to "Authorization" or "Bearer"
+      // anywhere in frontend/index.html or rockauto-fetch.js). These routes used to sit
+      // behind the JWT middleware below, so any deploy with JWT_SECRET set as a Worker
+      // secret made EVERY /sync and /v1/rockauto/* call 401 before it could run — this
+      // was the root cause of both "pricing fetch doesn't work" and "storage doesn't
+      // save". They're moved here so they're reachable by the actual client, and are
+      // still protected by the ALLOWED_ORIGIN / CORS check above.
+      // If you later add real user accounts, re-add a JWT check scoped to /sync only,
+      // and update the frontend to call /auth/login and send the token it gets back.
+      if (url.pathname.startsWith('/v1/rockauto/')) {
+        return handleRockAutoProxy(url, request, env, hdrs, ctx, clientIP);
+      }
+      if (url.pathname === '/sync') {
+        if (request.method === 'GET') return handleSyncGet(env, request, hdrs);
+        if (request.method === 'POST') return handleSyncPost(request, env, hdrs, null, clientIP, ctx);
+      }
+      if (url.pathname === '/prices' && request.method === 'GET') {
+        return handlePriceLookup(url, env, hdrs, ctx);
+      }
+
+      // ── JWT Auth Middleware (only relevant to routes added below this line) ──
       if (env.JWT_SECRET) {
         const authH = request.headers.get('Authorization');
         if (!authH || !authH.startsWith('Bearer ')) {
           return json({ error: 'Authorization required' }, hdrs, 401);
         }
         try {
-          user = jwt.verify(authH.substring(7), env.JWT_SECRET);
+          jwt.verify(authH.substring(7), env.JWT_SECRET);
         } catch {
           return json({ error: 'Invalid or expired token' }, hdrs, 401);
         }
-        if (env.CRM_KV) {
-          const sess = await env.CRM_KV.get(`session:${user.id}`);
-          if (!sess || sess !== authH.substring(7)) {
-            return json({ error: 'Session expired or revoked' }, hdrs, 401);
-          }
-        }
-      }
-
-      // ── Protected Routes ──
-      if (url.pathname.startsWith('/v1/rockauto/')) {
-        return handleRockAutoProxy(url, request, env, hdrs, ctx, clientIP);
-      }
-      if (url.pathname === '/sync') {
-        if (request.method === 'GET') return handleSyncGet(env, request, hdrs);
-        if (request.method === 'POST') return handleSyncPost(request, env, hdrs, user, clientIP, ctx);
-      }
-      if (url.pathname === '/prices' && request.method === 'GET') {
-        return handlePriceLookup(url, env, hdrs, ctx);
       }
 
       return json({ error: 'Not found', path: url.pathname }, hdrs, 404);

@@ -27,7 +27,21 @@ ADMIN_EMAIL = "admin@zempelauto.com"
 
 # Neon DATABASE_URL — set via: wrangler secret put DATABASE_URL
 # JWT_SECRET        — set via: wrangler secret put JWT_SECRET
+#                     (only needed if/when a real login flow is added — the
+#                     current frontend never sends a Bearer token, so leave
+#                     this UNSET unless you've also built a login screen that
+#                     calls /auth/login and attaches the returned token to
+#                     every request. See handleRockAutoProxy() bugfix note.)
 # ADMIN_PASSWORD_HASH — set via: wrangler secret put ADMIN_PASSWORD_HASH
+# PYTHON_SERVICE_URL — set via: wrangler secret put PYTHON_SERVICE_URL
+#                     (full URL of the Koyeb-deployed rockauto-api-main
+#                     service, e.g. https://your-app.koyeb.app — required
+#                     for the RockAuto Catalog / Price Comparison fetch to
+#                     work at all. Must be set on THIS worker, parts-command-api
+#                     — not on zempel-rockauto-proxy, which the frontend never calls.)
+# SERVICE_AUTH_KEY   — set via: wrangler secret put SERVICE_AUTH_KEY
+#                     (shared key that must match the Koyeb service's own
+#                     SERVICE_AUTH_KEY env var)
 # Never hardcode secrets here.
 
 workers_dev = true
