@@ -47,10 +47,11 @@ const ROCKAUTO_ROUTE_MAP = {
   '/v1/rockauto/search': '/api/rockauto/search',
 };
 const ROCKAUTO_DYNAMIC_ROUTES = [
+  { pattern: /^\/v1\/rockauto\/categories\/([^/]+)\/(\d+)\/([^/]+)\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/categories/${m[1]}/${m[2]}/${m[3]}/${m[4]}` },
+  { pattern: /^\/v1\/rockauto\/parts\/([^/]+)\/(\d+)\/([^/]+)\/([a-zA-Z0-9]+)\/([^/]+)$/, upstream: (m) => `/api/rockauto/parts/${m[1]}/${m[2]}/${m[3]}/${m[4]}/${m[5]}` },
   { pattern: /^\/v1\/rockauto\/engines\/([^/]+)\/(\d+)\/([^/]+)$/, upstream: (m) => `/api/rockauto/engines/${m[1]}/${m[2]}/${m[3]}` },
   { pattern: /^\/v1\/rockauto\/models\/([^/]+)\/(\d+)$/, upstream: (m) => `/api/rockauto/models/${m[1]}/${m[2]}` },
   { pattern: /^\/v1\/rockauto\/years\/([^/]+)$/, upstream: (m) => `/api/rockauto/years/${m[1]}` },
-  { pattern: /^\/v1\/rockauto\/parts\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/parts/${m[1]}` },
 ];
 
 // ── Main Handler ─────────────────────────────────────────────
