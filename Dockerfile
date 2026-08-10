@@ -1,6 +1,6 @@
 FROM python:3.11-slim AS builder
 WORKDIR /build
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md .
 RUN pip install --no-cache-dir --prefix=/install .
 COPY src/ ./src
 RUN python -m compileall src/
