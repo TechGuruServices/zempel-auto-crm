@@ -16,7 +16,8 @@ Routes:
   GET  /api/rockauto/years/{make}              Years for make
   GET  /api/rockauto/models/{make}/{year}      Models for make+year
   GET  /api/rockauto/engines/{make}/{year}/{model}  Engines
-  GET  /api/rockauto/parts/{carcode}           Parts by carcode
+  GET  /api/rockauto/categories/{make}/{year}/{model}/{carcode}       Part categories for a vehicle
+  GET  /api/rockauto/parts/{make}/{year}/{model}/{carcode}/{category} Parts within a category
   GET  /api/rockauto/search?q=                 Part name search
 """
 
@@ -42,7 +43,13 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
-from dependencies import (
+# BUGFIX: this used to be a bare `from dependencies import (...)`. The Dockerfile's
+# CMD runs `uvicorn src.main:app` from /app, which puts /app (not /app/src) on
+# sys.path, so main.py is loaded as the `src.main` submodule. A bare `import
+# dependencies` then looks for a top-level /app/dependencies.py, which does not
+# exist (it's at /app/src/dependencies.py) -- this raised ModuleNotFoundError on
+# every container start, so the service never came up at all.
+from src.dependencies import (
     close_http_client,
     close_pool,
     get_db_conn,
@@ -121,6 +128,23 @@ class EnginesResponse(BaseModel):
     year: int = Field(ge=1950, le=2035)
     model: str
     engines: list[EngineItem] = Field(default_factory=list)
+    count: int = Field(default=0, ge=0)
+
+
+class CategoryItem(BaseModel):
+    """Part category/group available for a specific vehicle."""
+    name: str = Field(default="")
+    group_name: str = Field(default="")
+    href: str | None = Field(default=None)
+
+
+class CategoriesResponse(BaseModel):
+    """Vehicle part categories response wrapper."""
+    make: str
+    year: int = Field(ge=1950, le=2035)
+    model: str
+    carcode: str
+    categories: list[CategoryItem] = Field(default_factory=list)
     count: int = Field(default=0, ge=0)
 
 
@@ -426,19 +450,82 @@ async def get_engines(
         raise HTTPException(status_code=502, detail="Upstream service error")
 
 
-@app.get("/api/rockauto/parts/{carcode}")
+@app.get("/api/rockauto/categories/{make}/{year}/{model}/{carcode}")
 @limiter.limit("5/second")
-async def get_parts(
+async def get_categories(
+    make: str,
+    year: int,
+    model: str,
     carcode: str,
     request: Request,
     _auth: str = Depends(verify_auth_key),
     client: RockAutoClient = Depends(get_rockauto_client),
 ) -> dict:
-    """Get parts by carcode."""
+    """Get part categories (e.g. Brakes, Filters, Ignition) for a specific vehicle."""
+    if not make or not model or len(make) > 50 or len(model) > 50:
+        raise HTTPException(status_code=400, detail="Invalid make/model parameter")
     if not carcode or not carcode.isalnum() or len(carcode) > 20:
         raise HTTPException(status_code=400, detail="Invalid carcode parameter")
+    if year < 1950 or year > 2035:
+        raise HTTPException(status_code=400, detail="Invalid year parameter")
     try:
-        result = await client.search_parts_by_number(carcode)
+        result = await client.get_part_categories(make, year, model, carcode)
+        categories_out = [
+            {"name": c.name, "group_name": c.group_name, "href": c.href}
+            for c in result.categories
+        ]
+        logger.info("categories_fetched", make=make, year=year, model=model, carcode=carcode, count=len(categories_out))
+        return {
+            "make": result.make,
+            "year": result.year,
+            "model": result.model,
+            "carcode": result.carcode,
+            "categories": categories_out,
+            "count": result.count,
+        }
+    except Exception as exc:
+        logger.error("categories_fetch_failed", make=make, year=year, model=model, carcode=carcode, error=str(exc))
+        if "captcha" in str(exc).lower():
+            raise HTTPException(
+                status_code=503,
+                detail="Upstream temporarily unavailable (CAPTCHA). Retry after 60s.",
+                headers={"Retry-After": "60"},
+            )
+        raise HTTPException(status_code=502, detail="Upstream service error")
+
+
+@app.get("/api/rockauto/parts/{make}/{year}/{model}/{carcode}/{category}")
+@limiter.limit("5/second")
+async def get_parts(
+    make: str,
+    year: int,
+    model: str,
+    carcode: str,
+    category: str,
+    request: Request,
+    _auth: str = Depends(verify_auth_key),
+    client: RockAutoClient = Depends(get_rockauto_client),
+) -> dict:
+    """Get parts for a specific vehicle within a chosen category.
+
+    BUGFIX: this endpoint used to be GET /api/rockauto/parts/{carcode} and called
+    client.search_parts_by_number(carcode) — a method meant for looking up a
+    manufacturer part number, not for browsing a vehicle's catalog. Passing a
+    carcode (RockAuto's internal vehicle id, e.g. "2734567") into a part-number
+    search returned zero results for every vehicle, every time. The catalog
+    actually requires walking make -> year -> model -> engine -> category -> parts,
+    which is what get_part_categories() + get_parts_by_category() do.
+    """
+    if not make or not model or len(make) > 50 or len(model) > 50:
+        raise HTTPException(status_code=400, detail="Invalid make/model parameter")
+    if not carcode or not carcode.isalnum() or len(carcode) > 20:
+        raise HTTPException(status_code=400, detail="Invalid carcode parameter")
+    if not category or len(category) > 100:
+        raise HTTPException(status_code=400, detail="Invalid category parameter")
+    if year < 1950 or year > 2035:
+        raise HTTPException(status_code=400, detail="Invalid year parameter")
+    try:
+        result = await client.get_parts_by_category(make, year, model, carcode, category)
         parts_out = [
             {
                 "name": getattr(p, "name", "Unknown"),
@@ -448,12 +535,12 @@ async def get_parts(
                 "url": getattr(p, "url", None),
                 "image_url": getattr(p, "image_url", None),
             }
-            for p in (result.results if hasattr(result, "results") else [])
+            for p in result.parts
         ]
-        logger.info("parts_fetched", carcode=carcode, count=len(parts_out))
-        return {"parts": parts_out, "count": len(parts_out), "query": carcode}
+        logger.info("parts_fetched", make=make, year=year, model=model, carcode=carcode, category=category, count=len(parts_out))
+        return {"parts": parts_out, "count": len(parts_out), "query": category}
     except Exception as exc:
-        logger.error("parts_fetch_failed", carcode=carcode, error=str(exc))
+        logger.error("parts_fetch_failed", make=make, year=year, model=model, carcode=carcode, category=category, error=str(exc))
         if "captcha" in str(exc).lower():
             raise HTTPException(
                 status_code=503,

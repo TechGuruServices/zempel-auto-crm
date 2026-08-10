@@ -117,6 +117,23 @@ const RockAutoUI = (() => {
     container.appendChild(list);
   }
 
+  function renderCategories(container, data) {
+    container.innerHTML = '';
+    if (!data.categories?.length) { showEmpty(container, `No part categories found.`); return; }
+    const list = el('ul', { className: 'rockauto-categories-list', id: 'rockauto-categories-list' });
+    for (const cat of data.categories) {
+      list.appendChild(el('li', { className: 'rockauto-category-item', 'data-group-name': cat.group_name }, [
+        el('button', {
+          textContent: cat.name,
+          className: 'rockauto-category-btn',
+          id: `rockauto-category-${cat.group_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+        }),
+      ]));
+    }
+    container.appendChild(el('h3', { textContent: `Part Categories (${data.count})` }));
+    container.appendChild(list);
+  }
+
   function renderParts(container, data) {
     container.innerHTML = '';
     if (!data.parts?.length) { showEmpty(container, 'No parts found.'); return; }
@@ -162,7 +179,7 @@ const RockAutoUI = (() => {
   // ── Public API ───────────────────────────────────────────────
   return Object.freeze({
     el, showLoading, showError, showEmpty,
-    renderMakes, renderYears, renderModels, renderEngines, renderParts, renderSearchResults,
+    renderMakes, renderYears, renderModels, renderEngines, renderCategories, renderParts, renderSearchResults,
   });
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = RockAutoUI;

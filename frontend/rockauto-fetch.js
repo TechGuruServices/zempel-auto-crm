@@ -67,7 +67,8 @@ const RockAutoFetch = (() => {
     getYears:    (mk)        => guard(mk,'make required') || request(`/v1/rockauto/years/${enc(mk)}`),
     getModels:   (mk,yr)     => guard(mk&&yr,'make+year required') || request(`/v1/rockauto/models/${enc(mk)}/${enc(yr)}`),
     getEngines:  (mk,yr,md)  => guard(mk&&yr&&md,'make+year+model required') || request(`/v1/rockauto/engines/${enc(mk)}/${enc(yr)}/${enc(md)}`),
-    getParts:    (cc)         => guard(cc,'carcode required') || request(`/v1/rockauto/parts/${enc(cc)}`),
+    getCategories: (mk,yr,md,cc) => guard(mk&&yr&&md&&cc,'make+year+model+carcode required') || request(`/v1/rockauto/categories/${enc(mk)}/${enc(yr)}/${enc(md)}/${enc(cc)}`),
+    getParts:    (mk,yr,md,cc,cat) => guard(mk&&yr&&md&&cc&&cat,'make+year+model+carcode+category required') || request(`/v1/rockauto/parts/${enc(mk)}/${enc(yr)}/${enc(md)}/${enc(cc)}/${enc(cat)}`),
     searchParts: (q)          => guard(q&&q.length>=2,'query 2+ chars') || request('/v1/rockauto/search',{params:{q}}),
   });
 })();

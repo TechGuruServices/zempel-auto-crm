@@ -559,11 +559,9 @@
 
         <div class="px-4 mt-6 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
           Operations</div>
-        <a href="#" onclick="navigate('comparison')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-view="comparison">
-          <i class="ph ph-git-diff text-xl text-amber-400"></i> <span class="font-medium">Compare</span>
-        </a>
-        <a href="#" onclick="navigate('rockauto')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" data-view="rockauto">
-          <i class="ph ph-wrench text-xl text-red-400"></i> <span class="font-medium">RockAuto Catalog</span>
+        <a href="#" onclick="navigate('rockauto')"
+          class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="rockauto">
+          <i class="ph ph-wrench text-lg text-red-400"></i> RockAuto Catalog
         </a>
         <a href="#" onclick="navigate('sales')"
           class="nav-item flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="sales">
@@ -710,10 +708,7 @@
           <i class="ph ph-car text-lg"></i> Vehicles
         </a>
         <div class="px-1 mb-2 mt-4 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Operations</div>
-        <a href="#" onclick="navigate('comparison');toggleMobileNav()" class="mobile-nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400" data-view="comparison">
-          <i class="ph ph-git-diff text-xl text-amber-400"></i> <span class="font-medium">Compare Parts</span>
-        </a>
-        <a href="#" onclick="navigate('rockauto');toggleMobileNav()" class="mobile-nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400" data-view="rockauto">
+        <a href="#" onclick="navigate('rockauto');toggleMobileNav()" class="mobile-nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400" data-nav="rockauto">
           <i class="ph ph-wrench text-xl text-red-400"></i> <span class="font-medium">RockAuto Catalog</span>
         </a>
         <a href="#" onclick="navigate('sales');toggleMobileNav()"
@@ -824,6 +819,34 @@
           }
         });
       }
+      if (db.retailerPrices) {
+        // Repairs records written by the /prices live-lookup endpoint, which
+        // persists oreilly/carquest as null (those scrapers aren't implemented)
+        // and never sets ourPrice/ourCost at all. Without this, renderComparison()
+        // throws on the first .toFixed() call on a null/undefined field, and since
+        // that throw happens before el.innerHTML is assigned, the Compare page
+        // appears to do nothing when clicked.
+        const invByPart = {};
+        (db.inventory || []).forEach(p => { invByPart[p.partNumber] = p; });
+        db.retailerPrices.forEach(r => {
+          r.rockauto = Number(r.rockauto) || 0;
+          r.oreilly = Number(r.oreilly) || 0;
+          r.napa = Number(r.napa) || 0;
+          r.autozone = Number(r.autozone) || 0;
+          r.advance = Number(r.advance) || 0;
+          r.carquest = Number(r.carquest) || 0;
+          if (r.ourPrice == null || isNaN(Number(r.ourPrice))) {
+            r.ourPrice = Number(invByPart[r.partNumber]?.price) || 0;
+          } else {
+            r.ourPrice = Number(r.ourPrice);
+          }
+          if (r.ourCost == null || isNaN(Number(r.ourCost))) {
+            r.ourCost = Number(invByPart[r.partNumber]?.cost) || 0;
+          } else {
+            r.ourCost = Number(r.ourCost);
+          }
+        });
+      }
       if (typeof sanitizeInvoices === 'function') sanitizeInvoices(db);
     }
 
@@ -836,6 +859,7 @@
 
     function saveDB(data) {
       windowDB = JSON.parse(JSON.stringify(data));
+      sanitizeDB(windowDB);
 
       // Cache locally for fast reads & offline fallback
       try {
@@ -883,7 +907,7 @@
     // ==================== NAVIGATION ====================
     function navigate(view) {
       currentView = view;
-      document.querySelectorAll('.nav-item, .mobile-nav-btn').forEach(el => {
+      document.querySelectorAll('.nav-item, .mobile-nav-btn, .mobile-nav-item').forEach(el => {
         el.classList.remove('active', 'text-white');
         el.classList.add('text-slate-400');
       });
@@ -3103,6 +3127,19 @@
     // ==================== PRICE COMPARISON ====================
     function renderComparison(el) {
       const db = getDB();
+      // Defensive coercion (belt-and-suspenders alongside sanitizeDB): never let a
+      // null/undefined competitor price field crash this render mid-template-literal,
+      // which previously left the page showing whatever was there before the click.
+      db.retailerPrices.forEach(r => {
+        r.rockauto = Number(r.rockauto) || 0;
+        r.oreilly = Number(r.oreilly) || 0;
+        r.napa = Number(r.napa) || 0;
+        r.autozone = Number(r.autozone) || 0;
+        r.advance = Number(r.advance) || 0;
+        r.carquest = Number(r.carquest) || 0;
+        r.ourPrice = Number(r.ourPrice) || 0;
+        r.ourCost = Number(r.ourCost) || 0;
+      });
       const filtered = searchQuery ?
         db.retailerPrices.filter(r => r.partNumber.toLowerCase().includes(searchQuery)) :
         db.retailerPrices;
@@ -3415,7 +3452,7 @@
       const content = document.getElementById('rockauto-content');
       const breadcrumbs = document.getElementById('rockauto-breadcrumbs');
 
-      const state = { make: null, year: null, model: null, engine: null, carcode: null };
+      const state = { make: null, year: null, model: null, engine: null, carcode: null, category: null, categoryName: null };
 
       function updateBreadcrumbs() {
         const parts = [];
@@ -3423,6 +3460,7 @@
         if (state.year) parts.push(state.year);
         if (state.model) parts.push(state.model);
         if (state.engine) parts.push(state.engine);
+        if (state.categoryName) parts.push(state.categoryName);
         
         breadcrumbs.innerHTML = parts.length > 0 ? 
           parts.map(p => `<span class="text-white">${p}</span>`).join(' > ') + 
@@ -3435,7 +3473,7 @@
       }
 
       function loadMakes() {
-        state.make = state.year = state.model = state.engine = state.carcode = null;
+        state.make = state.year = state.model = state.engine = state.carcode = state.category = state.categoryName = null;
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getMakes().then(res => {
@@ -3448,7 +3486,7 @@
       }
 
       function loadYears() {
-        state.year = state.model = state.engine = state.carcode = null;
+        state.year = state.model = state.engine = state.carcode = state.category = state.categoryName = null;
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getYears(state.make).then(res => {
@@ -3461,7 +3499,7 @@
       }
 
       function loadModels() {
-        state.model = state.engine = state.carcode = null;
+        state.model = state.engine = state.carcode = state.category = state.categoryName = null;
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getModels(state.make, state.year).then(res => {
@@ -3474,7 +3512,7 @@
       }
 
       function loadEngines() {
-        state.engine = state.carcode = null;
+        state.engine = state.carcode = state.category = state.categoryName = null;
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getEngines(state.make, state.year, state.model).then(res => {
@@ -3484,7 +3522,24 @@
             btn.onclick = () => { 
               state.carcode = btn.parentElement.dataset.carcode; 
               state.engine = btn.textContent.split('(')[0].trim();
-              loadParts(); 
+              loadCategories(); 
+            };
+          });
+        });
+      }
+
+      function loadCategories() {
+        state.category = state.categoryName = null;
+        updateBreadcrumbs();
+        RockAutoUI.showLoading(content);
+        RockAutoFetch.getCategories(state.make, state.year, state.model, state.carcode).then(res => {
+          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          RockAutoUI.renderCategories(content, res.data);
+          document.querySelectorAll('.rockauto-category-btn').forEach(btn => {
+            btn.onclick = () => {
+              state.category = btn.parentElement.dataset.groupName;
+              state.categoryName = btn.textContent.trim();
+              loadParts();
             };
           });
         });
@@ -3493,7 +3548,7 @@
       function loadParts() {
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
-        RockAutoFetch.getParts(state.carcode).then(res => {
+        RockAutoFetch.getParts(state.make, state.year, state.model, state.carcode, state.category).then(res => {
           if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
           RockAutoUI.renderParts(content, res.data);
         });
