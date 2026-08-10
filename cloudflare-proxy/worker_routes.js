@@ -14,14 +14,15 @@
  *   - OWASP security headers
  *
  * Routes:
- *   GET  /health                                  Proxy health
- *   GET  /v1/rockauto/makes                       → Python /api/rockauto/makes
- *   GET  /v1/rockauto/years/:make                 → Python /api/rockauto/years/:make
- *   GET  /v1/rockauto/models/:make/:year          → Python /api/rockauto/models/:make/:year
- *   GET  /v1/rockauto/engines/:make/:year/:model  → Python /api/rockauto/engines/:make/:year/:model
- *   GET  /v1/rockauto/parts/:carcode              → Python /api/rockauto/parts/:carcode
- *   GET  /v1/rockauto/search?q=                   → Python /api/rockauto/search?q=
- *   OPTIONS *                                     CORS preflight
+ *   GET  /health                                                       Proxy health
+ *   GET  /v1/rockauto/makes                                            → Python /api/rockauto/makes
+ *   GET  /v1/rockauto/years/:make                                      → Python /api/rockauto/years/:make
+ *   GET  /v1/rockauto/models/:make/:year                               → Python /api/rockauto/models/:make/:year
+ *   GET  /v1/rockauto/engines/:make/:year/:model                       → Python /api/rockauto/engines/:make/:year/:model
+ *   GET  /v1/rockauto/categories/:make/:year/:model/:carcode           → Python /api/rockauto/categories/:make/:year/:model/:carcode
+ *   GET  /v1/rockauto/parts/:make/:year/:model/:carcode?category=      → Python /api/rockauto/parts/:make/:year/:model/:carcode?category=
+ *   GET  /v1/rockauto/search?q=                                        → Python /api/rockauto/search?q=
+ *   OPTIONS *                                                          CORS preflight
  *
  * Env bindings: PYTHON_SERVICE_URL, SERVICE_AUTH_KEY, PROXY_KV
  * Secrets: wrangler secret put SERVICE_AUTH_KEY
@@ -51,10 +52,11 @@ const ROUTE_MAP = {
 
 // Dynamic route patterns (order matters — most specific first)
 const DYNAMIC_ROUTES = [
+  { pattern: /^\/v1\/rockauto\/categories\/([^/]+)\/(\d+)\/([^/]+)\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/categories/${m[1]}/${m[2]}/${m[3]}/${m[4]}` },
+  { pattern: /^\/v1\/rockauto\/parts\/([^/]+)\/(\d+)\/([^/]+)\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/parts/${m[1]}/${m[2]}/${m[3]}/${m[4]}` },
   { pattern: /^\/v1\/rockauto\/engines\/([^/]+)\/(\d+)\/([^/]+)$/, upstream: (m) => `/api/rockauto/engines/${m[1]}/${m[2]}/${m[3]}` },
   { pattern: /^\/v1\/rockauto\/models\/([^/]+)\/(\d+)$/, upstream: (m) => `/api/rockauto/models/${m[1]}/${m[2]}` },
   { pattern: /^\/v1\/rockauto\/years\/([^/]+)$/, upstream: (m) => `/api/rockauto/years/${m[1]}` },
-  { pattern: /^\/v1\/rockauto\/parts\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/parts/${m[1]}` },
 ];
 
 // ── Main Handler ─────────────────────────────────────────────────────────────
