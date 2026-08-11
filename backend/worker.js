@@ -47,8 +47,8 @@ const ROCKAUTO_ROUTE_MAP = {
   '/v1/rockauto/search': '/api/rockauto/search',
 };
 const ROCKAUTO_DYNAMIC_ROUTES = [
-  { pattern: /^\/v1\/rockauto\/categories\/([^/]+)\/(\d+)\/([^/]+)\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/categories/${m[1]}/${m[2]}/${m[3]}/${m[4]}` },
   { pattern: /^\/v1\/rockauto\/parts\/([^/]+)\/(\d+)\/([^/]+)\/([a-zA-Z0-9]+)\/([^/]+)$/, upstream: (m) => `/api/rockauto/parts/${m[1]}/${m[2]}/${m[3]}/${m[4]}/${m[5]}` },
+  { pattern: /^\/v1\/rockauto\/categories\/([^/]+)\/(\d+)\/([^/]+)\/([a-zA-Z0-9]+)$/, upstream: (m) => `/api/rockauto/categories/${m[1]}/${m[2]}/${m[3]}/${m[4]}` },
   { pattern: /^\/v1\/rockauto\/engines\/([^/]+)\/(\d+)\/([^/]+)$/, upstream: (m) => `/api/rockauto/engines/${m[1]}/${m[2]}/${m[3]}` },
   { pattern: /^\/v1\/rockauto\/models\/([^/]+)\/(\d+)$/, upstream: (m) => `/api/rockauto/models/${m[1]}/${m[2]}` },
   { pattern: /^\/v1\/rockauto\/years\/([^/]+)$/, upstream: (m) => `/api/rockauto/years/${m[1]}` },
@@ -538,12 +538,38 @@ async function handlePriceLookup(url, env, hdrs, ctx) {
   if (env.CRM_KV) {
     ctx.waitUntil(env.CRM_KV.put(`price:${partNumber}`, JSON.stringify(prices), { expirationTtl: 3600 }));
   }
-  // Persist to Neon asynchronously
-  ctx.waitUntil(
-    query(env, `INSERT INTO retailer_prices (part_number, data, fetched_at) VALUES ($1, $2::jsonb, NOW())
-      ON CONFLICT (part_number) DO UPDATE SET data = $2::jsonb, fetched_at = NOW()`,
-      [partNumber, JSON.stringify(prices)]).catch(() => {})
-  );
+  // Persist to Neon asynchronously — merged with any existing row for this part.
+  // BUGFIX: this used to blind-overwrite the row with oreilly:null, carquest:null,
+  // and no ourPrice/ourCost at all (this endpoint doesn't scrape those retailers or
+  // know the shop's own price/cost). That record synced straight down to the
+  // frontend and crashed renderComparison() the moment the Price Comparison page
+  // tried to call .toFixed() on a null/undefined field. Merging preserves whatever
+  // was already known for this part and defaults anything still missing to 0.
+  ctx.waitUntil((async () => {
+    try {
+      let existing = null;
+      const existingRows = await query(env, `SELECT data FROM retailer_prices WHERE part_number = $1`, [partNumber]);
+      if (existingRows.rows && existingRows.rows.length > 0) existing = existingRows.rows[0].data;
+
+      const merged = {
+        partNumber,
+        name: bestName || existing?.name || null,
+        rockauto: results.rockauto ?? existing?.rockauto ?? 0,
+        napa: results.napa ?? existing?.napa ?? 0,
+        autozone: results.autozone ?? existing?.autozone ?? 0,
+        advance: results.advance ?? existing?.advance ?? 0,
+        oreilly: existing?.oreilly ?? 0,   // not scraped by this endpoint — preserve prior value
+        carquest: existing?.carquest ?? 0, // not scraped by this endpoint — preserve prior value
+        ourPrice: existing?.ourPrice ?? 0,
+        ourCost: existing?.ourCost ?? 0,
+        fetchedAt: new Date().toISOString(),
+      };
+
+      await query(env, `INSERT INTO retailer_prices (part_number, data, fetched_at) VALUES ($1, $2::jsonb, NOW())
+        ON CONFLICT (part_number) DO UPDATE SET data = $2::jsonb, fetched_at = NOW()`,
+        [partNumber, JSON.stringify(merged)]);
+    } catch (_e) { /* best-effort persistence; never fail the response over this */ }
+  })());
 
   return json(prices, { ...hdrs, 'Cache-Control': 'public, s-maxage=3600', 'X-Cache': 'MISS' });
 }
