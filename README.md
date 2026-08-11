@@ -1,5 +1,5 @@
 <div align="center">
-<img src"zempel-auto-img.jpg" alt="Zempel Auto Parts Logo" width="100" />
+<img src"zempel-auto-img.jpg" width="100" />
 
 # Zempel Auto Parts CRM — PartsCommand
 
