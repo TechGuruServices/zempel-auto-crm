@@ -1,14 +1,14 @@
 /**
- * PartsCommand CRM — Service Worker v3.1.0
- * Offline-first with ETag cache-busting for /sync endpoint.
+ * PartsCommand CRM — Service Worker v3.3.0
+ * Offline-first. API calls are network-only; app shell + core JS are
+ * network-first (see NETWORK_FIRST_PATHS) so deploys are picked up
+ * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.2.0';
+const CACHE_NAME = 'partscommand-v3.4.0'; // bumped: stop intercepting cross-origin CDN requests (CSP fix)
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
-  '/',
-  '/index.html',
   '/manifest.json',
   '/assets/z-auto-9.jpeg',
   '/assets/favicon-cropped1.PNG',
@@ -16,17 +16,25 @@ const PRECACHE_CORE = [
   '/assets/jspdf.plugin.autotable.min.js',
   '/assets/html5-qrcode.min.js',
   '/assets/styles.css',
+];
+
+// App shell HTML + core logic files that must never be served stale.
+// These change on every deploy and directly drive dashboard/data logic,
+// so they always go to the network first (falling back to cache only offline).
+const NETWORK_FIRST_PATHS = [
+  '/',
+  '/index.html',
   '/rockauto-fetch.js',
   '/rockauto-ui.js',
   '/invoices.js',
   '/sw_cache_update.js',
 ];
 
-const PRECACHE_OPTIONAL = [
-  'https://unpkg.com/@phosphor-icons/web',
-  'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap',
-];
+const PRECACHE_OPTIONAL = [];
+// (Previously precached unpkg.com URLs that the app doesn't even load —
+// Phosphor icons come from cdn.jsdelivr.net and html5-qrcode is self-hosted
+// under /assets/. Those unpkg entries were dead weight that also failed
+// every install due to the CSP issue described below.)
 
 // ── Install: precache app shell ───────────────────────────────────────────────
 self.addEventListener('install', (event) => {
@@ -37,10 +45,10 @@ self.addEventListener('install', (event) => {
       } catch (err) {
         console.warn('[SW] Core precache failed:', err);
       }
+      // Seed an offline fallback copy of the network-first files, but never
+      // let this block install (network-first will overwrite them anyway).
       await Promise.allSettled(
-        PRECACHE_OPTIONAL.map(url =>
-          cache.add(new Request(url, { mode: 'no-cors' })).catch(() => {})
-        )
+        NETWORK_FIRST_PATHS.map(path => cache.add(path).catch(() => {}))
       );
     }).then(() => self.skipWaiting())
   );
@@ -74,17 +82,32 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Google Fonts / CDN — Cache first
-  if (
-    url.hostname === 'fonts.googleapis.com' ||
-    url.hostname === 'fonts.gstatic.com' ||
-    url.hostname === 'unpkg.com'
-  ) {
-    event.respondWith(cacheFirst(request));
+  // Any other cross-origin request (CDN scripts/styles/fonts: cdnjs.cloudflare.com,
+  // cdn.jsdelivr.net, fonts.googleapis.com, etc.) — do NOT intercept.
+  // If we call fetch() on these ourselves, that fetch is evaluated against the
+  // page's CSP `connect-src`, which is intentionally locked down to 'self' plus
+  // the API origin. But a plain, un-intercepted <script>/<link> load is evaluated
+  // against script-src/style-src/font-src instead, which DO allow these CDNs.
+  // Intercepting here was silently turning every CDN library (localforage,
+  // pdf.js, papaparse, Phosphor icon fonts) into a CSP violation + synthetic
+  // 503 on every load after the first. Letting the browser handle these
+  // natively fixes that.
+  if (url.origin !== self.location.origin) {
     return;
   }
 
-  // App shell & local assets — Stale-while-revalidate
+
+  // App shell (index.html) & core logic files — Network FIRST.
+  // These drive dashboard stats and app behavior; serving a stale cached
+  // copy while "revalidating in the background" is exactly what made the
+  // app appear frozen on an old version. Only fall back to cache offline.
+  const isNavigation = request.mode === 'navigate';
+  if (isNavigation || NETWORK_FIRST_PATHS.includes(url.pathname)) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  // Other local static assets (images, vendored libs) — Stale-while-revalidate
   event.respondWith(staleWhileRevalidate(request));
 });
 
@@ -102,21 +125,24 @@ async function networkOnly(request) {
   }
 }
 
-// (networkFirstWithCache removed — API calls now use networkOnly above)
-
-// ── Strategy: Cache first (CDN assets) ───────────────────────────────────────
-async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
+// ── Strategy: Network first (app shell + core JS — always fetch latest) ──────
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
   try {
-    const networkResponse = await fetch(request, { mode: 'no-cors' });
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(request, networkResponse.clone());
+    const networkResponse = await fetch(request, { cache: 'no-store' });
+    if (networkResponse && networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
     return networkResponse;
   } catch {
-    return new Response('', { status: 408 });
+    const cached = await cache.match(request);
+    return cached || new Response('Offline', { status: 503 });
   }
 }
+
+// (cacheFirst removed — cross-origin CDN requests are no longer intercepted
+// by this service worker at all; see the origin check in the fetch handler
+// above. That avoids the CSP connect-src violations these caused.)
 
 // ── Strategy: Stale-while-revalidate (app shell) ─────────────────────────────
 async function staleWhileRevalidate(request) {

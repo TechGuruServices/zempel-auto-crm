@@ -17,14 +17,14 @@
   <link rel="stylesheet" href="/assets/styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
-  <script src="/assets/html5-qrcode.min.js"></script>
-  <script src="/assets/jspdf.umd.min.js"></script>
-  <script src="/assets/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+  <script src="/assets/html5-qrcode.min.js" data-cfasync="false"></script>
+  <script src="/assets/jspdf.umd.min.js" data-cfasync="false"></script>
+  <script src="/assets/jspdf.plugin.autotable.min.js" data-cfasync="false"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" data-cfasync="false"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" data-cfasync="false"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js" data-cfasync="false"></script>
 
-  <script>
+  <script data-cfasync="false">
     if (window.pdfjsLib) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     }
@@ -508,7 +508,7 @@
     }
   </style>
 
-  <script>
+  <script data-cfasync="false">
     // Force-evict any stale service worker (old CACHE_NAME != current)
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function (regs) {
@@ -760,7 +760,7 @@
   <!-- Toast Container -->
   <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <script>
+  <script data-cfasync="false">
     // ==================== DATA STORE ====================
     const DB_KEY = 'partscommand_db';
     const API_URL = 'https://parts-command-api.techguruofficial.workers.dev';
@@ -5065,7 +5065,7 @@
       }
     }, 1000);
   </script>
-  <script>
+  <script data-cfasync="false">
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("/sw.js")
@@ -5092,10 +5092,10 @@
   </script>
 
   <!-- RockAuto Integration Modules v3.1.0 -->
-  <script src="rockauto-fetch.js"></script>
-  <script src="rockauto-ui.js"></script>
-  <script src="invoices.js"></script>
-  <script src="sw_cache_update.js"></script>
+  <script src="rockauto-fetch.js" data-cfasync="false"></script>
+  <script src="rockauto-ui.js" data-cfasync="false"></script>
+  <script src="invoices.js" data-cfasync="false"></script>
+  <script src="sw_cache_update.js" data-cfasync="false"></script>
 </body>
 
 </html>

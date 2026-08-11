@@ -6,8 +6,20 @@
 const SWCacheUpdate = (() => {
   'use strict';
 
-  const CACHE_NAME = 'partscommand-v3.1.0';
+  // NOTE: intentionally NOT hardcoding the cache name here. A hardcoded
+  // version string in this file had drifted out of sync with the real
+  // CACHE_NAME in sw.js before, which silently made every purge* call
+  // below a no-op (it opened/created an empty cache instead of the real
+  // one). Instead, look up whatever cache the active service worker is
+  // actually using at call time.
+  const CACHE_PREFIX = 'partscommand-';
   const ROCKAUTO_PATH_PREFIX = '/v1/rockauto/';
+
+  async function _getActiveCacheNames() {
+    if (!('caches' in window)) return [];
+    const names = await caches.keys();
+    return names.filter(n => n.startsWith(CACHE_PREFIX));
+  }
 
   /**
    * Purge all cached RockAuto proxy responses from the SW cache.
@@ -17,14 +29,16 @@ const SWCacheUpdate = (() => {
   async function purgeRockAutoCache() {
     if (!('caches' in window)) return 0;
     try {
-      const cache = await caches.open(CACHE_NAME);
-      const keys = await cache.keys();
       let purged = 0;
-      for (const req of keys) {
-        const url = new URL(req.url);
-        if (url.pathname.startsWith(ROCKAUTO_PATH_PREFIX)) {
-          await cache.delete(req);
-          purged++;
+      for (const cacheName of await _getActiveCacheNames()) {
+        const cache = await caches.open(cacheName);
+        const keys = await cache.keys();
+        for (const req of keys) {
+          const url = new URL(req.url);
+          if (url.pathname.startsWith(ROCKAUTO_PATH_PREFIX)) {
+            await cache.delete(req);
+            purged++;
+          }
         }
       }
       return purged;
@@ -41,11 +55,14 @@ const SWCacheUpdate = (() => {
   async function purgeEntry(path) {
     if (!('caches' in window)) return false;
     try {
-      const cache = await caches.open(CACHE_NAME);
-      const keys = await cache.keys();
-      for (const req of keys) {
-        if (new URL(req.url).pathname === path) {
-          return cache.delete(req);
+      for (const cacheName of await _getActiveCacheNames()) {
+        const cache = await caches.open(cacheName);
+        const keys = await cache.keys();
+        for (const req of keys) {
+          if (new URL(req.url).pathname === path) {
+            await cache.delete(req);
+            return true;
+          }
         }
       }
       return false;
@@ -102,7 +119,6 @@ const SWCacheUpdate = (() => {
     forceActivate,
     onSyncRequest,
     checkForUpdate,
-    CACHE_NAME,
   });
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = SWCacheUpdate;
