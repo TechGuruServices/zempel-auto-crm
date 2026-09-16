@@ -1,5 +1,5 @@
 /**
- * RockAuto UI Module v3.1.0 — Zempel Auto Parts CRM
+ * RockAuto UI Module v3.2.0 — Zempel Auto Parts CRM
  * Renders RockAuto data into DOM. Depends on RockAutoFetch.
  * SOLID: Single responsibility per renderer. DRY: shared helpers.
  */
@@ -40,11 +40,29 @@ const RockAutoUI = (() => {
     container.appendChild(err);
   }
 
-  function showEmpty(container, message) {
+  function showEmpty(container, message, notice) {
     container.innerHTML = '';
-    container.appendChild(el('div', { className: 'rockauto-empty', id: 'rockauto-empty' }, [
+    const wrap = el('div', { className: 'rockauto-empty', id: 'rockauto-empty' }, [
       el('p', { textContent: message || 'No results found.' }),
-    ]));
+    ]);
+    container.appendChild(wrap);
+    if (notice) container.insertBefore(renderNoticeBanner(notice), container.firstChild);
+  }
+
+  // Amber banner shown whenever the API responds from the built-in offline
+  // catalog (source: 'offline-catalog') or includes a `notice` string.
+  function renderNoticeBanner(notice) {
+    return el('div', { className: 'rockauto-notice', id: 'rockauto-notice', role: 'status' }, [
+      el('strong', { textContent: '\u2139 ' }),
+      el('span', { textContent: notice }),
+    ]);
+  }
+
+  // Prepend the offline banner to a populated container (keeps existing nodes).
+  function addNotice(container, data) {
+    if (data && data.notice && container && !container.querySelector('#rockauto-notice')) {
+      container.insertBefore(renderNoticeBanner(data.notice), container.firstChild);
+    }
   }
 
   // ── Renderers (SOLID: each handles one data type) ──────────
@@ -68,7 +86,7 @@ const RockAutoUI = (() => {
 
   function renderYears(container, data) {
     container.innerHTML = '';
-    if (!data.years?.length) { showEmpty(container, `No years for ${data.make}.`); return; }
+    if (!data.years?.length) { showEmpty(container, `No years for ${data.make}.`, data.notice); return; }
     const grid = el('div', { className: 'rockauto-years-grid', id: 'rockauto-years-grid' });
     for (const year of data.years) {
       grid.appendChild(el('button', {
@@ -80,11 +98,12 @@ const RockAutoUI = (() => {
     }
     container.appendChild(el('h3', { textContent: `${data.make} — Years (${data.count})`, id: 'rockauto-years-heading' }));
     container.appendChild(grid);
+    addNotice(container, data);
   }
 
   function renderModels(container, data) {
     container.innerHTML = '';
-    if (!data.models?.length) { showEmpty(container, `No models for ${data.make} ${data.year}.`); return; }
+    if (!data.models?.length) { showEmpty(container, `No models for ${data.make} ${data.year}.`, data.notice); return; }
     const list = el('ul', { className: 'rockauto-models-list', id: 'rockauto-models-list' });
     for (const model of data.models) {
       list.appendChild(el('li', { className: 'rockauto-model-item' }, [
@@ -98,11 +117,12 @@ const RockAutoUI = (() => {
     }
     container.appendChild(el('h3', { textContent: `${data.make} ${data.year} — Models (${data.count})` }));
     container.appendChild(list);
+    addNotice(container, data);
   }
 
   function renderEngines(container, data) {
     container.innerHTML = '';
-    if (!data.engines?.length) { showEmpty(container, `No engines found.`); return; }
+    if (!data.engines?.length) { showEmpty(container, `No engines found.`, data.notice); return; }
     const list = el('ul', { className: 'rockauto-engines-list', id: 'rockauto-engines-list' });
     for (const eng of data.engines) {
       list.appendChild(el('li', { className: 'rockauto-engine-item', 'data-carcode': eng.carcode }, [
@@ -115,11 +135,12 @@ const RockAutoUI = (() => {
     }
     container.appendChild(el('h3', { textContent: `Engines (${data.count})` }));
     container.appendChild(list);
+    addNotice(container, data);
   }
 
   function renderCategories(container, data) {
     container.innerHTML = '';
-    if (!data.categories?.length) { showEmpty(container, `No part categories found.`); return; }
+    if (!data.categories?.length) { showEmpty(container, `No part categories found.`, data.notice); return; }
     const list = el('ul', { className: 'rockauto-categories-list', id: 'rockauto-categories-list' });
     for (const cat of data.categories) {
       list.appendChild(el('li', { className: 'rockauto-category-item', 'data-group-name': cat.group_name }, [
@@ -132,11 +153,12 @@ const RockAutoUI = (() => {
     }
     container.appendChild(el('h3', { textContent: `Part Categories (${data.count})` }));
     container.appendChild(list);
+    addNotice(container, data);
   }
 
   function renderParts(container, data) {
     container.innerHTML = '';
-    if (!data.parts?.length) { showEmpty(container, 'No parts found.'); return; }
+    if (!data.parts?.length) { showEmpty(container, 'No live parts available for this selection.', data.notice); return; }
     const table = el('table', { className: 'rockauto-parts-table', id: 'rockauto-parts-table' });
     const thead = el('thead', {}, [
       el('tr', {}, [
@@ -159,12 +181,13 @@ const RockAutoUI = (() => {
     table.appendChild(tbody);
     container.appendChild(el('h3', { textContent: `Parts (${data.count})` }));
     container.appendChild(table);
+    addNotice(container, data);
   }
 
   function renderSearchResults(container, data) {
     container.innerHTML = '';
     const results = data.results || [];
-    if (!results.length) { showEmpty(container, `No results for "${data.query}".`); return; }
+    if (!results.length) { showEmpty(container, `No results for "${data.query}".`, data.notice); return; }
     const list = el('ul', { className: 'rockauto-search-list', id: 'rockauto-search-results' });
     for (const r of results) {
       list.appendChild(el('li', { className: 'rockauto-search-item' }, [
@@ -174,11 +197,12 @@ const RockAutoUI = (() => {
     }
     container.appendChild(el('h3', { textContent: `Search: "${data.query}" (${results.length})` }));
     container.appendChild(list);
+    addNotice(container, data);
   }
 
   // ── Public API ───────────────────────────────────────────────
   return Object.freeze({
-    el, showLoading, showError, showEmpty,
+    el, showLoading, showError, showEmpty, renderNoticeBanner, addNotice,
     renderMakes, renderYears, renderModels, renderEngines, renderCategories, renderParts, renderSearchResults,
   });
 })();

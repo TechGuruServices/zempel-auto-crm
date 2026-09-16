@@ -163,19 +163,29 @@ async function runAllTests() {
     id: `veh_${TEST_RUN_ID}`, customerId: `cust_${TEST_RUN_ID}`,
     year: '2024', make: 'TestMake', model: 'TestModel',
     vin: `VIN${TEST_RUN_ID.slice(-12).toUpperCase()}`, engine: '2.0L Test',
+    licensePlate: 'TST-0001', color: 'Grey', mileage: 0, services: [],
     notes: `Created by test run ${TEST_RUN_ID}`
   };
+  // FIX (2026-09): tests used to push a legacy { items, status:'completed' } shape
+  // that the PWA's renderers didn't understand — those orphaned rows are what made
+  // "Sales & Estimates" throw on click in production. Tests now write the exact
+  // record shape the app creates (lineItems, capitalized status, labor fields).
   const testSale = {
     id: `sale_${TEST_RUN_ID}`, customerId: `cust_${TEST_RUN_ID}`,
+    vehicleId: `veh_${TEST_RUN_ID}`,
     date: new Date().toISOString().split('T')[0],
-    items: [{ partId: testPart.id, qty: 2, price: 29.99 }],
-    total: 59.98, margin: 34.98, status: 'completed', type: 'sale',
+    lineItems: [{
+      partId: testPart.id, partNumber: testPart.partNumber, name: testPart.name,
+      qty: 2, unitPrice: 29.99, unitCost: 12.50
+    }],
+    laborHours: 0, laborRate: 95, tax: 0,
+    total: 59.98, margin: 34.98, status: 'Pending', type: 'sale',
     notes: `Created by test run ${TEST_RUN_ID}`
   };
   const testAuditLog = {
     id: `log_${TEST_RUN_ID}`, action: 'TEST_RUN',
     timestamp: new Date().toISOString(),
-    details: `Integration test ${TEST_RUN_ID}`
+    detail: `Integration test ${TEST_RUN_ID}`, user: 'TestRunner'
   };
 
   await test('POST /sync writes test data to Neon database', async () => {
@@ -216,7 +226,8 @@ async function runAllTests() {
     const { data } = await fetchJSON('/sync');
     const found = data.sales.find(s => s.id === testSale.id);
     assert(found, `Test sale not found after POST`);
-    assertEqual(found.status, 'completed', 'status');
+    assertEqual(found.status, 'Pending', 'status');
+    assert(Array.isArray(found.lineItems) && found.lineItems.length === 1, 'lineItems must survive round-trip');
   });
 
   await test('Numeric values survive database round-trip', async () => {
@@ -500,11 +511,36 @@ async function runAllTests() {
   console.log('');
 
   // ── CLEANUP ──
+  // FIX (2026-09): previous runs only printed a note, so every test run left
+  // orphaned records in the production database (the exact rows that broke the
+  // Sales & Estimates page). Now we pull the full DB, strip every record whose
+  // id belongs to THIS run, and push it back — POST /sync deletes any row not
+  // present in the payload, so the test data is fully removed from Neon.
   console.log('─── Cleanup ─────────────────────────────────────────────────');
-  await test('Cleanup: Test data info', async () => {
-    log('ℹ️ ', `Test data IDs contain: ${TEST_RUN_ID}`);
-    log('ℹ️ ', 'Clean up via Neon console if needed.');
-    assert(true, '');
+  await test('Cleanup: remove this run\'s test records from the database', async () => {
+    const { data } = await fetchJSON('/sync');
+    const strip = (arr) => (arr || []).filter(r => !String(r && r.id || '').includes(TEST_RUN_ID));
+    const payload = {
+      inventory: strip(data.inventory),
+      customers: strip(data.customers),
+      vehicles: strip(data.vehicles),
+      sales: strip(data.sales),
+      invoices: strip(data.invoices),
+      retailerPrices: data.retailerPrices || [],
+      auditLogs: (data.auditLogs || []).filter(l => !String(l && l.id || '').includes(TEST_RUN_ID)).slice(0, 100),
+      settings: data.settings || {},
+    };
+    const { res, data: ack } = await fetchJSON('/sync', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    assertEqual(res.status, 200, 'Cleanup POST status');
+    assertEqual(ack.success, true, 'Cleanup success flag');
+    const { data: verify } = await fetchJSON('/sync');
+    const leftovers = [...(verify.inventory||[]), ...(verify.customers||[]), ...(verify.vehicles||[]), ...(verify.sales||[])]
+      .filter(r => String(r.id || '').includes(TEST_RUN_ID));
+    assertEqual(leftovers.length, 0, 'Leftover test records after cleanup');
+    log('ℹ️ ', `Removed test records for run ${TEST_RUN_ID}`);
   });
 
   // ── SUMMARY ──

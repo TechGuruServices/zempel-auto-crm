@@ -506,6 +506,192 @@
         background-position: 0% 50%;
       }
     }
+
+    /* ==================== ROCKAUTO CATALOG COMPONENTS ==================== */
+    .rockauto-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 3rem 1rem;
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+
+    .rockauto-spinner {
+      width: 2.25rem;
+      height: 2.25rem;
+      border: 3px solid rgba(59, 130, 246, 0.25);
+      border-top-color: #3b82f6;
+      border-radius: 9999px;
+      animation: ra-spin 0.9s linear infinite;
+    }
+
+    @keyframes ra-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .rockauto-error {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #fca5a5;
+      font-size: 0.875rem;
+    }
+
+    .rockauto-retry-btn {
+      margin-top: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      border-radius: 0.5rem;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .rockauto-retry-btn:hover {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      transform: translateY(-1px);
+    }
+
+    .rockauto-empty {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #64748b;
+      font-size: 0.875rem;
+    }
+
+    .rockauto-notice {
+      margin: 0 0 1rem;
+      padding: 0.625rem 0.875rem;
+      border-radius: 0.5rem;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #fcd34d;
+      font-size: 0.75rem;
+      line-height: 1.5;
+    }
+
+    #rockauto-content h3 {
+      color: #e2e8f0;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+    }
+
+    .rockauto-makes-list,
+    .rockauto-models-list,
+    .rockauto-engines-list,
+    .rockauto-categories-list,
+    .rockauto-search-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 0.5rem;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .rockauto-search-list {
+      grid-template-columns: 1fr;
+    }
+
+    .rockauto-years-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .rockauto-make-btn,
+    .rockauto-year-btn,
+    .rockauto-model-btn,
+    .rockauto-engine-btn,
+    .rockauto-category-btn {
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(51, 65, 85, 0.6);
+      color: #cbd5e1;
+      font-size: 0.8125rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .rockauto-year-btn {
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .rockauto-make-btn:hover,
+    .rockauto-year-btn:hover,
+    .rockauto-model-btn:hover,
+    .rockauto-engine-btn:hover,
+    .rockauto-category-btn:hover {
+      border-color: rgba(59, 130, 246, 0.5);
+      background: rgba(30, 41, 59, 0.9);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .rockauto-parts-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    .rockauto-parts-table th {
+      text-align: left;
+      padding: 0.625rem 0.75rem;
+      color: #94a3b8;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+    }
+
+    .rockauto-parts-table td {
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+      color: #e2e8f0;
+    }
+
+    .rockauto-parts-table .rockauto-price {
+      color: #4ade80;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .rockauto-search-item {
+      padding: 0.625rem 0.75rem;
+      border-radius: 0.5rem;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.4);
+      color: #cbd5e1;
+      font-size: 0.8125rem;
+    }
+
+    .rockauto-search-item span {
+      color: #64748b;
+    }
+
+    html.light-mode .rockauto-make-btn,
+    html.light-mode .rockauto-year-btn,
+    html.light-mode .rockauto-model-btn,
+    html.light-mode .rockauto-engine-btn,
+    html.light-mode .rockauto-category-btn {
+      background: rgba(241, 245, 249, 0.9);
+      border-color: rgba(148, 163, 184, 0.4);
+      color: #334155;
+    }
+
+    html.light-mode #rockauto-content h3 { color: #0f172a; }
+    html.light-mode .rockauto-empty { color: #64748b; }
+    html.light-mode .rockauto-error { color: #dc2626; }
   </style>
 
   <script data-cfasync="false">
@@ -781,73 +967,186 @@
 
     function sanitizeDB(db) {
       if (!db) return;
-      // Ensure all decimals and numbers are correctly typed to prevent NaN in UI
-      if (db.inventory) {
-        db.inventory.forEach(item => {
-          item.cost = Number(item.cost) || 0;
-          item.price = Number(item.price) || 0;
-          item.stock = Number(item.stock) || 0;
-          item.minStock = Number(item.minStock) || 0;
+      // ── HARDENED (2026-09) ──
+      // The cloud DB contains legacy/test-era records with a different shape
+      // (sales carrying `items` instead of `lineItems`, missing strings,
+      // lowercase statuses, etc.). Every renderer used to assume the full
+      // app-created shape and crashed mid-template on legacy rows — which is
+      // exactly why "Sales & Estimates" appeared dead when clicked. This
+      // normalizer guarantees every collection is an array and every field a
+      // renderer touches exists with the right type, for ALL record vintages.
+
+      // ---- Inventory ----
+      if (!Array.isArray(db.inventory)) db.inventory = [];
+      db.inventory = db.inventory.filter(i => i && typeof i === 'object');
+      db.inventory.forEach((item, idx) => {
+        item.id = item.id || item.partNumber || ('INV' + Date.now() + '_' + idx);
+        item.name = item.name || 'Unnamed Part';
+        item.partNumber = item.partNumber || item.barcode || 'N/A';
+        item.barcode = item.barcode || '';
+        item.category = item.category || 'General';
+        item.supplier = item.supplier || '';
+        item.brand = item.brand || '';
+        item.location = item.location || '';
+        item.photoUrl = item.photoUrl || '';
+        item.notes = item.notes || '';
+        item.addedDate = item.addedDate || '';
+        item.lastUpdated = item.lastUpdated || '';
+        item.cost = Number(item.cost) || 0;
+        item.price = Number(item.price) || 0;
+        item.stock = Number(item.stock) || 0;
+        item.minStock = Number(item.minStock) || 0;
+      });
+
+      // ---- Customers ----
+      if (!Array.isArray(db.customers)) db.customers = [];
+      db.customers = db.customers.filter(c => c && typeof c === 'object');
+      db.customers.forEach((cust, idx) => {
+        cust.id = cust.id || ('CUST' + Date.now() + '_' + idx);
+        cust.name = cust.name || 'Unknown Customer';
+        cust.phone = cust.phone || '';
+        cust.email = cust.email || '';
+        cust.address = cust.address || '';
+        cust.notes = cust.notes || '';
+        cust.createdDate = cust.createdDate || '';
+        cust.totalSpent = Number(cust.totalSpent) || 0;
+        cust.loyaltyPoints = Number(cust.loyaltyPoints) || 0;
+      });
+
+      // ---- Vehicles ----
+      if (!Array.isArray(db.vehicles)) db.vehicles = [];
+      db.vehicles = db.vehicles.filter(v => v && typeof v === 'object');
+      db.vehicles.forEach((v, idx) => {
+        v.id = v.id || ('VEH' + Date.now() + '_' + idx);
+        v.make = v.make || 'Unknown';
+        v.model = v.model || 'Unknown';
+        v.year = v.year || '';
+        v.vin = v.vin || '';
+        v.licensePlate = v.licensePlate || '';
+        v.color = v.color || '';
+        v.engine = v.engine || '';
+        v.notes = v.notes || '';
+        v.customerId = v.customerId || '';
+        v.mileage = Number(v.mileage) || 0;
+        if (!Array.isArray(v.services)) v.services = [];
+        v.services.forEach(s => {
+          s.date = s.date || '';
+          s.description = s.description || '';
+          s.cost = Number(s.cost) || 0;
         });
-      }
-      if (db.sales) {
-        db.sales.forEach(sale => {
-          sale.total = Number(sale.total) || 0;
-          sale.margin = Number(sale.margin) || 0;
-          sale.laborHours = Number(sale.laborHours) || 0;
-          if (sale.lineItems) {
-            sale.lineItems.forEach(li => {
-              li.qty = Number(li.qty) || 0;
-              li.unitPrice = Number(li.unitPrice) || 0;
-            });
-          }
+      });
+
+      // ---- Sales / Estimates ----
+      const invById = {};
+      db.inventory.forEach(p => { if (p && p.id) invById[p.id] = p; });
+      if (!Array.isArray(db.sales)) db.sales = [];
+      db.sales = db.sales.filter(s => s && typeof s === 'object');
+      db.sales.forEach((sale, idx) => {
+        sale.id = sale.id || ('SALE' + Date.now() + '_' + idx);
+        sale.date = sale.date || new Date().toISOString().split('T')[0];
+        // Normalize status casing ('completed' -> 'Completed', etc.)
+        sale.status = String(sale.status || 'Pending');
+        sale.status = sale.status.charAt(0).toUpperCase() + sale.status.slice(1).toLowerCase();
+        sale.customerId = sale.customerId || '';
+        sale.vehicleId = sale.vehicleId || '';
+        sale.notes = sale.notes || '';
+        sale.laborHours = Number(sale.laborHours) || 0;
+        sale.laborRate = Number(sale.laborRate) || 0;
+        sale.tax = Number(sale.tax) || 0;
+        sale.total = Number(sale.total) || 0;
+        sale.margin = Number(sale.margin) || 0;
+
+        // MIGRATION: legacy records used `items: [{partId, qty, price}]`
+        // instead of `lineItems: [{name, partNumber, qty, unitPrice, unitCost}]`.
+        if (!Array.isArray(sale.lineItems)) {
+          const legacyItems = Array.isArray(sale.items) ? sale.items : [];
+          sale.lineItems = legacyItems.filter(li => li && typeof li === 'object').map(li => {
+            const part = invById[li.partId] || {};
+            return {
+              partId: li.partId || part.id || '',
+              name: li.name || part.name || 'Part (legacy record)',
+              partNumber: li.partNumber || part.partNumber || 'N/A',
+              qty: Number(li.qty) || 0,
+              unitPrice: Number(li.unitPrice != null ? li.unitPrice : li.price) || 0,
+              unitCost: Number(li.unitCost != null ? li.unitCost : part.cost) || 0,
+            };
+          });
+          delete sale.items; // normalize shape so cloud data heals on next sync
+        }
+        sale.lineItems.forEach(li => {
+          li.name = li.name || 'Part';
+          li.partNumber = li.partNumber || 'N/A';
+          li.qty = Number(li.qty) || 0;
+          li.unitPrice = Number(li.unitPrice) || 0;
+          li.unitCost = Number(li.unitCost) || 0;
         });
-      }
-      if (db.customers) {
-        db.customers.forEach(cust => {
-          cust.totalSpent = Number(cust.totalSpent) || 0;
-          cust.loyaltyPoints = Number(cust.loyaltyPoints) || 0;
-        });
-      }
-      if (db.vehicles) {
-        db.vehicles.forEach(v => {
-          v.mileage = Number(v.mileage) || 0;
-          if (v.services) {
-            v.services.forEach(s => {
-              s.cost = Number(s.cost) || 0;
-            });
-          }
-        });
-      }
-      if (db.retailerPrices) {
-        // Repairs records written by the /prices live-lookup endpoint, which
-        // persists oreilly/carquest as null (those scrapers aren't implemented)
-        // and never sets ourPrice/ourCost at all. Without this, renderComparison()
-        // throws on the first .toFixed() call on a null/undefined field, and since
-        // that throw happens before el.innerHTML is assigned, the Compare page
-        // appears to do nothing when clicked.
-        const invByPart = {};
-        (db.inventory || []).forEach(p => { invByPart[p.partNumber] = p; });
-        db.retailerPrices.forEach(r => {
-          r.rockauto = Number(r.rockauto) || 0;
-          r.oreilly = Number(r.oreilly) || 0;
-          r.napa = Number(r.napa) || 0;
-          r.autozone = Number(r.autozone) || 0;
-          r.advance = Number(r.advance) || 0;
-          r.carquest = Number(r.carquest) || 0;
-          if (r.ourPrice == null || isNaN(Number(r.ourPrice))) {
-            r.ourPrice = Number(invByPart[r.partNumber]?.price) || 0;
-          } else {
-            r.ourPrice = Number(r.ourPrice);
-          }
-          if (r.ourCost == null || isNaN(Number(r.ourCost))) {
-            r.ourCost = Number(invByPart[r.partNumber]?.cost) || 0;
-          } else {
-            r.ourCost = Number(r.ourCost);
-          }
-        });
-      }
+
+        // Recompute a zero total from line items when possible (legacy rows).
+        if (!sale.total && sale.lineItems.length) {
+          const partsTotal = sale.lineItems.reduce((s, li) => s + li.qty * li.unitPrice, 0);
+          sale.total = Math.round((partsTotal + sale.laborHours * sale.laborRate + sale.tax) * 100) / 100;
+        }
+      });
+
+      // ---- Retailer prices ----
+      if (!Array.isArray(db.retailerPrices)) db.retailerPrices = [];
+      db.retailerPrices = db.retailerPrices.filter(r => r && typeof r === 'object');
+      // Repairs records written by the /prices live-lookup endpoint, which
+      // persists oreilly/carquest as null (those scrapers aren't implemented)
+      // and never sets ourPrice/ourCost at all. Without this, renderComparison()
+      // throws on the first .toFixed() call on a null/undefined field, and since
+      // that throw happens before el.innerHTML is assigned, the Compare page
+      // appears to do nothing when clicked.
+      const invByPart = {};
+      db.inventory.forEach(p => { invByPart[p.partNumber] = p; });
+      db.retailerPrices.forEach(r => {
+        r.partNumber = r.partNumber || 'N/A';
+        r.rockauto = Number(r.rockauto) || 0;
+        r.oreilly = Number(r.oreilly) || 0;
+        r.napa = Number(r.napa) || 0;
+        r.autozone = Number(r.autozone) || 0;
+        r.advance = Number(r.advance) || 0;
+        r.carquest = Number(r.carquest) || 0;
+        if (r.ourPrice == null || isNaN(Number(r.ourPrice))) {
+          r.ourPrice = Number(invByPart[r.partNumber]?.price) || 0;
+        } else {
+          r.ourPrice = Number(r.ourPrice);
+        }
+        if (r.ourCost == null || isNaN(Number(r.ourCost))) {
+          r.ourCost = Number(invByPart[r.partNumber]?.cost) || 0;
+        } else {
+          r.ourCost = Number(r.ourCost);
+        }
+      });
+
+      // ---- Audit logs ----
+      if (!Array.isArray(db.auditLogs)) db.auditLogs = [];
+      db.auditLogs = db.auditLogs.filter(l => l && typeof l === 'object');
+      db.auditLogs.forEach((l, idx) => {
+        l.id = l.id || ('LOG' + Date.now() + '_' + idx);
+        l.action = l.action || 'EVENT';
+        l.detail = l.detail || l.details || ''; // legacy test rows used `details`
+        delete l.details;
+        l.user = l.user || 'System';
+        l.timestamp = l.timestamp || new Date().toISOString();
+      });
+
       if (typeof sanitizeInvoices === 'function') sanitizeInvoices(db);
+    }
+
+    // Collision-safe sequential id generator ('SALE007', 'CUST004', ...).
+    // FIX: id generation used to be prefix + (length + 1) — after any delete,
+    // the next created record reused a dead record's id and cloud sync
+    // (ON CONFLICT upsert) would silently overwrite an UNRELATED live record.
+    function genUniqueId(collection, prefix) {
+      const existing = new Set((collection || []).map(x => x && x.id));
+      let n = (collection || []).length + 1;
+      let id = prefix + String(n).padStart(3, '0');
+      while (existing.has(id)) {
+        n++;
+        id = prefix + String(n).padStart(3, '0');
+      }
+      return id;
     }
 
     function getDB() {
@@ -932,17 +1231,17 @@
       const db = getDB();
       const results = [];
       db.inventory.forEach(item => {
-        if (item.name.toLowerCase().includes(searchQuery) || item.partNumber.toLowerCase().includes(searchQuery) || item.barcode.includes(searchQuery)) {
+        if ((item.name || '').toLowerCase().includes(searchQuery) || (item.partNumber || '').toLowerCase().includes(searchQuery) || (item.barcode || '').includes(searchQuery)) {
           results.push({ type: 'Part', name: `${item.partNumber} - ${item.name}`, view: 'inventory', id: item.id });
         }
       });
       db.customers.forEach(c => {
-        if (c.name.toLowerCase().includes(searchQuery) || c.phone.includes(searchQuery) || c.email.toLowerCase().includes(searchQuery)) {
+        if ((c.name || '').toLowerCase().includes(searchQuery) || (c.phone || '').includes(searchQuery) || (c.email || '').toLowerCase().includes(searchQuery)) {
           results.push({ type: 'Customer', name: c.name, view: 'customers', id: c.id });
         }
       });
       db.vehicles.forEach(v => {
-        if (v.make.toLowerCase().includes(searchQuery) || v.model.toLowerCase().includes(searchQuery) || v.vin.toLowerCase().includes(searchQuery)) {
+        if ((v.make || '').toLowerCase().includes(searchQuery) || (v.model || '').toLowerCase().includes(searchQuery) || (v.vin || '').toLowerCase().includes(searchQuery)) {
           results.push({ type: 'Vehicle', name: `${v.year} ${v.make} ${v.model}`, view: 'vehicles', id: v.id });
         }
       });
@@ -977,17 +1276,38 @@
       const searchInput = document.getElementById('globalSearch');
       if (searchInput) searchInput.value = '';
 
-      switch (currentView) {
-        case 'dashboard': renderDashboard(main); break;
-        case 'inventory': renderInventory(main); break;
-        case 'customers': renderCustomers(main); break;
-        case 'vehicles': renderVehicles(main); break;
-        case 'sales': renderSales(main); break;
-        case 'comparison': renderComparison(main); break;
-        case 'rockauto': renderRockAuto(main); break;
-        case 'invoices': renderInvoices(main); break;
-        case 'audit': renderAudit(main); break;
-        case 'settings': renderSettings(main); break;
+      // FIX: a throw inside any renderer used to leave the previous view on
+      // screen with zero feedback ("clicking does nothing"). Catch it, log it,
+      // and show an actionable error card instead.
+      try {
+        switch (currentView) {
+          case 'dashboard': renderDashboard(main); break;
+          case 'inventory': renderInventory(main); break;
+          case 'customers': renderCustomers(main); break;
+          case 'vehicles': renderVehicles(main); break;
+          case 'sales': renderSales(main); break;
+          case 'comparison': renderComparison(main); break;
+          case 'rockauto': renderRockAuto(main); break;
+          case 'invoices': renderInvoices(main); break;
+          case 'audit': renderAudit(main); break;
+          case 'settings': renderSettings(main); break;
+        }
+      } catch (err) {
+        console.error('[renderView] Failed to render "' + currentView + '":', err);
+        main.innerHTML = `
+    <div class="animate-slide-in">
+      <div class="glass-card rounded-xl p-8 text-center max-w-lg mx-auto mt-10 border-red-500/30">
+        <i class="ph-bold ph-warning-octagon text-4xl text-red-400 mb-3"></i>
+        <h2 class="text-lg font-bold text-white mb-2">This page hit a snag</h2>
+        <p class="text-sm text-slate-400 mb-1">The <span class="font-mono text-red-300">${currentView}</span> view could not be rendered.</p>
+        <p class="text-xs text-slate-500 font-mono mb-5 break-all">${String(err && err.message || err).replace(/</g, '&lt;')}</p>
+        <div class="flex gap-2 justify-center">
+          <button onclick="renderView()" class="btn-primary px-4 py-2.5 rounded-lg text-sm font-semibold text-white">Retry</button>
+          <button onclick="navigate('dashboard')" class="glass-input px-4 py-2.5 rounded-lg text-sm text-slate-300 hover:text-white">Back to Dashboard</button>
+        </div>
+      </div>
+    </div>
+  `;
       }
 
       updateNotificationBadge();
@@ -1085,9 +1405,9 @@
                 <div class="flex items-center justify-between p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
                   <div>
                     <p class="text-sm font-medium text-white">${cust ? cust.name : 'Unknown'}</p>
-                    <p class="text-xs text-slate-400">${sale.date} • ${sale.status}</p>
+                    <p class="text-xs text-slate-400">${sale.date || ''} • ${sale.status || ''}</p>
                   </div>
-                  <p class="text-sm font-bold text-green-400">$${sale.total.toFixed(2)}</p>
+                  <p class="text-sm font-bold text-green-400">$${Number(sale.total || 0).toFixed(2)}</p>
                 </div>
               `;
           }).join('')}
@@ -1398,7 +1718,7 @@
         document.getElementById('partPhotoPreviewContainer').classList.remove('hidden');
       } catch (err) {
         console.error("Image compression error:", err);
-        showToast("Error processing image.", "error");
+        showToast("Error processing image.", "danger");
       }
     }
 
@@ -1420,7 +1740,7 @@
         document.getElementById('editPartPhotoPreviewContainer').classList.remove('hidden');
       } catch (err) {
         console.error("Image compression error:", err);
-        showToast("Error processing image.", "error");
+        showToast("Error processing image.", "danger");
       }
     }
 
@@ -1435,7 +1755,7 @@
       if (!barcode) return;
       showToast('Fetching product info & pricing...', 'info');
       try {
-        const res = await fetch(`${API_URL}/prices?partNumber=${encodeURIComponent(barcode)}&brand=`, { signal: AbortSignal.timeout(10000) });
+        const res = await fetch(`${API_URL}/prices?partNumber=${encodeURIComponent(barcode)}&brand=`, { signal: AbortSignal.timeout(20000) });
         if (res.ok) {
           const data = await res.json();
           showToast('Product info fetched!', 'success');
@@ -1941,7 +2261,7 @@
       const db = getDB();
 
       const newPart = {
-        id: 'INV' + String(db.inventory.length + 1).padStart(3, '0'),
+        id: genUniqueId(db.inventory, 'INV'),
         partNumber: data.partNumber,
         name: data.name,
         category: data.category,
@@ -2141,7 +2461,7 @@
     function renderCustomers(el) {
       const db = getDB();
       const filtered = searchQuery ?
-        db.customers.filter(c => c.name.toLowerCase().includes(searchQuery) || c.phone.includes(searchQuery) || c.email.toLowerCase().includes(searchQuery)) :
+        db.customers.filter(c => (c.name || '').toLowerCase().includes(searchQuery) || (c.phone || '').includes(searchQuery) || (c.email || '').toLowerCase().includes(searchQuery)) :
         db.customers;
 
       el.innerHTML = `
@@ -2163,12 +2483,12 @@
             <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openCustomerDetail('${cust.id}')">
               <div class="flex items-start gap-3">
                 <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                  ${cust.name.split(' ').map(n => n[0]).join('')}
+                  ${(cust.name || '?').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                 </div>
                 <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-semibold text-white truncate">${cust.name}</h4>
-                  <p class="text-xs text-slate-400">${cust.phone}</p>
-                  <p class="text-xs text-slate-500 truncate">${cust.email}</p>
+                  <h4 class="text-sm font-semibold text-white truncate">${cust.name || 'Unknown Customer'}</h4>
+                  <p class="text-xs text-slate-400">${cust.phone || '—'}</p>
+                  <p class="text-xs text-slate-500 truncate">${cust.email || '—'}</p>
                 </div>
               </div>
               <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
@@ -2180,7 +2500,17 @@
                     <i class="ph ph-coins"></i> ${cust.loyaltyPoints || 0} pts
                   </span>
                 </div>
-                <span class="text-sm font-bold text-green-400">$${(cust.totalSpent || 0).toFixed(2)}</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-sm font-bold text-green-400">$${Number(cust.totalSpent || 0).toFixed(2)}</span>
+                  <button title="Edit customer" onclick="event.stopPropagation();openEditCustomerModal('${cust.id}')"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all">
+                    <i class="ph-bold ph-pencil-simple"></i>
+                  </button>
+                  <button title="Delete customer" onclick="event.stopPropagation();deleteCustomer('${cust.id}')"
+                    class="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
+                    <i class="ph-bold ph-trash"></i>
+                  </button>
+                </div>
               </div>
             </div>
           `;
@@ -2242,7 +2572,7 @@
       const db = getDB();
 
       const newCust = {
-        id: 'CUST' + String(db.customers.length + 1).padStart(3, '0'),
+        id: genUniqueId(db.customers, 'CUST'),
         name: data.name,
         phone: data.phone,
         email: data.email || '',
@@ -2264,6 +2594,130 @@
       saveDB(db);
       closeModal();
       showToast(`${newCust.name} added`, 'success');
+      renderView();
+    }
+
+    // ==================== EDIT / DELETE CUSTOMER (added 2026-09) ====================
+    function openEditCustomerModal(custId) {
+      const db = getDB();
+      const cust = db.customers.find(c => c.id === custId);
+      if (!cust) { showToast('Customer not found', 'danger'); return; }
+
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-pencil-simple text-blue-400"></i> Edit Customer
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+      <form onsubmit="saveCustomerEdit(event, '${cust.id}')" class="space-y-4">
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Full Name *</label>
+          <input type="text" name="name" value="${esc(cust.name)}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="John Doe">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Phone *</label>
+            <input type="tel" name="phone" value="${esc(cust.phone)}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="(555) 000-0000">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Email</label>
+            <input type="email" name="email" value="${esc(cust.email)}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="email@example.com">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Address</label>
+          <input type="text" name="address" value="${esc(cust.address)}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="123 Main St">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Loyalty Points</label>
+            <input type="number" name="loyaltyPoints" min="0" value="${Number(cust.loyaltyPoints) || 0}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Total Spent ($)</label>
+            <input type="number" name="totalSpent" min="0" step="0.01" value="${Number(cust.totalSpent) || 0}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Notes</label>
+          <textarea name="notes" rows="2" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white resize-none" placeholder="Any relevant notes...">${esc(cust.notes)}</textarea>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-floppy-disk"></i> Save Changes
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function saveCustomerEdit(e, custId) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+      const cust = db.customers.find(c => c.id === custId);
+      if (!cust) { showToast('Customer not found', 'danger'); return; }
+
+      const changes = [];
+      const setField = (field, value) => {
+        if (String(cust[field] || '') !== String(value || '')) changes.push(field);
+        cust[field] = value;
+      };
+      setField('name', data.name);
+      setField('phone', data.phone);
+      setField('email', data.email || '');
+      setField('address', data.address || '');
+      setField('notes', data.notes || '');
+      cust.loyaltyPoints = Math.max(0, Number(data.loyaltyPoints) || 0);
+      cust.totalSpent = Math.max(0, Number(data.totalSpent) || 0);
+
+      db.auditLogs.unshift({
+        id: 'LOG' + Date.now(),
+        timestamp: new Date().toISOString(),
+        action: 'CUSTOMER_UPDATED',
+        detail: `Updated customer: ${cust.name}${changes.length ? ' (' + changes.join(', ') + ')' : ''}`,
+        user: 'Admin'
+      });
+      saveDB(db);
+      closeModal();
+      showToast(`${cust.name} updated`, 'success');
+      renderView();
+    }
+
+    function deleteCustomer(custId) {
+      const db = getDB();
+      const cust = db.customers.find(c => c.id === custId);
+      if (!cust) { showToast('Customer not found', 'danger'); return; }
+
+      const vehicles = db.vehicles.filter(v => v.customerId === custId);
+      const sales = db.sales.filter(s => s.customerId === custId);
+
+      let msg = `Delete customer "${cust.name}"?`;
+      if (vehicles.length) msg += `\n\nTheir ${vehicles.length} vehicle(s) will also be removed.`;
+      if (sales.length) msg += `\n\n${sales.length} sale/estimate record(s) will be kept for accounting (shown as "Unknown" customer).`;
+      msg += '\n\nThis cannot be undone.';
+      if (!confirm(msg)) return;
+
+      db.customers = db.customers.filter(c => c.id !== custId);
+      db.vehicles = db.vehicles.filter(v => v.customerId !== custId);
+      db.auditLogs.unshift({
+        id: 'LOG' + Date.now(),
+        timestamp: new Date().toISOString(),
+        action: 'CUSTOMER_DELETED',
+        detail: `Deleted customer: ${cust.name}${vehicles.length ? ` (+${vehicles.length} vehicle(s))` : ''}`,
+        user: 'Admin'
+      });
+      saveDB(db);
+      closeModal();
+      showToast(`${cust.name} deleted`, 'danger');
       renderView();
     }
 
@@ -2325,9 +2779,9 @@
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-white">${v.year} ${v.make} ${v.model}</p>
-                  <p class="text-xs text-slate-400">VIN: ${v.vin} • ${v.mileage.toLocaleString()} mi</p>
+                  <p class="text-xs text-slate-400">VIN: ${v.vin || 'N/A'} • ${(Number(v.mileage) || 0).toLocaleString()} mi</p>
                 </div>
-                <span class="text-xs text-slate-500 font-mono">${v.licensePlate}</span>
+                <span class="text-xs text-slate-500 font-mono">${v.licensePlate || ''}</span>
               </div>
             </div>
           `).join('')}
@@ -2343,20 +2797,31 @@
             <div class="glass-card rounded-lg p-3">
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs text-slate-400">${s.date}</span>
-                <span class="badge ${s.status === 'Completed' ? 'bg-green-400/20 text-green-400' : 'bg-amber-400/20 text-amber-400'}">${s.status}</span>
+                <span class="badge ${String(s.status || '').toLowerCase() === 'completed' ? 'bg-green-400/20 text-green-400' : 'bg-amber-400/20 text-amber-400'}">${s.status || 'Pending'}</span>
               </div>
               <div class="space-y-1">
-                ${s.lineItems.map(li => `<p class="text-xs text-white">${li.qty}x ${li.name} - $${(li.qty * li.unitPrice).toFixed(2)}</p>`).join('')}
+                ${(s.lineItems || []).length === 0 ? '<p class="text-xs text-slate-500">No line items recorded</p>' :
+                  (s.lineItems || []).map(li => `<p class="text-xs text-white">${Number(li.qty) || 0}x ${li.name || 'Part'} - $${((Number(li.qty) || 0) * (Number(li.unitPrice) || 0)).toFixed(2)}</p>`).join('')}
               </div>
               <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-700/50">
-                <span class="text-xs text-slate-400">${s.laborHours}h labor</span>
-                <span class="text-sm font-bold text-green-400">$${s.total.toFixed(2)}</span>
+                <span class="text-xs text-slate-400">${Number(s.laborHours) || 0}h labor</span>
+                <span class="text-sm font-bold text-green-400">$${Number(s.total || 0).toFixed(2)}</span>
               </div>
               <button onclick="createInvoiceFromSale('${s.id}')" class="w-full mt-2 py-1.5 rounded-lg text-xs text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/10 flex items-center justify-center gap-1.5">
                 <i class="ph-bold ph-file-text"></i> Generate Invoice
               </button>
             </div>
           `).join('')}
+      </div>
+
+      <!-- NEW: customer management actions -->
+      <div class="flex gap-2 mt-5 pt-4 border-t border-slate-700/50">
+        <button onclick="openEditCustomerModal('${cust.id}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-blue-300 flex items-center justify-center gap-2 hover:border-blue-400/40 transition-all">
+          <i class="ph-bold ph-pencil-simple"></i> Edit Customer
+        </button>
+        <button onclick="deleteCustomer('${cust.id}')" class="btn-danger px-5 py-3 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2">
+          <i class="ph-bold ph-trash"></i> Delete
+        </button>
       </div>
     </div>
   `;
@@ -2366,7 +2831,7 @@
     function renderVehicles(el) {
       const db = getDB();
       const filtered = searchQuery ?
-        db.vehicles.filter(v => v.make.toLowerCase().includes(searchQuery) || v.model.toLowerCase().includes(searchQuery) || v.vin.toLowerCase().includes(searchQuery) || v.licensePlate.toLowerCase().includes(searchQuery)) :
+        db.vehicles.filter(v => (v.make || '').toLowerCase().includes(searchQuery) || (v.model || '').toLowerCase().includes(searchQuery) || (v.vin || '').toLowerCase().includes(searchQuery) || (v.licensePlate || '').toLowerCase().includes(searchQuery)) :
         db.vehicles;
 
       el.innerHTML = `
@@ -2397,12 +2862,12 @@
                 </div>
               </div>
               <div class="space-y-1 mb-3">
-                <p class="text-xs text-slate-400 font-mono">VIN: ${v.vin.substring(0, 10)}...</p>
-                <p class="text-xs text-slate-400">${v.mileage.toLocaleString()} miles • ${v.color}</p>
+                <p class="text-xs text-slate-400 font-mono">VIN: ${v.vin ? v.vin.substring(0, 10) + (v.vin.length > 10 ? '...' : '') : 'N/A'}</p>
+                <p class="text-xs text-slate-400">${(Number(v.mileage) || 0).toLocaleString()} miles${v.color ? ' • ' + v.color : ''}</p>
               </div>
               <div class="flex items-center justify-between pt-3 border-t border-slate-700/50">
                 <span class="text-xs text-slate-500">${serviceCount} services</span>
-                <span class="text-xs text-slate-500 font-mono">${v.licensePlate}</span>
+                <span class="text-xs text-slate-500 font-mono">${v.licensePlate || '—'}</span>
               </div>
             </div>
           `;
@@ -2486,7 +2951,7 @@
       const db = getDB();
 
       const newV = {
-        id: 'VH' + String(db.vehicles.length + 1).padStart(3, '0'),
+        id: genUniqueId(db.vehicles, 'VH'),
         customerId: data.customerId,
         make: data.make,
         model: data.model,
@@ -2538,15 +3003,15 @@
         </div>
         <div class="glass-card rounded-lg p-3">
           <p class="text-xs text-slate-400 mb-1">Mileage</p>
-          <p class="text-sm text-white">${v.mileage.toLocaleString()} mi</p>
+          <p class="text-sm text-white">${(Number(v.mileage) || 0).toLocaleString()} mi</p>
         </div>
         <div class="glass-card rounded-lg p-3">
           <p class="text-xs text-slate-400 mb-1">Color</p>
-          <p class="text-sm text-white">${v.color}</p>
+          <p class="text-sm text-white">${v.color || '—'}</p>
         </div>
         <div class="glass-card rounded-lg p-3">
           <p class="text-xs text-slate-400 mb-1">License Plate</p>
-          <p class="text-sm font-mono text-white">${v.licensePlate}</p>
+          <p class="text-sm font-mono text-white">${v.licensePlate || '—'}</p>
         </div>
       </div>
       ${v.notes ? `<div class="glass-card rounded-lg p-3 mb-5"><p class="text-xs text-slate-400 mb-1">Notes</p><p class="text-sm text-white">${v.notes}</p></div>` : ''}
@@ -2647,7 +3112,7 @@
       const filtered = searchQuery ?
         db.sales.filter(s => {
           const cust = db.customers.find(c => c.id === s.customerId);
-          return (cust && cust.name.toLowerCase().includes(searchQuery)) || s.id.toLowerCase().includes(searchQuery);
+          return (cust && (cust.name || '').toLowerCase().includes(searchQuery)) || String(s.id || '').toLowerCase().includes(searchQuery);
         }) : db.sales;
 
       el.innerHTML = `
@@ -2671,18 +3136,18 @@
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                   <span class="text-xs font-mono text-blue-400">${sale.id}</span>
-                  <span class="badge ${sale.status === 'Completed' ? 'bg-green-400/20 text-green-400' : 'bg-amber-400/20 text-amber-400'}">${sale.status}</span>
+                  <span class="badge ${String(sale.status || '').toLowerCase() === 'completed' ? 'bg-green-400/20 text-green-400' : 'bg-amber-400/20 text-amber-400'}">${sale.status || 'Pending'}</span>
                 </div>
-                <span class="text-xs text-slate-500">${sale.date}</span>
+                <span class="text-xs text-slate-500">${sale.date || ''}</span>
               </div>
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-white">${cust ? cust.name : 'Unknown'}</p>
-                  <p class="text-xs text-slate-400">${v ? `${v.year} ${v.make} ${v.model}` : ''} • ${sale.lineItems.length} item(s)</p>
+                  <p class="text-xs text-slate-400">${v ? `${v.year} ${v.make} ${v.model}` : ''} • ${(sale.lineItems || []).length} item(s)</p>
                 </div>
                 <div class="text-right">
-                  <p class="text-lg font-bold text-green-400">$${sale.total.toFixed(2)}</p>
-                  <p class="text-xs text-slate-500">${sale.margin}% margin</p>
+                  <p class="text-lg font-bold text-green-400">$${Number(sale.total || 0).toFixed(2)}</p>
+                  <p class="text-xs text-slate-500">${Number(sale.margin || 0)}% margin</p>
                 </div>
               </div>
             </div>
@@ -2963,7 +3428,7 @@
       const margin = totalCost > 0 ? ((total - totalCost) / total * 100).toFixed(1) : 0;
 
       const newSale = {
-        id: 'SALE' + String(db.sales.length + 1).padStart(3, '0'),
+        id: genUniqueId(db.sales, 'SALE'),
         customerId: custId,
         vehicleId: vId,
         date: new Date().toISOString().split('T')[0],
@@ -3028,7 +3493,7 @@
       <div class="flex items-center justify-between mb-5">
         <div>
           <h3 class="text-lg font-bold text-white">${sale.id}</h3>
-          <p class="text-sm text-slate-400">${sale.date} • ${sale.status}</p>
+          <p class="text-sm text-slate-400">${sale.date || ''} • ${sale.status || ''}</p>
         </div>
         <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
@@ -3041,43 +3506,47 @@
 
       <h4 class="text-sm font-semibold text-white mb-3">Line Items</h4>
       <div class="space-y-2 mb-4">
-        ${sale.lineItems.map(li => `
+        ${(sale.lineItems || []).length === 0 ? '<p class="text-sm text-slate-500 text-center py-3">No line items recorded</p>' :
+          (sale.lineItems || []).map(li => {
+            const q = Number(li.qty) || 0, up = Number(li.unitPrice) || 0, uc = Number(li.unitCost) || 0;
+            return `
           <div class="glass-card rounded-lg p-3">
             <div class="flex items-center justify-between mb-1">
               <div>
-                <p class="text-sm font-medium text-white">${li.name}</p>
-                <p class="text-xs text-slate-400 font-mono">${li.partNumber}</p>
+                <p class="text-sm font-medium text-white">${li.name || 'Part'}</p>
+                <p class="text-xs text-slate-400 font-mono">${li.partNumber || 'N/A'}</p>
               </div>
               <div class="text-right">
-                <p class="text-xs text-slate-400">${li.qty}x $${li.unitPrice.toFixed(2)}</p>
-                <p class="text-sm font-bold text-white">$${(li.qty * li.unitPrice).toFixed(2)}</p>
+                <p class="text-xs text-slate-400">${q}x $${up.toFixed(2)}</p>
+                <p class="text-sm font-bold text-white">$${(q * up).toFixed(2)}</p>
               </div>
             </div>
-            <p class="text-xs text-slate-500">Cost: $${li.unitCost.toFixed(2)} • Markup: ${((li.unitPrice - li.unitCost) / li.unitCost * 100).toFixed(0)}%</p>
+            <p class="text-xs text-slate-500">Cost: $${uc.toFixed(2)} • Markup: ${uc > 0 ? ((up - uc) / uc * 100).toFixed(0) : '0'}%</p>
           </div>
-        `).join('')}
+        `;
+          }).join('')}
       </div>
 
       <div class="glass-card rounded-lg p-4 space-y-2">
         <div class="flex items-center justify-between">
           <span class="text-sm text-slate-400">Parts Subtotal</span>
-          <span class="text-sm text-white">$${sale.lineItems.reduce((s, li) => s + li.qty * li.unitPrice, 0).toFixed(2)}</span>
+          <span class="text-sm text-white">$${(sale.lineItems || []).reduce((s, li) => s + (Number(li.qty) || 0) * (Number(li.unitPrice) || 0), 0).toFixed(2)}</span>
         </div>
         <div class="flex items-center justify-between">
-          <span class="text-sm text-slate-400">Labor (${sale.laborHours}h × $${sale.laborRate}/hr)</span>
-          <span class="text-sm text-white">$${(sale.laborHours * sale.laborRate).toFixed(2)}</span>
+          <span class="text-sm text-slate-400">Labor (${Number(sale.laborHours) || 0}h × $${Number(sale.laborRate) || 0}/hr)</span>
+          <span class="text-sm text-white">$${((Number(sale.laborHours) || 0) * (Number(sale.laborRate) || 0)).toFixed(2)}</span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-slate-400">Tax</span>
-          <span class="text-sm text-white">$${sale.tax.toFixed(2)}</span>
+          <span class="text-sm text-white">$${Number(sale.tax || 0).toFixed(2)}</span>
         </div>
         <div class="border-t border-slate-700 pt-2 flex items-center justify-between">
           <span class="text-lg font-bold text-white">Total</span>
-          <span class="text-xl font-bold text-green-400">$${sale.total.toFixed(2)}</span>
+          <span class="text-xl font-bold text-green-400">$${Number(sale.total || 0).toFixed(2)}</span>
         </div>
         <div class="flex items-center justify-between">
           <span class="text-sm text-slate-400">Margin</span>
-          <span class="text-sm font-bold text-blue-400">${sale.margin}%</span>
+          <span class="text-sm font-bold text-blue-400">${Number(sale.margin || 0)}%</span>
         </div>
       </div>
 
@@ -3085,7 +3554,7 @@
         <button onclick="createInvoiceFromSale('${sale.id}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-cyan-400 flex items-center justify-center gap-2">
           <i class="ph-bold ph-file-text"></i> Generate Invoice
         </button>
-        ${sale.status === 'Pending' ? `
+        ${String(sale.status || '').toLowerCase() === 'pending' ? `
           <button onclick="closeModal();updateSaleStatus('${sale.id}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
             <i class="ph-bold ph-check-circle"></i> Complete Sale
           </button>
@@ -3454,6 +3923,13 @@
 
       const state = { make: null, year: null, model: null, engine: null, carcode: null, category: null, categoryName: null };
 
+      // The Retry button rendered by RockAutoUI.showError had no click handler
+      // attached, so it silently did nothing. Wire it to the failed loader.
+      function attachRetry(fn) {
+        const btn = document.getElementById('rockauto-retry-btn');
+        if (btn) btn.onclick = fn;
+      }
+
       function updateBreadcrumbs() {
         const parts = [];
         if (state.make) parts.push(state.make);
@@ -3477,12 +3953,13 @@
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getMakes().then(res => {
-          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          if (!res.ok) { RockAutoUI.showError(content, res.error || 'Could not load makes'); attachRetry(loadMakes); return; }
           RockAutoUI.renderMakes(content, res.data.makes || res.data);
+          if (res.data && res.data.notice) RockAutoUI.addNotice(content, res.data);
           document.querySelectorAll('.rockauto-make-btn').forEach(btn => {
             btn.onclick = () => { state.make = btn.parentElement.dataset.make; loadYears(); };
           });
-        });
+        }).catch(err => { RockAutoUI.showError(content, 'Network error loading makes'); attachRetry(loadMakes); console.error('[RockAuto] makes failed:', err); });
       }
 
       function loadYears() {
@@ -3490,12 +3967,12 @@
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getYears(state.make).then(res => {
-          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          if (!res.ok) { RockAutoUI.showError(content, res.error || 'Could not load years'); attachRetry(loadYears); return; }
           RockAutoUI.renderYears(content, res.data);
           document.querySelectorAll('.rockauto-year-btn').forEach(btn => {
             btn.onclick = () => { state.year = btn.dataset.year; loadModels(); };
           });
-        });
+        }).catch(err => { RockAutoUI.showError(content, 'Network error loading years'); attachRetry(loadYears); console.error('[RockAuto] years failed:', err); });
       }
 
       function loadModels() {
@@ -3503,12 +3980,12 @@
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getModels(state.make, state.year).then(res => {
-          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          if (!res.ok) { RockAutoUI.showError(content, res.error || 'Could not load models'); attachRetry(loadModels); return; }
           RockAutoUI.renderModels(content, res.data);
           document.querySelectorAll('.rockauto-model-btn').forEach(btn => {
             btn.onclick = () => { state.model = btn.dataset.model; loadEngines(); };
           });
-        });
+        }).catch(err => { RockAutoUI.showError(content, 'Network error loading models'); attachRetry(loadModels); console.error('[RockAuto] models failed:', err); });
       }
 
       function loadEngines() {
@@ -3516,7 +3993,7 @@
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getEngines(state.make, state.year, state.model).then(res => {
-          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          if (!res.ok) { RockAutoUI.showError(content, res.error || 'Could not load engines'); attachRetry(loadEngines); return; }
           RockAutoUI.renderEngines(content, res.data);
           document.querySelectorAll('.rockauto-engine-btn').forEach(btn => {
             btn.onclick = () => { 
@@ -3525,7 +4002,7 @@
               loadCategories(); 
             };
           });
-        });
+        }).catch(err => { RockAutoUI.showError(content, 'Network error loading engines'); attachRetry(loadEngines); console.error('[RockAuto] engines failed:', err); });
       }
 
       function loadCategories() {
@@ -3533,7 +4010,7 @@
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getCategories(state.make, state.year, state.model, state.carcode).then(res => {
-          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          if (!res.ok) { RockAutoUI.showError(content, res.error || 'Could not load categories'); attachRetry(loadCategories); return; }
           RockAutoUI.renderCategories(content, res.data);
           document.querySelectorAll('.rockauto-category-btn').forEach(btn => {
             btn.onclick = () => {
@@ -3542,16 +4019,16 @@
               loadParts();
             };
           });
-        });
+        }).catch(err => { RockAutoUI.showError(content, 'Network error loading categories'); attachRetry(loadCategories); console.error('[RockAuto] categories failed:', err); });
       }
 
       function loadParts() {
         updateBreadcrumbs();
         RockAutoUI.showLoading(content);
         RockAutoFetch.getParts(state.make, state.year, state.model, state.carcode, state.category).then(res => {
-          if (!res.ok) { RockAutoUI.showError(content, res.error); return; }
+          if (!res.ok) { RockAutoUI.showError(content, res.error || 'Could not load parts'); attachRetry(loadParts); return; }
           RockAutoUI.renderParts(content, res.data);
-        });
+        }).catch(err => { RockAutoUI.showError(content, 'Network error loading parts'); attachRetry(loadParts); console.error('[RockAuto] parts failed:', err); });
       }
 
       // Init
@@ -3562,7 +4039,7 @@
     function renderAudit(el) {
       const db = getDB();
       const filtered = searchQuery ?
-        db.auditLogs.filter(l => l.detail.toLowerCase().includes(searchQuery) || l.action.toLowerCase().includes(searchQuery)) :
+        db.auditLogs.filter(l => String(l.detail || '').toLowerCase().includes(searchQuery) || String(l.action || '').toLowerCase().includes(searchQuery)) :
         db.auditLogs;
 
       const actionColors = {
@@ -3613,10 +4090,10 @@
               </div>
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
-                  <span class="text-xs font-semibold text-white">${log.action.replace('_', ' ')}</span>
+                  <span class="text-xs font-semibold text-white">${String(log.action || 'EVENT').replace('_', ' ')}</span>
                   <span class="badge ${color}">${log.user}</span>
                 </div>
-                <p class="text-sm text-slate-300">${log.detail}</p>
+                <p class="text-sm text-slate-300">${log.detail || ''}</p>
                 <p class="text-xs text-slate-500 mt-1">${timeStr}</p>
               </div>
             </div>
@@ -3709,7 +4186,7 @@
       try {
         const res = await fetch(
           `${API_URL}/prices?partNumber=${encodeURIComponent(partNumber)}&brand=${encodeURIComponent(brand || '')}`,
-          { signal: AbortSignal.timeout(8000) }
+          { signal: AbortSignal.timeout(20000) }
         );
 
         if (!res.ok) throw new Error('API error');

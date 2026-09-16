@@ -5,7 +5,7 @@
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.4.0'; // bumped: stop intercepting cross-origin CDN requests (CSP fix)
+const CACHE_NAME = 'partscommand-v3.5.0'; // bumped 2026-09: sales/customer fixes + rockauto offline-catalog UI
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
