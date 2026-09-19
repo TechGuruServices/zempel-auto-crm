@@ -5,7 +5,7 @@
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.5.0'; // bumped 2026-09: sales/customer fixes + rockauto offline-catalog UI
+const CACHE_NAME = 'partscommand-v3.5.1'; // bumped 2026-09: XSS escaping fix, corrected manifest icon sizes, nav version-string fix
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [

