@@ -8,7 +8,7 @@
   'use strict';
 
   function getToken() {
-    try { return localStorage.getItem('pc_token') || sessionStorage.getItem('pc_token') || ''; }
+    try { return localStorage.getItem('partscommand_token') || sessionStorage.getItem('partscommand_token') || ''; }
     catch (e) { return ''; }
   }
 
