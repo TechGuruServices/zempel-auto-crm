@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote — Zempel Auto</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, system-ui, sans-serif; background: #f1f5f9; color: #1e293b; padding: 20px; }
+  .quote { max-width: 640px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
+  .header { background: linear-gradient(135deg, #1e3a5f, #0f766e); color: #fff; padding: 28px; }
+  .header h1 { font-size: 22px; margin-bottom: 4px; }
+  .header p { opacity: .85; font-size: 13px; }
+  .body { padding: 28px; }
+  .meta { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 13px; color: #64748b; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; padding: 8px 0; border-bottom: 2px solid #e2e8f0; }
+  td { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+  td:last-child, th:last-child { text-align: right; }
+  .totals { margin-left: auto; width: 220px; }
+  .totals div { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+  .totals .grand { font-weight: 700; font-size: 18px; border-top: 2px solid #e2e8f0; padding-top: 10px; margin-top: 6px; }
+  .footer { text-align: center; padding: 20px; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
+  .actions { text-align: center; padding: 16px; }
+  .btn { display: inline-block; background: #1e3a5f; color: #fff; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; }
+  .error { text-align: center; padding: 60px 20px; color: #94a3b8; }
+  @media print { body { background: #fff; padding: 0; } .actions { display: none; } .quote { box-shadow: none; } }
+</style>
+</head>
+<body>
+<div id="app"><div class="error">Loading quote…</div></div>
+<script>
+(function () {
+  try {
+    var hash = location.hash.slice(1);
+    if (!hash) throw new Error('No quote data');
+    var q = JSON.parse(decodeURIComponent(escape(atob(hash))));
+    document.title = 'Quote ' + (q.id || '') + ' — Zempel Auto';
+    var items = (q.items || []).map(function (it) {
+      var qty = Number(it.qty || 1), price = Number(it.unitPrice || 0);
+      return '<tr><td>' + esc(it.name || 'Item') + '<br><small style="color:#94a3b8">' + esc(it.desc || '') + '</small></td>' +
+        '<td>' + qty + '</td><td>$' + (qty * price).toFixed(2) + '</td></tr>';
+    }).join('');
+    document.getElementById('app').innerHTML =
+      '<div class="quote"><div class="header"><h1>🔧 Zempel Auto</h1><p>Estimate / Quote ' + esc(q.id || '') + '</p></div>' +
+      '<div class="body"><div class="meta"><span><strong>Customer:</strong> ' + esc(q.customer || '—') + '</span><span>' + esc(q.date || '') + '</span></div>' +
+      (q.vehicle ? '<div class="meta"><span><strong>Vehicle:</strong> ' + esc(q.vehicle) + '</span></div>' : '') +
+      '<table><thead><tr><th>Item</th><th>Qty</th><th>Amount</th></tr></thead><tbody>' + items + '</tbody></table>' +
+      '<div class="totals">' +
+      (q.labor ? '<div><span>Labor</span><span>$' + Number(q.labor).toFixed(2) + '</span></div>' : '') +
+      '<div class="grand"><span>Total</span><span>$' + Number(q.total || 0).toFixed(2) + '</span></div></div></div>' +
+      '<div class="footer">This estimate is valid for 30 days.<br>Questions? Call Zempel Auto.</div></div>' +
+      '<div class="actions"><a class="btn" href="javascript:window.print()">🖨️ Print / Save PDF</a></div>';
+  } catch (e) {
+    document.getElementById('app').innerHTML = '<div class="error"><h2>Invalid quote link</h2><p>This link appears to be broken or expired.</p></div>';
+  }
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+})();
+</script>
+</body>
+</html>
