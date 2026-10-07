@@ -20,6 +20,17 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
+  // Escapes an ID interpolated into an inline handler: onclick="fn('ID')".
+  // Escapes for the JS string context first, then the HTML attribute context.
+  function escId(v) {
+    return String(v == null ? '' : v)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 
   function openQuickSale() {
     cart = [];
@@ -68,7 +79,7 @@
 
     var html = items.map(function (i) {
       return '<div class="glass-card rounded-lg p-3 flex items-center justify-between cursor-pointer active:scale-95 transition-transform" ' +
-        'onclick="pcQuickAdd(\'' + i.id + '\')">' +
+        'onclick="pcQuickAdd(\'' + escId(i.id) + '\')">' +
         '<div><p class="text-sm font-medium text-white">' + escapeHtml(i.name) + '</p>' +
         '<p class="text-xs text-slate-400 font-mono">' + escapeHtml(i.partNumber) + ' • ' + (i.stock || 0) + ' in stock</p></div>' +
         '<span class="text-green-400 font-bold">$' + (Number(i.salePrice || i.price) || 0).toFixed(2) + '</span></div>';
