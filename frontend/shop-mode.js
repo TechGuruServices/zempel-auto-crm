@@ -29,7 +29,7 @@
     items.forEach(function (item) {
       var low = (Number(item.stock) || 0) <= (Number(item.minStock) || 0);
       html += '<div class="glass-card rounded-xl p-4 flex items-center gap-4 cursor-pointer active:scale-95 transition-transform" ' +
-        'onclick="pcShopAdd(\'' + item.id + '\')">' +
+        'onclick="pcShopAdd(\'' + escId(item.id) + '\')">' +
         '<div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">' +
         '<span class="text-2xl">🔧</span></div>' +
         '<div class="flex-1 min-w-0">' +
@@ -119,6 +119,17 @@
     return String(s || '').replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
+  }
+  // Escapes an ID interpolated into an inline handler: onclick="fn('ID')".
+  // Escapes for the JS string context first, then the HTML attribute context.
+  function escId(v) {
+    return String(v == null ? '' : v)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 
   var observer = new MutationObserver(function () {
