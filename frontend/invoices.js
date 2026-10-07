@@ -41,6 +41,17 @@ function _invEsc(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+  // Escapes an ID interpolated into an inline handler: onclick="fn('ID')".
+  // Escapes for the JS string context first, then the HTML attribute context.
+function escId(v) {
+    return String(v == null ? '' : v)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 
 // Labor is stored as laborItems[] ({description, hours, rate}). Invoices saved
 // before v1.1.0 only have laborHours/laborRate — treat those as a single row.
@@ -181,7 +192,7 @@ function renderInvoices(el) {
       shown.slice().reverse().map(inv => {
         const { total } = _invTotals(inv);
         return `
-            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openInvoiceDetail('${inv.id}')">
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openInvoiceDetail('${escId(inv.id)}')">
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
                   <span class="text-xs font-mono text-blue-400">${inv.number}</span>
@@ -279,23 +290,23 @@ function openInvoiceDetail(invId) {
         <div class="border-t border-slate-700 pt-2 flex justify-between"><span class="text-lg font-bold text-white">Total</span><span class="text-xl font-bold text-green-400">$${total.toFixed(2)}</span></div>
       </div>
 
-      <button id="invShareBtn-${inv.id}" onclick="shareInvoiceRecord('${inv.id}')" class="btn-primary w-full py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 mb-2">
+      <button id="invShareBtn-${escId(inv.id)}" onclick="shareInvoiceRecord('${escId(inv.id)}')" class="btn-primary w-full py-2.5 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2 mb-2">
         <i class="ph-bold ph-share-network"></i> Share Invoice
       </button>
       <div class="grid grid-cols-2 gap-2 mb-2">
-        <button onclick="generateInvoicePDF('${inv.id}', false)" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-download"></i> Download PDF</button>
-        <button onclick="generateInvoicePDF('${inv.id}', true)" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-printer"></i> Print</button>
-        <button onclick="emailInvoiceRecord('${inv.id}')" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-envelope"></i> Email</button>
-        <button onclick="smsInvoiceRecord('${inv.id}')" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-chat-circle-text"></i> Text</button>
+        <button onclick="generateInvoicePDF('${escId(inv.id)}', false)" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-download"></i> Download PDF</button>
+        <button onclick="generateInvoicePDF('${escId(inv.id)}', true)" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-printer"></i> Print</button>
+        <button onclick="emailInvoiceRecord('${escId(inv.id)}')" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-envelope"></i> Email</button>
+        <button onclick="smsInvoiceRecord('${escId(inv.id)}')" class="glass-input py-2.5 rounded-lg text-sm text-slate-200 flex items-center justify-center gap-2"><i class="ph-bold ph-chat-circle-text"></i> Text</button>
       </div>
       <div class="flex gap-2">
-        <button onclick="openInvoiceEditor('${inv.id}')" class="btn-primary flex-1 py-2.5 rounded-lg text-sm font-semibold text-white">
+        <button onclick="openInvoiceEditor('${escId(inv.id)}')" class="btn-primary flex-1 py-2.5 rounded-lg text-sm font-semibold text-white">
           <i class="ph-bold ph-pencil-simple"></i> Edit
         </button>
-        <select onchange="updateInvoiceStatus('${inv.id}', this.value)" class="glass-input px-3 py-2.5 rounded-lg text-sm text-white">
+        <select onchange="updateInvoiceStatus('${escId(inv.id)}', this.value)" class="glass-input px-3 py-2.5 rounded-lg text-sm text-white">
           ${['draft', 'sent', 'paid', 'overdue', 'void'].map(s => `<option value="${s}" ${inv.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`).join('')}
         </select>
-        <button onclick="deleteInvoiceRecord('${inv.id}')" class="btn-danger px-4 py-2.5 rounded-lg text-sm font-semibold text-white">
+        <button onclick="deleteInvoiceRecord('${escId(inv.id)}')" class="btn-danger px-4 py-2.5 rounded-lg text-sm font-semibold text-white">
           <i class="ph-bold ph-trash"></i>
         </button>
       </div>
