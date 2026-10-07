@@ -25,8 +25,20 @@
   // Modules that should load immediately (critical)
   var critical = ['sync-status.js', 'offline-queue.js', 'error-tracker.js'];
 
+  // The page also loads modules via static <script> tags (frontend/index.html).
+  // Never inject a second copy of a module the document already has —
+  // double-execution caused duplicate fetch wrappers, intervals and listeners.
+  function alreadyPresent(src) {
+    var scripts = document.getElementsByTagName('script');
+    for (var i = 0; i < scripts.length; i++) {
+      var s = scripts[i].getAttribute('src') || '';
+      if (s.split('/').pop().split('?')[0] === src) return true;
+    }
+    return false;
+  }
+
   function loadScript(src) {
-    if (loaded[src]) return Promise.resolve();
+    if (loaded[src] || alreadyPresent(src)) { loaded[src] = true; return Promise.resolve(); }
     if (loading[src]) return loading[src];
     loading[src] = new Promise(function (resolve, reject) {
       var s = document.createElement('script');
