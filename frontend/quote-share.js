@@ -34,7 +34,8 @@
 
     var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(quote))));
     var base = location.origin + location.pathname.replace(/[^/]*$/, '');
-    return base + 'quote.html#' + encoded;
+    // Use /quote (not quote.html) to avoid the 308 redirect stripping the hash fragment
+    return base + 'quote#' + encoded;
   }
 
   function shareQuote(saleId) {
