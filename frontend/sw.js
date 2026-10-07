@@ -5,7 +5,7 @@
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.5.1'; // bumped 2026-09: XSS escaping fix, corrected manifest icon sizes, nav version-string fix
+const CACHE_NAME = 'partscommand-v3.5.2'; // bumped 2026-10: Zempel-branded invoice layout (invoices.js, invoice-logo.js), invoice part lookup, business profile fax/website
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
@@ -27,6 +27,7 @@ const NETWORK_FIRST_PATHS = [
   '/rockauto-fetch.js',
   '/rockauto-ui.js',
   '/invoices.js',
+  '/invoice-logo.js',
   '/sw_cache_update.js',
 ];
 
