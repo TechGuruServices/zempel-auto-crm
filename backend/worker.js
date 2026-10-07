@@ -135,26 +135,26 @@ export default {
       if (url.pathname === '/auth/login' && request.method === 'POST') return handleLogin(request, env, hdrs);
       if (url.pathname === '/auth/logout' && request.method === 'POST') return handleLogout(request, env, hdrs);
 
-      // ── App Routes (origin-restricted above via ALLOWED_ORIGIN, not JWT-gated) ──
-      // BUGFIX (2026-08-08): the PWA frontend has no login screen and never sends an
-      // Authorization header (confirmed: zero references to "Authorization" or "Bearer"
-      // anywhere in frontend/index.html or rockauto-fetch.js). These routes used to sit
-      // behind the JWT middleware below, so any deploy with JWT_SECRET set as a Worker
-      // secret made EVERY /sync and /v1/rockauto/* call 401 before it could run — this
-      // was the root cause of both "pricing fetch doesn't work" and "storage doesn't
-      // save". They're moved here so they're reachable by the actual client, and are
-      // still protected by the ALLOWED_ORIGIN / CORS check above.
-      // If you later add real user accounts, re-add a JWT check scoped to /sync only,
-      // and update the frontend to call /auth/login and send the token it gets back.
+      // ── App Routes ──
+      // /v1/rockauto/* is a public catalog proxy (origin-restricted above via
+      // ALLOWED_ORIGIN, rate-limited, carries no PII) — no login required.
+      // /sync and /prices touch the shop database and REQUIRE a valid JWT.
+      // The PWA's frontend/auth.js shows a login screen and auto-attaches
+      // `Authorization: Bearer <token>` to every worker request, so legitimate
+      // clients are unaffected. Fails closed when JWT_SECRET is not configured.
       if (url.pathname.startsWith('/v1/rockauto/')) {
         return handleRockAutoProxy(url, request, env, hdrs, ctx, clientIP);
       }
-      if (url.pathname === '/sync') {
-        if (request.method === 'GET') return handleSyncGet(env, request, hdrs);
-        if (request.method === 'POST') return handleSyncPost(request, env, hdrs, null, clientIP, ctx);
-      }
-      if (url.pathname === '/prices' && request.method === 'GET') {
-        return handlePriceLookup(url, env, hdrs, ctx);
+      if (url.pathname === '/sync' || url.pathname === '/prices') {
+        const auth = requireAuth(request, env, hdrs);
+        if (auth.error) return auth.error;
+        if (url.pathname === '/sync') {
+          if (request.method === 'GET') return handleSyncGet(env, request, hdrs);
+          if (request.method === 'POST') return handleSyncPost(request, env, hdrs, auth.user, clientIP, ctx);
+        }
+        if (url.pathname === '/prices' && request.method === 'GET') {
+          return handlePriceLookup(url, env, hdrs, ctx);
+        }
       }
 
       // ── JWT Auth Middleware (only relevant to routes added below this line) ──
@@ -199,6 +199,25 @@ async function query(env, sqlStr, params = []) {
 async function sha(algo, data) {
   const buf = await crypto.subtle.digest(algo, new TextEncoder().encode(data));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// ── Auth guard for database routes ─────────────────────────────
+// Returns { user } on success or { error: Response } on failure.
+// Fail closed: missing/invalid token or missing JWT_SECRET all deny access.
+function requireAuth(request, env, hdrs) {
+  if (!env.JWT_SECRET) {
+    return { error: json({ error: 'Authentication not configured' }, hdrs, 503) };
+  }
+  const authH = request.headers.get('Authorization');
+  if (!authH || !authH.startsWith('Bearer ')) {
+    return { error: json({ error: 'Authorization required' }, hdrs, 401) };
+  }
+  try {
+    const user = jwt.verify(authH.substring(7), env.JWT_SECRET);
+    return { user };
+  } catch {
+    return { error: json({ error: 'Invalid or expired token' }, hdrs, 401) };
+  }
 }
 
 // ── Auth: Login ──────────────────────────────────────────────
