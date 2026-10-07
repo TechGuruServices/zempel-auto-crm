@@ -29,7 +29,7 @@
     modal.classList.remove('hidden');
 
     content.innerHTML =
-      '<div class="p-4 flex flex-col" style="max-height:85vh">' +
+      '<div class="p-4 flex flex-col overflow-y-auto" style="max-height:85vh">' +
       '<div class="flex items-center justify-between mb-4">' +
       '<h3 class="text-lg font-bold text-white">⚡ Quick Sale</h3>' +
       '<button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><span class="text-xl">✕</span></button></div>' +
