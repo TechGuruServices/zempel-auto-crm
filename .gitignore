@@ -8,7 +8,7 @@ yarn.lock
 
 # ── Wrangler / Cloudflare ─────────────────────────────────────
 .wrangler/
-.dev.vars
+.dev.vars*
 
 # ── Environment & Secrets ─────────────────────────────────────
 .env
