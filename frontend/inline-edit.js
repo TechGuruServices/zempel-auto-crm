@@ -21,6 +21,16 @@
   function esc(s) {
     return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+  // Escapes an ID interpolated into an inline handler or attribute.
+  function escId(v) {
+    return String(v == null ? '' : v)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
 
   function toast(msg, type) {
     if (typeof window.showToast === 'function') window.showToast(msg, type || 'success');
@@ -42,11 +52,11 @@
       '<div class="flex items-center justify-between mb-5">' +
       '<h3 class="text-lg font-bold text-white flex items-center gap-2">✏️ Edit Vehicle</h3>' +
       '<button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><span class="text-xl">✕</span></button></div>' +
-      '<form onsubmit="pcSaveVehicleEdit(event, \'' + v.id + '\')" class="space-y-4">' +
+      '<form onsubmit="pcSaveVehicleEdit(event, \'' + escId(v.id) + '\')" class="space-y-4">' +
       '<div><label class="text-xs text-slate-400 mb-1 block">Customer</label>' +
       '<select name="customerId" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">' +
       (db.customers || []).map(function (c) {
-        return '<option value="' + c.id + '"' + (c.id === v.customerId ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+        return '<option value="' + escId(c.id) + '"' + (c.id === v.customerId ? ' selected' : '') + '>' + esc(c.name) + '</option>';
       }).join('') + '</select></div>' +
       '<div class="grid grid-cols-3 gap-3">' +
       '<div><label class="text-xs text-slate-400 mb-1 block">Year *</label>' +
@@ -121,7 +131,7 @@
       '<div><label class="text-xs text-slate-400 mb-1 block">Customer</label>' +
       '<select name="customerId" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">' +
       (db.customers || []).map(function (c) {
-        return '<option value="' + c.id + '"' + (c.id === s.customerId ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+        return '<option value="' + escId(c.id) + '"' + (c.id === s.customerId ? ' selected' : '') + '>' + esc(c.name) + '</option>';
       }).join('') + '</select></div>' +
       '<div><label class="text-xs text-slate-400 mb-1 block">Status</label>' +
       '<select name="status" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">' +
