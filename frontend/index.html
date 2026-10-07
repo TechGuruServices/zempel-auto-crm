@@ -998,6 +998,22 @@
       }[c]));
     }
 
+    // -- SECURITY (2026-10) --
+    // Escapes a record ID / part number interpolated into an inline event
+    // handler, e.g. onclick="openPartDetail('${pcEscId(item.id)}')". The value lands
+    // inside a single-quoted JS string inside a double-quoted HTML attribute,
+    // so escape for both contexts: a hostile ID like "x');alert(1);//"
+    // (importable via CSV) must not break out of either.
+    function pcEscId(v) {
+      return String(v ?? '')
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
     function sanitizeDB(db) {
       if (!db) return;
       // ── HARDENED (2026-09) ──
@@ -1289,7 +1305,7 @@
       <div class="space-y-2">
         ${results.length === 0 ? '<p class="text-slate-400 text-center py-12">No results found</p>' :
           results.map(r => `
-            <div class="glass-card rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-blue-500/30 transition-all" onclick="navigate('${r.view}')">
+            <div class="glass-card rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-blue-500/30 transition-all" onclick="navigate('${pcEscId(r.view)}')">
               <div class="flex items-center gap-3">
                 <span class="badge ${r.type === 'Part' ? 'bg-blue-500/20 text-blue-400' : r.type === 'Customer' ? 'bg-green-500/20 text-green-400' : 'bg-purple-500/20 text-purple-400'}">${r.type}</span>
                 <span class="text-sm text-white">${escapeHtml(r.name)}</span>
@@ -1525,7 +1541,7 @@
               ${filtered.map(item => {
         const stockStatus = item.stock <= item.minStock ? (item.stock <= 3 ? 'text-red-400 bg-red-400/10' : 'text-amber-400 bg-amber-400/10') : 'text-green-400 bg-green-400/10';
         return `
-                  <tr class="table-row border-b border-slate-800/50 cursor-pointer" onclick="openPartDetail('${item.id}')">
+                  <tr class="table-row border-b border-slate-800/50 cursor-pointer" onclick="openPartDetail('${pcEscId(item.id)}')">
                     <td class="px-4 py-3 font-mono text-xs text-blue-400">${item.partNumber}</td>
                     <td class="px-4 py-3">
                       <p class="text-sm text-white font-medium">${item.name}</p>
@@ -1540,10 +1556,10 @@
                     </td>
                     <td class="px-4 py-3 text-center">
                       <div class="flex items-center justify-center gap-1">
-                        <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', 1)" class="p-1.5 text-green-400 hover:bg-green-400/10 rounded" title="Add Stock">
+                        <button onclick="event.stopPropagation();quickStockAdjust('${pcEscId(item.id)}', 1)" class="p-1.5 text-green-400 hover:bg-green-400/10 rounded" title="Add Stock">
                           <i class="ph-bold ph-plus text-xs"></i>
                         </button>
-                        <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', -1)" class="p-1.5 text-red-400 hover:bg-red-400/10 rounded" title="Remove Stock">
+                        <button onclick="event.stopPropagation();quickStockAdjust('${pcEscId(item.id)}', -1)" class="p-1.5 text-red-400 hover:bg-red-400/10 rounded" title="Remove Stock">
                           <i class="ph-bold ph-minus text-xs"></i>
                         </button>
                       </div>
@@ -1577,7 +1593,7 @@
       const rows = filtered.map(item => {
         const stockStatus = item.stock <= item.minStock ? (item.stock <= 3 ? 'text-red-400 bg-red-400/10' : 'text-amber-400 bg-amber-400/10') : 'text-green-400 bg-green-400/10';
         return `
-      <tr class="table-row border-b border-slate-800/50 cursor-pointer" onclick="openPartDetail('${item.id}')">
+      <tr class="table-row border-b border-slate-800/50 cursor-pointer" onclick="openPartDetail('${pcEscId(item.id)}')">
         <td class="px-4 py-3 font-mono text-xs text-blue-400">${item.partNumber}</td>
         <td class="px-4 py-3">
           <p class="text-sm text-white font-medium">${item.name}</p>
@@ -1590,8 +1606,8 @@
         <td class="px-4 py-3 text-center"><span class="badge ${stockStatus}">${item.stock}</span></td>
         <td class="px-4 py-3 text-center">
           <div class="flex items-center justify-center gap-1">
-            <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', 1)" class="p-1.5 text-green-400 hover:bg-green-400/10 rounded"><i class="ph-bold ph-plus text-xs"></i></button>
-            <button onclick="event.stopPropagation();quickStockAdjust('${item.id}', -1)" class="p-1.5 text-red-400 hover:bg-red-400/10 rounded"><i class="ph-bold ph-minus text-xs"></i></button>
+            <button onclick="event.stopPropagation();quickStockAdjust('${pcEscId(item.id)}', 1)" class="p-1.5 text-green-400 hover:bg-green-400/10 rounded"><i class="ph-bold ph-plus text-xs"></i></button>
+            <button onclick="event.stopPropagation();quickStockAdjust('${pcEscId(item.id)}', -1)" class="p-1.5 text-red-400 hover:bg-red-400/10 rounded"><i class="ph-bold ph-minus text-xs"></i></button>
           </div>
         </td>
       </tr>
@@ -2102,7 +2118,7 @@
           <span class="flex items-center gap-2">
             <i class="ph ph-arrows-left-right text-cyan-400"></i> Live Competitor Prices
           </span>
-          <button onclick="fetchLiveCompetitorPrices('${part.partNumber}','${part.brand || ''}')" 
+          <button onclick="fetchLiveCompetitorPrices('${pcEscId(part.partNumber)}','${pcEscId(part.brand || '')}')" 
             class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
             <i class="ph-bold ph-arrows-clockwise"></i> Refresh
           </button>
@@ -2143,10 +2159,10 @@
       </div>
 
       <div class="flex gap-2">
-        <button onclick="closeModal();openEditPartModal('${part.id}')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
+        <button onclick="closeModal();openEditPartModal('${pcEscId(part.id)}')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
           <i class="ph-bold ph-pencil"></i> Edit Part
         </button>
-        <button onclick="deletePart('${part.id}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
+        <button onclick="deletePart('${pcEscId(part.id)}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
           <i class="ph-bold ph-trash"></i>
         </button>
       </div>
@@ -2343,7 +2359,7 @@
         <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
-      <form onsubmit="updatePart(event, '${partId}')" class="space-y-4">
+      <form onsubmit="updatePart(event, '${pcEscId(partId)}')" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-xs text-slate-400 mb-1 block">Part Number</label>
@@ -2513,7 +2529,7 @@
         ${filtered.map(cust => {
         const vehicleCount = db.vehicles.filter(v => v.customerId === cust.id).length;
         return `
-            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openCustomerDetail('${cust.id}')">
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openCustomerDetail('${pcEscId(cust.id)}')">
               <div class="flex items-start gap-3">
                 <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                   ${(cust.name || '?').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase()}
@@ -2535,11 +2551,11 @@
                 </div>
                 <div class="flex items-center gap-1.5">
                   <span class="text-sm font-bold text-green-400">$${Number(cust.totalSpent || 0).toFixed(2)}</span>
-                  <button title="Edit customer" onclick="event.stopPropagation();openEditCustomerModal('${cust.id}')"
+                  <button title="Edit customer" onclick="event.stopPropagation();openEditCustomerModal('${pcEscId(cust.id)}')"
                     class="p-1.5 rounded-lg text-slate-400 hover:text-blue-300 hover:bg-blue-500/10 transition-all">
                     <i class="ph-bold ph-pencil-simple"></i>
                   </button>
-                  <button title="Delete customer" onclick="event.stopPropagation();deleteCustomer('${cust.id}')"
+                  <button title="Delete customer" onclick="event.stopPropagation();deleteCustomer('${pcEscId(cust.id)}')"
                     class="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all">
                     <i class="ph-bold ph-trash"></i>
                   </button>
@@ -2650,7 +2666,7 @@
         </h3>
         <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
-      <form onsubmit="saveCustomerEdit(event, '${cust.id}')" class="space-y-4">
+      <form onsubmit="saveCustomerEdit(event, '${pcEscId(cust.id)}')" class="space-y-4">
         <div>
           <label class="text-xs text-slate-400 mb-1 block">Full Name *</label>
           <input type="text" name="name" value="${esc(cust.name)}" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white" placeholder="John Doe">
@@ -2808,7 +2824,7 @@
       <div class="space-y-2 mb-5">
         ${vehicles.length === 0 ? '<p class="text-sm text-slate-500 text-center py-4">No vehicles registered</p>' :
           vehicles.map(v => `
-            <div class="glass-card rounded-lg p-3 cursor-pointer hover:border-blue-500/30 transition-all" onclick="closeModal();openVehicleDetail('${v.id}')">
+            <div class="glass-card rounded-lg p-3 cursor-pointer hover:border-blue-500/30 transition-all" onclick="closeModal();openVehicleDetail('${pcEscId(v.id)}')">
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-white">${v.year} ${v.make} ${v.model}</p>
@@ -2840,7 +2856,7 @@
                 <span class="text-xs text-slate-400">${Number(s.laborHours) || 0}h labor</span>
                 <span class="text-sm font-bold text-green-400">$${Number(s.total || 0).toFixed(2)}</span>
               </div>
-              <button onclick="createInvoiceFromSale('${s.id}')" class="w-full mt-2 py-1.5 rounded-lg text-xs text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/10 flex items-center justify-center gap-1.5">
+              <button onclick="createInvoiceFromSale('${pcEscId(s.id)}')" class="w-full mt-2 py-1.5 rounded-lg text-xs text-cyan-400 border border-cyan-400/30 hover:bg-cyan-400/10 flex items-center justify-center gap-1.5">
                 <i class="ph-bold ph-file-text"></i> Generate Invoice
               </button>
             </div>
@@ -2849,10 +2865,10 @@
 
       <!-- NEW: customer management actions -->
       <div class="flex gap-2 mt-5 pt-4 border-t border-slate-700/50">
-        <button onclick="openEditCustomerModal('${cust.id}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-blue-300 flex items-center justify-center gap-2 hover:border-blue-400/40 transition-all">
+        <button onclick="openEditCustomerModal('${pcEscId(cust.id)}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-blue-300 flex items-center justify-center gap-2 hover:border-blue-400/40 transition-all">
           <i class="ph-bold ph-pencil-simple"></i> Edit Customer
         </button>
-        <button onclick="deleteCustomer('${cust.id}')" class="btn-danger px-5 py-3 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2">
+        <button onclick="deleteCustomer('${pcEscId(cust.id)}')" class="btn-danger px-5 py-3 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2">
           <i class="ph-bold ph-trash"></i> Delete
         </button>
       </div>
@@ -2884,7 +2900,7 @@
         const cust = db.customers.find(c => c.id === v.customerId);
         const serviceCount = v.services ? v.services.length : 0;
         return `
-            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openVehicleDetail('${v.id}')">
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openVehicleDetail('${pcEscId(v.id)}')">
               <div class="flex items-start gap-3 mb-3">
                 <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-purple-500/20 flex-shrink-0">
                   <i class="ph-bold ph-car text-purple-400 text-xl"></i>
@@ -3067,7 +3083,7 @@
           `).join('')}
       </div>
 
-      <button onclick="closeModal();openAddServiceModal('${v.id}')" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+      <button onclick="closeModal();openAddServiceModal('${pcEscId(v.id)}')" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
         <i class="ph-bold ph-plus"></i> Add Service Record
       </button>
     </div>
@@ -3087,7 +3103,7 @@
         </h3>
         <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
-      <form onsubmit="saveService(event, '${vId}')" class="space-y-4">
+      <form onsubmit="saveService(event, '${pcEscId(vId)}')" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="text-xs text-slate-400 mb-1 block">Date *</label>
@@ -3165,7 +3181,7 @@
         const cust = db.customers.find(c => c.id === sale.customerId);
         const v = db.vehicles.find(vh => vh.id === sale.vehicleId);
         return `
-            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openSaleDetail('${sale.id}')">
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openSaleDetail('${pcEscId(sale.id)}')">
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                   <span class="text-xs font-mono text-blue-400">${sale.id}</span>
@@ -3584,14 +3600,14 @@
       </div>
 
       <div class="flex gap-2 mt-4">
-        <button onclick="createInvoiceFromSale('${sale.id}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-cyan-400 flex items-center justify-center gap-2">
+        <button onclick="createInvoiceFromSale('${pcEscId(sale.id)}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-cyan-400 flex items-center justify-center gap-2">
           <i class="ph-bold ph-file-text"></i> Generate Invoice
         </button>
         ${String(sale.status || '').toLowerCase() === 'pending' ? `
-          <button onclick="closeModal();updateSaleStatus('${sale.id}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
+          <button onclick="closeModal();updateSaleStatus('${pcEscId(sale.id)}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
             <i class="ph-bold ph-check-circle"></i> Complete Sale
           </button>
-          <button onclick="deleteSale('${sale.id}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
+          <button onclick="deleteSale('${pcEscId(sale.id)}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
             <i class="ph-bold ph-trash"></i>
           </button>
         ` : ''}
