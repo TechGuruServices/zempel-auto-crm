@@ -125,11 +125,14 @@ const RockAutoUI = (() => {
     if (!data.engines?.length) { showEmpty(container, `No engines found.`, data.notice); return; }
     const list = el('ul', { className: 'rockauto-engines-list', id: 'rockauto-engines-list' });
     for (const eng of data.engines) {
-      list.appendChild(el('li', { className: 'rockauto-engine-item', 'data-carcode': eng.carcode }, [
+      // Live service returns {carcode, engine}; repo/offline shapes use {carcode, description}.
+      const label = eng.description ?? eng.engine ?? eng.name ?? 'Unknown engine';
+      const code = eng.carcode ?? '';
+      list.appendChild(el('li', { className: 'rockauto-engine-item', 'data-carcode': code }, [
         el('button', {
-          textContent: `${eng.description} (${eng.carcode})`,
+          textContent: `${label} (${code})`,
           className: 'rockauto-engine-btn',
-          id: `rockauto-engine-${eng.carcode}`,
+          id: `rockauto-engine-${code}`,
         }),
       ]));
     }
@@ -143,11 +146,14 @@ const RockAutoUI = (() => {
     if (!data.categories?.length) { showEmpty(container, `No part categories found.`, data.notice); return; }
     const list = el('ul', { className: 'rockauto-categories-list', id: 'rockauto-categories-list' });
     for (const cat of data.categories) {
-      list.appendChild(el('li', { className: 'rockauto-category-item', 'data-group-name': cat.group_name }, [
+      // Live service returns plain strings; repo/offline shapes use {name, group_name}.
+      const catName = (typeof cat === 'string') ? cat : (cat.name ?? cat.group_name ?? 'Unknown');
+      const catGroup = (typeof cat === 'string') ? cat : (cat.group_name ?? cat.name ?? 'unknown');
+      list.appendChild(el('li', { className: 'rockauto-category-item', 'data-group-name': catGroup }, [
         el('button', {
-          textContent: cat.name,
+          textContent: catName,
           className: 'rockauto-category-btn',
-          id: `rockauto-category-${cat.group_name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
+          id: `rockauto-category-${String(catGroup).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
         }),
       ]));
     }
