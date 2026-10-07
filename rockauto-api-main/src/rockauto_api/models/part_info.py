@@ -29,7 +29,7 @@ class PartWithHistory(BaseModel):
     """Complete part information including static data and pricing history."""
 
     # Static part information (long-term cacheable)
-hu`     ``888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888881`    part_info: PartInfo = Field(..., description="Static part information")  # type: ignore
+    part_info: PartInfo = Field(..., description="Static part information")  # type: ignore
 
     # Dynamic pricing with full history (short-term cacheable)
     pricing_history: Optional[PriceInfo] = Field(None, description="Complete pricing and stock history")
