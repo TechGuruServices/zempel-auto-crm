@@ -66,8 +66,12 @@
 
     var btn = document.createElement('button');
     btn.id = 'pc-wipe-btn';
-    btn.className = 'w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-red-500/40 transition-all group mt-2';
+    btn.type = 'button';
+    btn.className = 'w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 hover:border-red-500/40 transition-all group mt-2 cursor-pointer';
     btn.style.border = '1px solid rgba(239,68,68,0.3)';
+    btn.style.pointerEvents = 'auto';
+    btn.style.position = 'relative';
+    btn.style.zIndex = '10';
     btn.innerHTML =
       '<div class="flex items-center gap-3">' +
       '<div class="w-9 h-9 rounded-lg bg-red-500/15 flex items-center justify-center">' +
@@ -75,7 +79,16 @@
       '<div class="text-left"><p class="text-sm font-medium text-red-400">Wipe Server Data</p>' +
       '<p class="text-xs text-slate-500">Permanently delete all cloud data (admin only)</p></div></div>' +
       '<i class="ph ph-warning text-red-400"></i>';
-    btn.onclick = doWipe;
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      doWipe();
+    });
+    // Also handle touch for mobile
+    btn.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      doWipe();
+    });
     card.appendChild(btn);
   }
 
