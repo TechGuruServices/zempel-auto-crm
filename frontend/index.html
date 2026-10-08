@@ -828,6 +828,9 @@
   </style>
 
   <style id="pc-premium-3-8">
+    /* Single notification indicator — count pill (one indicator only, no red dot + number) */
+    #notifBadge{position:absolute;top:4px;right:4px;min-width:18px;height:18px;padding:0 5px;background:#ef4444;border-radius:9999px;color:#fff;font-size:10px;font-weight:700;line-height:18px;text-align:center;box-shadow:0 0 0 2px #0f172a;}
+    #notifBadge.hidden{display:none;}
     /* ═══════════════════════════════════════════════════════════════════════
        PARTSCOMMAND — Premium UI layer v3.8.0
        Ambient gradients · gradient page titles · premium nav · sheen sweeps
@@ -1094,7 +1097,6 @@
             title="Menu" aria-label="Open navigation menu">
             <i class="ph-bold ph-list text-2xl"></i>
           </button>
-          <img src="assets/z-auto-9.jpeg" alt="Zempel Auto" class="lg:hidden h-9 w-auto object-contain flex-shrink-0 rounded" />
           <div class="relative hidden lg:block flex-none ml-2">
             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
             <input type="text" id="globalSearch" placeholder="Search parts, customers, vehicles..."
@@ -1111,13 +1113,13 @@
           <button onclick="toggleNotifications()" class="relative w-11 h-11 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors flex items-center justify-center flex-shrink-0"
             title="Notifications" aria-label="Notifications">
             <i class="ph ph-bell text-2xl"></i>
-            <span id="notifBadge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span id="notifBadge" class="hidden"></span>
           </button>
         </div>
         <div class="lg:hidden mt-2.5">
           <div class="relative">
             <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none"></i>
-            <input type="text" id="globalSearchMobile" placeholder="Search parts, customers, vehicles..."
+            <input type="text" id="globalSearchMobile" aria-label="Search"
               class="w-full h-12 pl-11 pr-4 rounded-2xl text-[16px] text-white placeholder-slate-400 outline-none"
               style="background:#1a2438;border:1px solid #2b3a55;"
               oninput="globalSearchHandler(this.value)" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#2b3a55'">
