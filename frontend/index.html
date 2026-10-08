@@ -2283,7 +2283,7 @@
       modal.classList.remove('hidden');
 
       content.innerHTML = `
-    <div class="p-6">
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-barcode text-amber-400"></i> Barcode Scanner
@@ -2915,7 +2915,7 @@
         ${filtered.map(cust => {
         const vehicleCount = db.vehicles.filter(v => v.customerId === cust.id).length;
         return `
-            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openCustomerDetail('${pcEscId(cust.id)}')">
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" role="button" tabindex="0" data-kb-click onclick="openCustomerDetail('${pcEscId(cust.id)}')">
               <div class="flex items-start gap-3">
                 <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                   ${(cust.name || '?').split(' ').filter(Boolean).map(n => n[0]).join('').substring(0, 2).toUpperCase()}
@@ -3286,7 +3286,7 @@
         const cust = db.customers.find(c => c.id === v.customerId);
         const serviceCount = v.services ? v.services.length : 0;
         return `
-            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openVehicleDetail('${pcEscId(v.id)}')">
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" role="button" tabindex="0" data-kb-click onclick="openVehicleDetail('${pcEscId(v.id)}')">
               <div class="flex items-start gap-3 mb-3">
                 <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-purple-500/20 flex-shrink-0">
                   <i class="ph-bold ph-car text-purple-400 text-xl"></i>
@@ -3567,7 +3567,7 @@
         const cust = db.customers.find(c => c.id === sale.customerId);
         const v = db.vehicles.find(vh => vh.id === sale.vehicleId);
         return `
-            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" onclick="openSaleDetail('${pcEscId(sale.id)}')">
+            <div class="glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/30 transition-all" role="button" tabindex="0" data-kb-click onclick="openSaleDetail('${pcEscId(sale.id)}')">
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                   <span class="text-xs font-mono text-blue-400">${sale.id}</span>
@@ -4556,7 +4556,7 @@
       modal.classList.remove('hidden');
 
       content.innerHTML = `
-    <div class="p-6">
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-lg font-bold text-white">Quick Add</h3>
         <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
@@ -4605,6 +4605,25 @@
       }
       document.getElementById('modalContainer').classList.add('hidden');
     }
+
+    // Modal UX: ESC dismissal + body scroll lock (audit M5)
+    (function () {
+      var modal = document.getElementById('modalContainer');
+      if (!modal) return;
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+      });
+      new MutationObserver(function () {
+        document.body.style.overflow = modal.classList.contains('hidden') ? '' : 'hidden';
+      }).observe(modal, { attributes: true, attributeFilter: ['class'] });
+    })();
+
+    // Keyboard access for clickable cards: Enter/Space activates (audit H4)
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var card = e.target && e.target.closest ? e.target.closest('[data-kb-click]') : null;
+      if (card) { e.preventDefault(); card.click(); }
+    });
 
     // ==================== LIVE COMPETITOR PRICE FETCHING ====================
     async function fetchLiveCompetitorPrices(partNumber, brand) {
