@@ -782,7 +782,9 @@
       border-color: rgba(226, 232, 240, 0.8) !important;
     }
 
-    html.light-mode .text-white { color: #0f172a !important; }
+    html.light-mode .text-white:not(.btn-primary):not(.btn-amber):not(.btn-danger):not(.btn-ra) { color: #0f172a !important; }
+    html.light-mode .bg-gradient-to-br.text-white,
+    html.light-mode .bg-gradient-to-r.text-white { color: #ffffff !important; }
     html.light-mode .text-slate-100,
     html.light-mode .text-slate-200 { color: #1e293b !important; }
     html.light-mode .text-slate-300 { color: #334155 !important; }
@@ -824,6 +826,54 @@
       padding: 6px !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
     }
+
+    /* ── Batch 1: light-mode production fixes ──────────────────────────── */
+    /* C-LM1: remap bright -400/-300 tints to readable shades */
+    html.light-mode .text-green-400,html.light-mode .text-green-300{color:#15803d !important;}
+    html.light-mode .text-blue-400,html.light-mode .text-blue-300{color:#1d4ed8 !important;}
+    html.light-mode .text-red-400,html.light-mode .text-red-300{color:#b91c1c !important;}
+    html.light-mode .text-amber-400,html.light-mode .text-amber-300{color:#b45309 !important;}
+    html.light-mode .text-yellow-400{color:#a16207 !important;}
+    html.light-mode .text-cyan-400{color:#0e7490 !important;}
+    html.light-mode .text-purple-400{color:#7c3aed !important;}
+    /* C-LM2: metric cards readable */
+    html.light-mode .metric-card{background:linear-gradient(135deg,#ffffff,#f8fafc) !important;border-color:rgba(203,213,225,.7) !important;box-shadow:0 1px 3px rgba(15,23,42,.06) !important;}
+    html.light-mode .mc-value{color:#0f172a !important;text-shadow:none !important;}
+    html.light-mode .mc-label{color:#475569 !important;}
+    html.light-mode .mc-sub{color:#64748b !important;}
+    html.light-mode .mc-icon-badge{background:linear-gradient(135deg,rgba(59,130,246,.14),rgba(139,92,246,.08)) !important;border-color:rgba(203,213,225,.7) !important;box-shadow:none !important;}
+    html.light-mode .mc-icon-badge.blue i{color:#2563eb !important;text-shadow:none !important;}
+    html.light-mode .mc-icon-badge.amber i{color:#b45309 !important;text-shadow:none !important;}
+    html.light-mode .mc-icon-badge.green i{color:#047857 !important;text-shadow:none !important;}
+    html.light-mode .mc-icon-badge.purple i{color:#6d28d9 !important;text-shadow:none !important;}
+    html.light-mode .metric-card[data-linked]::after{color:rgba(100,116,139,.85) !important;}
+    /* C-LM3: toasts — solid white, keep tinted borders */
+    html.light-mode #toastContainer>div{background:#ffffff !important;box-shadow:0 8px 24px rgba(15,23,42,.12) !important;}
+    /* C-LM4: empty states */
+    html.light-mode .empty-state .es-title{color:#0f172a !important;}
+    html.light-mode .empty-state .es-hint{color:#64748b !important;}
+    html.light-mode .empty-state .es-icon{color:#2563eb !important;background:linear-gradient(135deg,rgba(59,130,246,.14),rgba(139,92,246,.08)) !important;border-color:rgba(203,213,225,.7) !important;box-shadow:none !important;}
+    /* C-LM5: mobile nav active tab */
+    html.light-mode .mobile-nav-btn.active{color:#0f172a !important;background:rgba(59,130,246,.14) !important;}
+    html.light-mode .mobile-nav-btn.active i{background:linear-gradient(135deg,#2563eb,#0891b2) !important;-webkit-background-clip:text !important;background-clip:text !important;filter:none !important;}
+    /* C-LM7: analytics glass-frost panel */
+    html.light-mode .glass-frost{background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(248,250,252,.88)) !important;border-color:rgba(203,213,225,.7) !important;box-shadow:0 1px 3px rgba(15,23,42,.06) !important;}
+    /* C-LM8: solid slate-800 surfaces */
+    html.light-mode .bg-slate-800{background-color:rgba(226,232,240,.8) !important;}
+    /* C-LM9: quick-sale sticky bar */
+    html.light-mode .bg-slate-900\/95{background-color:rgba(255,255,255,.96) !important;}
+    /* C-LM10: inventory export buttons */
+    html.light-mode .inv-export-btn{color:#334155 !important;background:rgba(100,116,139,.10) !important;border-color:rgba(100,116,139,.28) !important;}
+    /* H3: card hover feedback in light mode */
+    html.light-mode .glass-card:hover{border-color:rgba(59,130,246,.4) !important;}
+    /* M1: translucent slate-800 borders */
+    html.light-mode .border-slate-800\/50{border-color:rgba(226,232,240,.9) !important;}
+    /* M18: mobile search pill */
+    html.light-mode .mobile-search-input{background:rgba(241,245,249,.92) !important;color:#0f172a !important;border-color:rgba(203,213,225,.85) !important;}
+    /* M20: notification badge ring */
+    html.light-mode #notifBadge{box-shadow:0 0 0 2px #ffffff !important;}
+    /* M21: bottom nav shadow */
+    html.light-mode .mobile-nav{box-shadow:0 -8px 24px rgba(15,23,42,.10) !important;}
 
   </style>
 
@@ -1898,7 +1948,7 @@
             </tbody>
           </table>
         </div>
-        ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-package text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No parts yet</p><p class="text-sm text-slate-500 mb-5">Add your first part to get started</p><button onclick="openAddPartModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Part</button></div>' : ''}
+        ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-package text-5xl text-slate-400 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No parts yet</p><p class="text-sm text-slate-500 mb-5">Add your first part to get started</p><button onclick="openAddPartModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Part</button></div>' : ''}
       </div>
     </div>
   `;
@@ -2479,7 +2529,7 @@
                 <p class="text-sm font-bold text-white">${retailer.carquest ? '$' + Number(retailer.carquest).toFixed(2) : '<span class="text-slate-500 text-xs">N/A</span>'}</p>
               </div>
             </div>
-            ${retailer.fetchedAt ? '<p class="text-[10px] text-slate-600 text-right mt-1">Updated ' + new Date(retailer.fetchedAt).toLocaleTimeString() + '</p>' : ''}
+            ${retailer.fetchedAt ? '<p class="text-[10px] text-slate-400 text-right mt-1">Updated ' + new Date(retailer.fetchedAt).toLocaleTimeString() + '</p>' : ''}
           ` : `
             <p class="text-xs text-slate-500 text-center py-3">Click <strong>Refresh</strong> to fetch live prices</p>
           `}
@@ -2893,7 +2943,7 @@
           `;
       }).join('')}
       </div>
-      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-users text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No customers yet</p><p class="text-sm text-slate-500 mb-5">Add your first customer to get started</p><button onclick="openAddCustomerModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Customer</button></div>' : ''}
+      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-users text-5xl text-slate-400 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No customers yet</p><p class="text-sm text-slate-500 mb-5">Add your first customer to get started</p><button onclick="openAddCustomerModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Customer</button></div>' : ''}
     </div>
   `;
     }
@@ -3250,7 +3300,7 @@
           `;
       }).join('')}
       </div>
-      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-car text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No vehicles yet</p><p class="text-sm text-slate-500 mb-5">Register your first vehicle to get started</p><button onclick="openAddVehicleModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Vehicle</button></div>' : ''}
+      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-car text-5xl text-slate-400 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No vehicles yet</p><p class="text-sm text-slate-500 mb-5">Register your first vehicle to get started</p><button onclick="openAddVehicleModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Vehicle</button></div>' : ''}
     </div>
   `;
     }
@@ -3531,7 +3581,7 @@
           `;
       }).join('')}
       </div>
-      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-receipt text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No sales yet</p><p class="text-sm text-slate-500 mb-5">Create your first sale to get started</p><button onclick="openNewEstimate()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Create Your First Sale</button></div>' : ''}
+      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-receipt text-5xl text-slate-400 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No sales yet</p><p class="text-sm text-slate-500 mb-5">Create your first sale to get started</p><button onclick="openNewEstimate()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Create Your First Sale</button></div>' : ''}
     </div>
   `;
     }
@@ -4610,7 +4660,7 @@
               </div>
             `).join('')}
           </div>
-          <p class="text-[10px] text-slate-600 text-right mt-1">
+          <p class="text-[10px] text-slate-400 text-right mt-1">
             Updated ${new Date(prices.fetchedAt).toLocaleTimeString()}
           </p>
         `;
