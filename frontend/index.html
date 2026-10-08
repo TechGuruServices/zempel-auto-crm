@@ -709,6 +709,16 @@
       .mobile-nav-btn { min-width: 56px; }
     }
 
+  
+    /* Sticky header: slides away on scroll down, returns on scroll up */
+    #appHeader {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: transform;
+    }
+    #appHeader.header-hidden {
+      transform: translateY(-110%);
+    }
+
   </style>
 
   <script data-cfasync="false">
@@ -829,32 +839,40 @@
     <div class="flex-1 flex flex-col overflow-hidden">
 
       <!-- Top Bar -->
-      <header
-        class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 lg:px-6 py-3 flex items-center justify-between sticky-header z-20">
-  <div class="flex items-center gap-3 flex-1 min-w-0">
-          <button onclick="toggleMobileNav()" class="lg:hidden p-2 text-slate-400 hover:text-white flex-shrink-0"
-            title="Open navigation menu" aria-label="Open navigation menu">
-            <i class="ph ph-list text-xl"></i>
-          </button>
-          <img src="assets/z-auto-9.jpeg" alt="Logo" class="lg:hidden header-logo-mobile flex-shrink-0" />
-          <div class="relative flex-1 min-w-0 lg:flex-none">
+      <header id="appHeader"
+        class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 lg:px-6 py-3 sticky-header z-20">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 flex-shrink-0 min-w-0">
+            <button onclick="toggleMobileNav()" class="lg:hidden p-2.5 -ml-2 text-slate-400 hover:text-white flex-shrink-0"
+              title="Open navigation menu" aria-label="Open navigation menu">
+              <i class="ph ph-list text-2xl"></i>
+            </button>
+            <img src="assets/z-auto-9.jpeg" alt="Zempel Auto" class="lg:hidden header-logo-mobile flex-shrink-0" />
+          </div>
+          <div class="relative hidden lg:block flex-none">
             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
             <input type="text" id="globalSearch" placeholder="Search parts, customers, vehicles..."
-              class="glass-input w-full lg:w-80 pl-9 pr-4 py-2 rounded-lg text-sm text-white placeholder-slate-500"
+              class="glass-input w-80 pl-9 pr-4 py-2 rounded-lg text-sm text-white placeholder-slate-500"
               oninput="globalSearchHandler(this.value)">
           </div>
+          <div class="flex items-center gap-1 flex-shrink-0">
+            <button onclick="openQuickAdd()"
+              class="btn-primary w-11 h-11 rounded-xl text-white flex items-center justify-center flex-shrink-0"
+              title="Quick Add" aria-label="Quick Add">
+              <i class="ph-bold ph-plus text-xl"></i>
+            </button>
+            <button onclick="toggleNotifications()" class="relative w-11 h-11 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors flex items-center justify-center flex-shrink-0"
+              title="Notifications" aria-label="Notifications">
+              <i class="ph ph-bell text-2xl"></i>
+              <span id="notifBadge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+          </div>
         </div>
-        <div class="flex items-center gap-2 flex-shrink-0">
-          <button onclick="openQuickAdd()"
-            class="btn-primary px-3 sm:px-4 py-2 rounded-lg text-sm font-semibold text-white flex items-center gap-2 flex-shrink-0">
-            <i class="ph ph-plus"></i>
-            <span class="hidden sm:inline">Quick Add</span>
-          </button>
-          <button onclick="toggleNotifications()" class="relative p-2 text-slate-400 hover:text-white transition-colors"
-            title="Notifications" aria-label="Notifications">
-            <i class="ph ph-bell text-xl"></i>
-            <span id="notifBadge" class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+        <div class="relative mt-2.5 lg:hidden">
+          <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"></i>
+          <input type="text" id="globalSearchMobile" placeholder="Search parts, customers, vehicles..."
+            class="glass-input w-full pl-10 pr-4 py-2.5 rounded-xl text-base text-white placeholder-slate-500"
+            oninput="globalSearchHandler(this.value)">
         </div>
       </header>
 
@@ -1335,12 +1353,41 @@
   `;
     }
 
+
+    // ==================== HEADER HIDE/SHOW ON SCROLL ====================
+    // Slides the top bar away when scrolling down, brings it back on scroll up.
+    (function initHeaderScroll() {
+      let lastY = 0;
+      const header = document.getElementById('appHeader');
+      const scroller = document.getElementById('mainContent');
+      if (!header || !scroller) return;
+      let ticking = false;
+      scroller.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          const y = scroller.scrollTop;
+          const delta = y - lastY;
+          // Only react past 60px; ignore tiny jitters (<8px)
+          if (y > 60 && delta > 8) {
+            header.classList.add('header-hidden');
+          } else if (delta < -8 || y <= 60) {
+            header.classList.remove('header-hidden');
+          }
+          lastY = y;
+          ticking = false;
+        });
+      }, { passive: true });
+    })();
+
     // ==================== VIEW RENDERERS ====================
     function renderView() {
       const main = document.getElementById('mainContent');
       searchQuery = '';
-      const searchInput = document.getElementById('globalSearch');
-      if (searchInput) searchInput.value = '';
+      ['globalSearch', 'globalSearchMobile'].forEach(id => {
+        const si = document.getElementById(id);
+        if (si) si.value = '';
+      });
 
       // FIX: a throw inside any renderer used to leave the previous view on
       // screen with zero feedback ("clicking does nothing"). Catch it, log it,
