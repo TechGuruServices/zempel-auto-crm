@@ -510,7 +510,8 @@
     /* Tablet-first touch targets — minimum 48px for greasy-fingered mechanics */
     @media (hover: none) {
       button, .btn-primary, .btn-amber, .btn-danger, .btn-secondary,
-      a.nav-item, .mobile-nav-btn,
+      a.nav-item, .mobile-nav-btn, .inv-export-btn,
+      input.glass-input, textarea.glass-input,
       .rockauto-make-btn, .rockauto-year-btn, .rockauto-model-btn,
       .rockauto-engine-btn, .rockauto-category-btn {
         min-height: 48px;
@@ -558,6 +559,10 @@
 
     .toggle-track.on .toggle-thumb {
       transform: translateX(24px);
+    }
+
+    .toggle-track:focus-visible {
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.55);
     }
 
     /* ══════════════════════════════════════════════════════════════════════
@@ -2437,7 +2442,7 @@
             <p class="text-sm font-mono text-blue-400">${part.partNumber}</p>
           </div>
         </div>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       ${part.photoUrl ? `
@@ -2581,7 +2586,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-plus-circle text-blue-400"></i> Add New Part
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       <form onsubmit="saveNewPart(event)" class="space-y-4">
@@ -2737,7 +2742,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-pencil text-blue-400"></i> Edit Part
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       <form onsubmit="updatePart(event, '${pcEscId(partId)}')" class="space-y-4">
@@ -2962,7 +2967,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-user-plus text-blue-400"></i> Add Customer
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
       <form onsubmit="saveNewCustomer(event)" class="space-y-4">
         <div>
@@ -3045,7 +3050,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-pencil-simple text-blue-400"></i> Edit Customer
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
       <form onsubmit="saveCustomerEdit(event, '${pcEscId(cust.id)}')" class="space-y-4">
         <div>
@@ -3174,7 +3179,7 @@
             <p class="text-sm text-slate-400">${cust.phone} • ${cust.email}</p>
           </div>
         </div>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       <div class="grid grid-cols-3 gap-3 mb-5">
@@ -3320,7 +3325,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-car text-purple-400"></i> Add Vehicle
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
       <form onsubmit="saveNewVehicle(event)" class="space-y-4">
         <div>
@@ -3423,7 +3428,7 @@
             <p class="text-sm text-slate-400">${cust ? cust.name : 'Unknown'}</p>
           </div>
         </div>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       <div class="grid grid-cols-2 gap-3 mb-5">
@@ -3482,7 +3487,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-wrench text-green-400"></i> Add Service Record
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
       <form onsubmit="saveService(event, '${pcEscId(vId)}')" class="space-y-4">
         <div class="grid grid-cols-2 gap-3">
@@ -3601,7 +3606,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-receipt text-green-400"></i> New Estimate
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       <form onsubmit="saveEstimate(event)" class="space-y-4">
@@ -3925,7 +3930,7 @@
           <h3 class="text-lg font-bold text-white">${sale.id}</h3>
           <p class="text-sm text-slate-400">${sale.date || ''} • ${sale.status || ''}</p>
         </div>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       <div class="glass-card rounded-lg p-3 mb-4">
@@ -4169,7 +4174,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-plus-circle text-cyan-400"></i> Add Retailer Pricing
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
       <form onsubmit="saveRetailerPrice(event)" class="space-y-4">
         <div>
@@ -4272,7 +4277,7 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <i class="ph-bold ph-arrows-clockwise text-cyan-400"></i> Bulk Price Update
         </h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
 
       <div class="mb-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
@@ -4554,7 +4559,7 @@
     <div class="p-6">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-lg font-bold text-white">Quick Add</h3>
-        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+        <button onclick="closeModal()" aria-label="Close dialog" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <button onclick="closeModal();openAddPartModal()" class="glass-card rounded-xl p-6 text-center hover:border-blue-500/30 transition-all cursor-pointer">
@@ -4758,6 +4763,7 @@
       if (track) {
         if (theme === 'light') track.classList.add('on');
         else track.classList.remove('on');
+        track.setAttribute('aria-checked', theme === 'light');
       }
     }
 
@@ -4803,7 +4809,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <i class="ph ph-moon text-slate-400 text-sm"></i>
-                  <button id="themeTrack" class="toggle-track ${currentTheme === 'light' ? 'on' : ''}" onclick="toggleTheme()">
+                  <button id="themeTrack" role="switch" aria-checked="${currentTheme === 'light'}" aria-label="Dark or light mode" class="toggle-track ${currentTheme === 'light' ? 'on' : ''}" onclick="toggleTheme()">
                     <div class="toggle-thumb"></div>
                   </button>
                   <i class="ph ph-sun text-amber-400 text-sm"></i>
@@ -4814,7 +4820,7 @@
                   <p class="text-sm font-medium text-white">Compact Table Rows</p>
                   <p class="text-xs text-slate-400 mt-0.5">Reduce row padding for more data density</p>
                 </div>
-                <button id="compactTrack" class="toggle-track ${settings.compactTables ? 'on' : ''}" onclick="toggleSetting('compactTables','compactTrack')">
+                <button id="compactTrack" role="switch" aria-checked="${!!settings.compactTables}" aria-label="Compact table rows" class="toggle-track ${settings.compactTables ? 'on' : ''}" onclick="toggleSetting('compactTables','compactTrack')">
                   <div class="toggle-thumb"></div>
                 </button>
               </div>
@@ -4823,7 +4829,7 @@
                   <p class="text-sm font-medium text-white">Low-Stock Notifications</p>
                   <p class="text-xs text-slate-400 mt-0.5">Show alert toasts on app load</p>
                 </div>
-                <button id="notifsTrack" class="toggle-track ${settings.notifications !== false ? 'on' : ''}" onclick="toggleSetting('notifications','notifsTrack')">
+                <button id="notifsTrack" role="switch" aria-checked="${settings.notifications !== false}" aria-label="Low-stock notifications" class="toggle-track ${settings.notifications !== false ? 'on' : ''}" onclick="toggleSetting('notifications','notifsTrack')">
                   <div class="toggle-thumb"></div>
                 </button>
               </div>
@@ -4832,7 +4838,7 @@
                   <p class="text-sm font-medium text-white">Auto-load Competitor Prices</p>
                   <p class="text-xs text-slate-400 mt-0.5">Fetch prices when opening part detail</p>
                 </div>
-                <button id="autoPricesTrack" class="toggle-track ${settings.autoPrices ? 'on' : ''}" onclick="toggleSetting('autoPrices','autoPricesTrack')">
+                <button id="autoPricesTrack" role="switch" aria-checked="${!!settings.autoPrices}" aria-label="Auto-load competitor prices" class="toggle-track ${settings.autoPrices ? 'on' : ''}" onclick="toggleSetting('autoPrices','autoPricesTrack')">
                   <div class="toggle-thumb"></div>
                 </button>
               </div>
@@ -5203,7 +5209,7 @@
       s[key] = !s[key];
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
       const el = document.getElementById(trackId);
-      if (el) { if (s[key]) el.classList.add('on'); else el.classList.remove('on'); }
+      if (el) { if (s[key]) el.classList.add('on'); else el.classList.remove('on'); el.setAttribute('aria-checked', !!s[key]); }
       const label = key.replace(/([A-Z])/g, ' $1').toLowerCase();
       showToast(label.charAt(0).toUpperCase() + label.slice(1) + ' ' + (s[key] ? 'enabled' : 'disabled'), 'info');
     }
