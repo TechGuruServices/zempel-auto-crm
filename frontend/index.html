@@ -831,6 +831,18 @@
     /* Single notification indicator — count pill (one indicator only, no red dot + number) */
     #notifBadge{position:absolute;top:4px;right:4px;min-width:18px;height:18px;padding:0 5px;background:#ef4444;border-radius:9999px;color:#fff;font-size:10px;font-weight:700;line-height:18px;text-align:center;box-shadow:0 0 0 2px #0f172a;}
     #notifBadge.hidden{display:none;}
+    /* Sleek inventory filter bar */
+    .inv-filter-bar{border-radius:18px;padding:10px 12px;margin-bottom:16px;}
+    .inv-filter-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+    .inv-filter-select{flex:1 1 0;min-width:92px;padding:9px 10px;border-radius:12px;font-size:13px;font-weight:500;}
+    .inv-export-group{display:flex;gap:8px;margin-left:auto;}
+    .inv-export-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:12px;font-size:13px;font-weight:600;color:#cbd5e1;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.18);transition:transform .15s,background .15s;cursor:pointer;}
+    .inv-export-btn:active{transform:scale(.96);background:rgba(148,163,184,.15);}
+    /* Sleek modern mobile search */
+    .mobile-search-wrap{position:relative;}
+    .mobile-search-icon{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:#7d8aa5;font-size:17px;pointer-events:none;}
+    .mobile-search-input{width:100%;height:44px;padding:0 16px 0 42px;border-radius:999px;font-size:16px;color:#fff;outline:none;background:rgba(26,36,56,.72);border:1px solid rgba(96,116,152,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:border-color .2s,box-shadow .2s;}
+    .mobile-search-input:focus{border-color:rgba(59,130,246,.8);box-shadow:0 0 0 3px rgba(59,130,246,.16);}
     /* ═══════════════════════════════════════════════════════════════════════
        PARTSCOMMAND — Premium UI layer v3.8.0
        Ambient gradients · gradient page titles · premium nav · sheen sweeps
@@ -1117,12 +1129,11 @@
           </button>
         </div>
         <div class="lg:hidden mt-2.5">
-          <div class="relative">
-            <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none"></i>
-            <input type="text" id="globalSearchMobile" aria-label="Search"
-              class="w-full h-12 pl-11 pr-4 rounded-2xl text-[16px] text-white placeholder-slate-400 outline-none"
-              style="background:#1a2438;border:1px solid #2b3a55;"
-              oninput="globalSearchHandler(this.value)" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#2b3a55'">
+          <div class="mobile-search-wrap">
+            <i class="ph-bold ph-magnifying-glass mobile-search-icon"></i>
+            <input type="text" id="globalSearchMobile" aria-label="Search" autocomplete="off"
+              class="mobile-search-input"
+              oninput="globalSearchHandler(this.value)">
           </div>
           <div id="syncBadgeSlotMobile" class="sm:hidden mt-2 flex items-center"></div>
         </div>
@@ -1812,27 +1823,27 @@
       </div>
 
       <!-- Filters -->
-      <div class="glass-card rounded-xl p-4 mb-4">
-        <div class="flex flex-wrap gap-2">
-          <select id="catFilter" onchange="filterInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-white">
+      <div class="glass-card inv-filter-bar">
+        <div class="inv-filter-row">
+          <select id="catFilter" onchange="filterInventory()" class="glass-input inv-filter-select" aria-label="Filter by category">
             <option value="">All Categories</option>
             ${categories.map(c => `<option value="${c}">${c}</option>`).join('')}
           </select>
-          <select id="supplierFilter" onchange="filterInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-white">
+          <select id="supplierFilter" onchange="filterInventory()" class="glass-input inv-filter-select" aria-label="Filter by supplier">
             <option value="">All Suppliers</option>
             ${suppliers.map(s => `<option value="${s}">${s}</option>`).join('')}
           </select>
-          <select id="stockFilter" onchange="filterInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-white">
+          <select id="stockFilter" onchange="filterInventory()" class="glass-input inv-filter-select" aria-label="Filter by stock">
             <option value="">All Stock</option>
             <option value="low">Low Stock</option>
             <option value="ok">In Stock</option>
           </select>
-          <div class="ml-auto flex gap-2">
-            <button onclick="exportInventoryPDF()" class="glass-input px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-1">
-              <i class="ph ph-file-pdf"></i> PDF
+          <div class="inv-export-group">
+            <button onclick="exportInventoryPDF()" class="inv-export-btn" aria-label="Export inventory PDF">
+              <i class="ph ph-file-pdf"></i><span>PDF</span>
             </button>
-            <button onclick="exportInventory()" class="glass-input px-3 py-2 rounded-lg text-sm text-slate-300 hover:text-white flex items-center gap-1" title="Export CSV">
-              <i class="ph ph-file-csv"></i> CSV
+            <button onclick="exportInventory()" class="inv-export-btn" aria-label="Export inventory CSV" title="Export CSV">
+              <i class="ph ph-file-csv"></i><span>CSV</span>
             </button>
           </div>
         </div>
