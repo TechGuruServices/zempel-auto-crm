@@ -296,15 +296,15 @@
     }
 
     /* Tap hint */
-    .metric-card::after {
+    .metric-card[data-linked]::after {
       content: "Tap to view \203A";
       position: absolute; right: 14px; bottom: 10px;
       font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
       color: rgba(148,163,184,0.55);
       transition: color var(--duration-fast), transform var(--duration-fast);
     }
-    .metric-card:hover::after { color: rgba(203,213,225,0.9); transform: translateX(2px); }
-    @media (hover: none) { .metric-card::after { color: rgba(148,163,184,0.7); } }
+    .metric-card[data-linked]:hover::after { color: rgba(203,213,225,0.9); transform: translateX(2px); }
+    @media (hover: none) { .metric-card[data-linked]::after { color: rgba(148,163,184,0.7); } }
 
     /* ══════════════════════════════════════════════════════════════════════
        GLASS-FROST — shared true-glass panel (analytics & dashboard widgets)
@@ -1398,6 +1398,7 @@
     // ==================== NAVIGATION ====================
     function navigate(view) {
       currentView = view;
+      window.currentView = view; // exposed for dashboard-analytics guard
       document.querySelectorAll('.nav-item, .mobile-nav-btn, .mobile-nav-item').forEach(el => {
         el.classList.remove('active', 'text-white');
         el.classList.add('text-slate-400');
@@ -4950,7 +4951,7 @@
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-3 text-sm">
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Application</span><span class="text-white font-medium">PartsCommand CRM</span></div>
-              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Version</span><span class="text-white font-mono">3.0.0</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Version</span><span class="text-white font-mono">3.7.0</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Built for</span><span class="text-white">Zempel Auto</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Backend</span><span class="text-white font-mono text-xs">Cloudflare Workers</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Database</span><span class="text-white font-mono text-xs">Neon PostgreSQL</span></div>

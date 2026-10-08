@@ -102,11 +102,11 @@
   function renderAnalytics() {
     // Find dashboard element
     var dash = document.getElementById('mainContent');
-    // Only inject on the dashboard view — never on other pages
+    // Only inject on the dashboard view — never on other pages (Settings About cards use .metric-card too)
     if (!dash || document.getElementById('pc-analytics')) return;
-    if (typeof window.currentView !== 'undefined' && window.currentView !== 'dashboard') return;
-    // Verify we're actually looking at dashboard content (metric cards present)
-    if (!dash.querySelector('.metric-card')) return;
+    if (window.currentView !== 'dashboard') return;
+    // Verify dashboard-specific content: cards enhanced by dashboard-links.js
+    if (!dash.querySelector('.metric-card[data-linked]')) return;
 
     var a = computeAnalytics();
     if (a.weeks.values.every(function (v) { return v === 0; }) && a.topParts.length === 0) return;
