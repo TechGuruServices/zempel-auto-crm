@@ -210,50 +210,123 @@
       background: rgba(30, 41, 59, 0.4);
     }
 
-    /* ══════════════════════════════════════════════════════════════════════
-       METRIC CARDS — Dashboard stat cards with gradient top accent
+        /* ══════════════════════════════════════════════════════════════════════
+       METRIC CARDS — True Apple-style frosted glass
        ══════════════════════════════════════════════════════════════════════ */
     .metric-card {
       position: relative;
       overflow: hidden;
+      cursor: pointer;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 20px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        0 8px 32px rgba(0,0,0,0.35);
       transition: transform var(--duration-normal) var(--spring),
                   box-shadow var(--duration-normal) var(--ease-smooth),
-                  border-color var(--duration-normal) var(--ease-smooth);
+                  border-color var(--duration-normal) var(--ease-smooth),
+                  background var(--duration-normal) var(--ease-smooth);
     }
 
+    /* Glowing color accent bar across the top edge */
     .metric-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 3px;
-      border-radius: var(--radius-card) var(--radius-card) 0 0;
+      border-radius: 20px 20px 0 0;
+      z-index: 1;
     }
-
-    .metric-card.blue::before  { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
-    .metric-card.amber::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
-    .metric-card.green::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
-    .metric-card.purple::before{ background: linear-gradient(90deg, #8b5cf6, #3b82f6); }
+    .metric-card.blue::before   { background: linear-gradient(90deg, #3b82f6, #06b6d4); box-shadow: 0 0 14px rgba(59,130,246,0.8); }
+    .metric-card.amber::before  { background: linear-gradient(90deg, #f59e0b, #ef4444); box-shadow: 0 0 14px rgba(245,158,11,0.8); }
+    .metric-card.green::before  { background: linear-gradient(90deg, #10b981, #06b6d4); box-shadow: 0 0 14px rgba(16,185,129,0.8); }
+    .metric-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #3b82f6); box-shadow: 0 0 14px rgba(139,92,246,0.8); }
 
     .metric-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3);
+      transform: translateY(-4px);
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.07) 100%);
+      border-color: rgba(255,255,255,0.35);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.35),
+        0 16px 40px rgba(0,0,0,0.45);
     }
+    .metric-card.blue:hover   { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 16px 40px rgba(0,0,0,0.45), 0 0 30px rgba(59,130,246,0.4); }
+    .metric-card.amber:hover  { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 16px 40px rgba(0,0,0,0.45), 0 0 30px rgba(245,158,11,0.4); }
+    .metric-card.green:hover  { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 16px 40px rgba(0,0,0,0.45), 0 0 30px rgba(16,185,129,0.4); }
+    .metric-card.purple:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 16px 40px rgba(0,0,0,0.45), 0 0 30px rgba(139,92,246,0.4); }
 
     .metric-card:active {
-      transform: translateY(0) scale(0.98);
+      transform: translateY(-1px) scale(0.97);
       transition-duration: 0.1s;
     }
 
-    /* Tap hint — only visible on touch devices */
+    /* Frosted circular icon badge */
+    .mc-icon-badge {
+      width: 48px; height: 48px;
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.06) 100%);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 4px 14px rgba(0,0,0,0.3);
+    }
+    .mc-icon-badge.blue i   { color: #8ab8ff; text-shadow: 0 0 14px rgba(59,130,246,0.8); }
+    .mc-icon-badge.amber i  { color: #fcd34d; text-shadow: 0 0 14px rgba(245,158,11,0.8); }
+    .mc-icon-badge.green i  { color: #6ee7b7; text-shadow: 0 0 14px rgba(16,185,129,0.8); }
+    .mc-icon-badge.purple i { color: #c4b5fd; text-shadow: 0 0 14px rgba(139,92,246,0.8); }
+
+    /* Card typography */
+    .mc-value {
+      font-size: 2rem; font-weight: 800; color: #ffffff;
+      line-height: 1.1; letter-spacing: -0.02em;
+      text-shadow: 0 2px 14px rgba(0,0,0,0.35);
+    }
+    .mc-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.14em;
+      color: rgba(203,213,225,0.8);
+    }
+    .mc-sub {
+      font-size: 12px; color: rgba(148,163,184,0.95); margin-top: 2px;
+    }
+
+    /* Tap hint */
     .metric-card::after {
-      content: "›";
+      content: "Tap to view \203A";
       position: absolute; right: 14px; bottom: 10px;
-      font-size: 18px; color: rgba(100, 116, 139, 0.4);
-      font-weight: 300;
+      font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+      color: rgba(148,163,184,0.55);
       transition: color var(--duration-fast), transform var(--duration-fast);
     }
-    .metric-card:hover::after { color: rgba(100, 116, 139, 0.8); transform: translateX(2px); }
-    @media (hover: none) { .metric-card::after { color: rgba(100, 116, 139, 0.5); } }
+    .metric-card:hover::after { color: rgba(203,213,225,0.9); transform: translateX(2px); }
+    @media (hover: none) { .metric-card::after { color: rgba(148,163,184,0.7); } }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       GLASS-FROST — shared true-glass panel (analytics & dashboard widgets)
+       ══════════════════════════════════════════════════════════════════════ */
+    .glass-frost {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.03) 100%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 20px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.22),
+        0 8px 32px rgba(0,0,0,0.35);
+    }
+    .glass-frost::before {
+      content: '';
+      position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      pointer-events: none;
+    }
 
     /* ══════════════════════════════════════════════════════════════════════
        TABLE ROWS
@@ -804,7 +877,7 @@
       </div>
 
       <nav class="flex-1 py-4 overflow-y-auto">
-        <div class="px-4 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Main</div>
+        <div class="px-4 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Overview</div>
         <a href="#" onclick="navigate('dashboard')"
           class="nav-item active flex items-center gap-3 px-5 py-3 text-sm text-slate-300" data-nav="dashboard">
           <i class="ph ph-squares-four text-lg"></i> Dashboard
@@ -965,7 +1038,7 @@
         </p>
       </div>
       <nav class="flex-1 overflow-y-auto px-3 pb-6">
-        <div class="px-1 mb-2 mt-2 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Main</div>
+        <div class="px-1 mb-2 mt-2 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">Overview</div>
         <a href="#" onclick="navigate('dashboard');toggleMobileNav()"
           class="flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 rounded-lg">
           <i class="ph ph-squares-four text-lg"></i> Dashboard
@@ -1484,37 +1557,37 @@
 
       <!-- Metrics Grid -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-        <div class="metric-card blue glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
-          <div class="flex items-center justify-between mb-2">
-            <i class="ph ph-package text-blue-400 text-xl"></i>
-            <span class="text-[10px] text-slate-500 font-mono">INVENTORY</span>
+        <div class="metric-card blue p-5 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div class="mc-icon-badge blue"><i class="ph-bold ph-package text-2xl"></i></div>
+            <span class="mc-label font-mono pt-2">INVENTORY</span>
           </div>
-          <p class="text-2xl font-bold text-white">${totalInventory}</p>
-          <p class="text-xs text-slate-400 mt-1">total units in stock</p>
+          <p class="mc-value">${totalInventory}</p>
+          <p class="mc-sub">total units in stock</p>
         </div>
-        <div class="metric-card amber glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
-          <div class="flex items-center justify-between mb-2">
-            <i class="ph ph-warning text-amber-400 text-xl"></i>
-            <span class="text-[10px] text-slate-500 font-mono">LOW STOCK</span>
+        <div class="metric-card amber p-5 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div class="mc-icon-badge amber"><i class="ph-bold ph-warning text-2xl"></i></div>
+            <span class="mc-label font-mono pt-2">LOW STOCK</span>
           </div>
-          <p class="text-2xl font-bold text-white">${lowStockItems.length}</p>
-          <p class="text-xs text-slate-400 mt-1">items below minimum</p>
+          <p class="mc-value">${lowStockItems.length}</p>
+          <p class="mc-sub">items below minimum</p>
         </div>
-        <div class="metric-card green glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
-          <div class="flex items-center justify-between mb-2">
-            <i class="ph ph-currency-dollar text-green-400 text-xl"></i>
-            <span class="text-[10px] text-slate-500 font-mono">REVENUE</span>
+        <div class="metric-card green p-5 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div class="mc-icon-badge green"><i class="ph-bold ph-currency-dollar text-2xl"></i></div>
+            <span class="mc-label font-mono pt-2">REVENUE</span>
           </div>
-          <p class="text-2xl font-bold text-white">$${totalSales.toLocaleString()}</p>
-          <p class="text-xs text-slate-400 mt-1">all-time sales</p>
+          <p class="mc-value">$${totalSales.toLocaleString()}</p>
+          <p class="mc-sub">all-time sales</p>
         </div>
-        <div class="metric-card purple glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
-          <div class="flex items-center justify-between mb-2">
-            <i class="ph ph-trend-up text-purple-400 text-xl"></i>
-            <span class="text-[10px] text-slate-500 font-mono">AVG MARGIN</span>
+        <div class="metric-card purple p-5 cursor-pointer">
+          <div class="flex items-start justify-between mb-4">
+            <div class="mc-icon-badge purple"><i class="ph-bold ph-trend-up text-2xl"></i></div>
+            <span class="mc-label font-mono pt-2">AVG MARGIN</span>
           </div>
-          <p class="text-2xl font-bold text-white">${avgMargin}%</p>
-          <p class="text-xs text-slate-400 mt-1">profit margin</p>
+          <p class="mc-value">${avgMargin}%</p>
+          <p class="mc-sub">profit margin</p>
         </div>
       </div>
 

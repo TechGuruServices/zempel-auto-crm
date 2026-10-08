@@ -80,45 +80,66 @@
     return { weeks: { labels: weekLabels, values: weekValues }, topParts: topParts, busyDays: busyDays };
   }
 
-  function barChart(values, labels, color) {
+  function barChart(values, labels) {
     var max = Math.max.apply(null, values.concat([1]));
     var bars = values.map(function (v, i) {
-      var h = Math.round((v / max) * 60);
+      var h = Math.max(5, Math.round((v / max) * 96));
+      var isMax = v === max && v > 0;
       var title = labels[i] + ': $' + v.toFixed(0);
-      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;" title="' + title + '">' +
-        '<div style="width:100%;max-width:28px;height:' + h + 'px;background:' + color + ';border-radius:4px 4px 0 0;min-height:3px;"></div>' +
-        '<span style="font-size:9px;color:#64748b;">' + labels[i].slice(5) + '</span></div>';
+      var barBg = isMax
+        ? 'linear-gradient(180deg,#7db4ff 0%,#2563eb 100%)'
+        : 'linear-gradient(180deg,rgba(125,180,255,0.9) 0%,rgba(37,99,235,0.5) 100%)';
+      var glow = isMax ? 'box-shadow:0 0 18px rgba(59,130,246,0.6);'
+                       : 'box-shadow:0 0 8px rgba(59,130,246,0.25);';
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;min-width:0;" title="' + title + '">' +
+        '<div style="width:100%;max-width:34px;height:' + h + 'px;background:' + barBg + ';' + glow +
+        'border-radius:8px 8px 3px 3px;border:1px solid rgba(147,197,253,0.35);border-bottom:none;"></div>' +
+        '<span style="font-size:10px;font-weight:600;color:#94a3b8;letter-spacing:0.02em;">' + labels[i].slice(5) + '</span></div>';
     }).join('');
-    return '<div style="display:flex;align-items:flex-end;gap:4px;height:90px;">' + bars + '</div>';
+    return '<div style="display:flex;align-items:flex-end;gap:8px;height:132px;padding:6px 2px 0;">' + bars + '</div>';
   }
 
   function renderAnalytics() {
     // Find dashboard element
-    var dash = document.querySelector('[data-view="dashboard"], #dashboard-view, main');
+    var dash = document.getElementById('mainContent');
+    // Only inject on the dashboard view — never on other pages
     if (!dash || document.getElementById('pc-analytics')) return;
+    if (typeof window.currentView !== 'undefined' && window.currentView !== 'dashboard') return;
+    // Verify we're actually looking at dashboard content (metric cards present)
+    if (!dash.querySelector('.metric-card')) return;
 
     var a = computeAnalytics();
     if (a.weeks.values.every(function (v) { return v === 0; }) && a.topParts.length === 0) return;
 
     var section = document.createElement('div');
     section.id = 'pc-analytics';
-    section.className = 'glass-card rounded-xl p-5 mt-4';
+    section.className = 'glass-frost p-5 md:p-6 mt-4';
     section.innerHTML =
-      '<h3 class="text-sm font-semibold text-white mb-4 flex items-center gap-2">' +
-      '<span>📊</span> Sales Analytics</h3>' +
-      '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">' +
-      '<div><p class="text-xs text-slate-400 mb-2">Revenue — last 8 weeks</p>' +
-      barChart(a.weeks.values, a.weeks.labels, 'linear-gradient(180deg,#3b82f6,#1d4ed8)') + '</div>' +
-      '<div><p class="text-xs text-slate-400 mb-2">Top selling parts</p>' +
+      '<div class="flex items-center gap-3 mb-1">' +
+      '<span class="mc-icon-badge blue" style="width:38px;height:38px;border-radius:12px;">' +
+      '<i class="ph-bold ph-chart-bar text-xl"></i></span>' +
+      '<div><h3 class="text-base font-bold text-white" style="letter-spacing:-0.01em;">Sales Analytics</h3>' +
+      '<p class="text-xs" style="color:rgba(148,163,184,0.9);">Performance at a glance</p></div></div>' +
+      '<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">' +
+      '<div><p class="text-[11px] font-bold mb-3" style="color:#cbd5e1;letter-spacing:0.08em;">REVENUE &middot; LAST 8 WEEKS</p>' +
+      barChart(a.weeks.values, a.weeks.labels) + '</div>' +
+      '<div><p class="text-[11px] font-bold mb-2" style="color:#cbd5e1;letter-spacing:0.08em;">TOP SELLING PARTS</p>' +
       (a.topParts.length ? a.topParts.map(function (p, i) {
-        return '<div class="flex justify-between text-sm py-1.5 border-b border-slate-700/30">' +
-          '<span class="text-slate-300">' + (i + 1) + '. ' + escapeHtml(p.name) + '</span>' +
-          '<span class="text-white font-medium">' + p.qty + ' sold</span></div>';
-      }).join('') : '<p class="text-slate-500 text-sm">No part sales yet</p>') +
+        var medal = ['#fcd34d', '#e2e8f0', '#f59e0b'][i] || '#7d8aa0';
+        return '<div class="flex items-center gap-3 py-2.5" style="border-bottom:1px solid rgba(255,255,255,0.07);">' +
+          '<span style="width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;' +
+          'font-size:11px;font-weight:800;color:#0f172a;background:linear-gradient(135deg,' + medal + ',rgba(255,255,255,0.65));' +
+          'box-shadow:0 2px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.5);">' + (i + 1) + '</span>' +
+          '<span class="text-sm flex-1 truncate" style="color:#e2e8f0;">' + escapeHtml(p.name) + '</span>' +
+          '<span class="text-sm font-bold text-white">' + p.qty +
+          ' <span class="font-normal" style="color:#94a3b8;">sold</span></span></div>';
+      }).join('') : '<p class="text-sm py-4 text-center" style="color:#64748b;">No part sales yet</p>') +
       '</div></div>' +
       (a.busyDays[0] && a.busyDays[0].revenue > 0 ?
-        '<p class="text-xs text-slate-400 mt-4">🔥 Busiest day: <span class="text-white font-medium">' +
-        a.busyDays[0].day + '</span> ($' + a.busyDays[0].revenue.toFixed(0) + ' revenue)</p>' : '');
+        '<div class="mt-4 flex items-center gap-2 text-xs" style="color:#94a3b8;">' +
+        '<i class="ph-bold ph-fire text-base" style="color:#fb923c;text-shadow:0 0 12px rgba(251,146,60,0.7);"></i>' +
+        '<span>Busiest day:</span> <span class="text-white font-semibold">' + a.busyDays[0].day + '</span>' +
+        '<span style="color:#475569;">&middot;</span><span>$' + a.busyDays[0].revenue.toFixed(0) + ' revenue</span></div>' : '');
 
     // Insert after metrics grid
     var metrics = dash.querySelector('.grid');
