@@ -692,6 +692,23 @@
     html.light-mode #rockauto-content h3 { color: #0f172a; }
     html.light-mode .rockauto-empty { color: #64748b; }
     html.light-mode .rockauto-error { color: #dc2626; }
+  
+    /* Dashboard metric cards: tappable affordance */
+    .metric-card { position: relative; }
+    .metric-card::after {
+      content: "Tap to view \203A";
+      position: absolute; right: 12px; bottom: 8px;
+      font-size: 10px; color: #64748b; font-weight: 500;
+      opacity: 0; transition: opacity .2s;
+    }
+    .metric-card:hover::after { opacity: 1; }
+    @media (hover: none) { .metric-card::after { opacity: .8; } }
+    /* 44px minimum touch targets on touch devices */
+    @media (hover: none) {
+      button, .btn-primary, .btn-secondary, a.nav-item, .mobile-nav-btn { min-height: 44px; }
+      .mobile-nav-btn { min-width: 56px; }
+    }
+
   </style>
 
   <script data-cfasync="false">
@@ -845,14 +862,14 @@
       <nav
         class="lg:hidden mobile-nav mobile-nav-safe-bottom fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 flex justify-around items-center py-2 px-1 z-30">
         <button onclick="navigate('dashboard')"
-          class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400" data-nav="dashboard">
+          class="mobile-nav-btn flex flex-col items-center gap-1 p-3 min-w-[56px] min-h-[56px] justify-center text-slate-400" data-nav="dashboard">
           <i class="ph ph-squares-four text-xl"></i>
           <span class="text-[9px] font-medium">Home</span>
         </button>
         <button onclick="navigate('inventory')"
-          class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400" data-nav="inventory">
+          class="mobile-nav-btn flex flex-col items-center gap-1 p-3 min-w-[56px] min-h-[56px] justify-center text-slate-400" data-nav="inventory">
           <i class="ph ph-package text-xl"></i>
-          <span class="text-[9px] font-medium">Parts</span>
+          <span class="text-[9px] font-medium">Inventory</span>
         </button>
         <button onclick="openQuickAdd()" class="flex flex-col items-center justify-center -mt-5" title="Quick Add"
           aria-label="Quick Add">
@@ -862,11 +879,11 @@
           </div>
         </button>
         <button onclick="navigate('customers')"
-          class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400" data-nav="customers">
+          class="mobile-nav-btn flex flex-col items-center gap-1 p-3 min-w-[56px] min-h-[56px] justify-center text-slate-400" data-nav="customers">
           <i class="ph ph-users text-xl"></i>
-          <span class="text-[9px] font-medium">Clients</span>
+          <span class="text-[9px] font-medium">Customers</span>
         </button>
-        <button onclick="navigate('sales')" class="mobile-nav-btn flex flex-col items-center gap-1 p-2 text-slate-400"
+        <button onclick="navigate('sales')" class="mobile-nav-btn flex flex-col items-center gap-1 p-3 min-w-[56px] min-h-[56px] justify-center text-slate-400"
           data-nav="sales">
           <i class="ph ph-receipt text-xl"></i>
           <span class="text-[9px] font-medium">Sales</span>
@@ -1385,7 +1402,7 @@
 
       <!-- Metrics Grid -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6">
-        <div class="metric-card blue glass-card rounded-xl p-4">
+        <div class="metric-card blue glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
           <div class="flex items-center justify-between mb-2">
             <i class="ph ph-package text-blue-400 text-xl"></i>
             <span class="text-[10px] text-slate-500 font-mono">INVENTORY</span>
@@ -1393,7 +1410,7 @@
           <p class="text-2xl font-bold text-white">${totalInventory}</p>
           <p class="text-xs text-slate-400 mt-1">total units in stock</p>
         </div>
-        <div class="metric-card amber glass-card rounded-xl p-4">
+        <div class="metric-card amber glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
           <div class="flex items-center justify-between mb-2">
             <i class="ph ph-warning text-amber-400 text-xl"></i>
             <span class="text-[10px] text-slate-500 font-mono">LOW STOCK</span>
@@ -1401,7 +1418,7 @@
           <p class="text-2xl font-bold text-white">${lowStockItems.length}</p>
           <p class="text-xs text-slate-400 mt-1">items below minimum</p>
         </div>
-        <div class="metric-card green glass-card rounded-xl p-4">
+        <div class="metric-card green glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
           <div class="flex items-center justify-between mb-2">
             <i class="ph ph-currency-dollar text-green-400 text-xl"></i>
             <span class="text-[10px] text-slate-500 font-mono">REVENUE</span>
@@ -1409,7 +1426,7 @@
           <p class="text-2xl font-bold text-white">$${totalSales.toLocaleString()}</p>
           <p class="text-xs text-slate-400 mt-1">all-time sales</p>
         </div>
-        <div class="metric-card purple glass-card rounded-xl p-4">
+        <div class="metric-card purple glass-card rounded-xl p-4 cursor-pointer hover:border-blue-500/40 hover:-translate-y-0.5 transition-all">
           <div class="flex items-center justify-between mb-2">
             <i class="ph ph-trend-up text-purple-400 text-xl"></i>
             <span class="text-[10px] text-slate-500 font-mono">AVG MARGIN</span>
@@ -1570,7 +1587,7 @@
             </tbody>
           </table>
         </div>
-        ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-8">No parts found</p>' : ''}
+        ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-package text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No parts yet</p><p class="text-sm text-slate-500 mb-5">Add your first part to get started</p><button onclick="openAddPartModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Part</button></div>' : ''}
       </div>
     </div>
   `;
@@ -2565,7 +2582,7 @@
           `;
       }).join('')}
       </div>
-      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No customers found</p>' : ''}
+      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-users text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No customers yet</p><p class="text-sm text-slate-500 mb-5">Add your first customer to get started</p><button onclick="openAddCustomerModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Customer</button></div>' : ''}
     </div>
   `;
     }
@@ -2922,7 +2939,7 @@
           `;
       }).join('')}
       </div>
-      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No vehicles found</p>' : ''}
+      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-car text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No vehicles yet</p><p class="text-sm text-slate-500 mb-5">Register your first vehicle to get started</p><button onclick="openAddVehicleModal()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Add Your First Vehicle</button></div>' : ''}
     </div>
   `;
     }
@@ -3203,7 +3220,7 @@
           `;
       }).join('')}
       </div>
-      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No sales records</p>' : ''}
+      ${filtered.length === 0 ? '<div class="text-center py-12"><i class="ph ph-receipt text-5xl text-slate-600 mb-4"></i><p class="text-slate-400 mb-1 font-medium">No sales yet</p><p class="text-sm text-slate-500 mb-5">Create your first sale to get started</p><button onclick="openNewEstimate()" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white"><i class="ph-bold ph-plus"></i> Create Your First Sale</button></div>' : ''}
     </div>
   `;
     }
@@ -5635,6 +5652,7 @@
   <script src="invoice-logo.js" data-cfasync="false"></script>
   <script src="invoices.js" data-cfasync="false"></script>
   <script src="sw_cache_update.js" data-cfasync="false"></script>
+  <script src="notif-badge-fix.js" data-cfasync="false"></script>
 </body>
 
 </html>
