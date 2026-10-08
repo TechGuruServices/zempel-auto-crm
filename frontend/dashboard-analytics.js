@@ -80,7 +80,7 @@
     return { weeks: { labels: weekLabels, values: weekValues }, topParts: topParts, busyDays: busyDays };
   }
 
-  function barChart(values, labels) {
+  function barChart(values, labels, C) {
     var max = Math.max.apply(null, values.concat([1]));
     var bars = values.map(function (v, i) {
       var h = Math.max(5, Math.round((v / max) * 96));
@@ -132,7 +132,7 @@
       '<p class="text-xs" style="color:' + C.sub + ';">Performance at a glance</p></div></div>' +
       '<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">' +
       '<div><p class="text-[11px] font-bold mb-3" style="color:' + C.header + ';letter-spacing:0.08em;">REVENUE &middot; LAST 8 WEEKS</p>' +
-      barChart(a.weeks.values, a.weeks.labels) + '</div>' +
+      barChart(a.weeks.values, a.weeks.labels, C) + '</div>' +
       '<div><p class="text-[11px] font-bold mb-2" style="color:' + C.header + ';letter-spacing:0.08em;">TOP SELLING PARTS</p>' +
       (a.topParts.length ? a.topParts.map(function (p, i) {
         var medal = C.medal[i] || '#7d8aa0';

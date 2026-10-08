@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="/assets/styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
   <script src="/assets/html5-qrcode.min.js" data-cfasync="false"></script>
   <script src="/assets/jspdf.umd.min.js" data-cfasync="false"></script>
   <script src="/assets/jspdf.plugin.autotable.min.js" data-cfasync="false"></script>
@@ -196,6 +199,7 @@
       transition: all var(--duration-normal) var(--ease-smooth);
       position: relative;
       border-radius: 0 8px 8px 0;
+      border-left: 3px solid transparent;
     }
 
     .nav-item.active {
@@ -486,18 +490,9 @@
       border-radius: 8px;
     }
 
-    .header-logo-mobile {
-      height: 32px; width: auto;
-      object-fit: contain;
-    }
-
     /* ══════════════════════════════════════════════════════════════════════
        MOBILE NAVIGATION — Bottom bar safe area + larger tap targets
        ══════════════════════════════════════════════════════════════════════ */
-    .mobile-nav-safe-bottom {
-      padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px);
-    }
-
     @media (max-width: 768px) {
       .mobile-nav {
         padding-bottom: env(safe-area-inset-bottom);
@@ -580,8 +575,8 @@
        ══════════════════════════════════════════════════════════════════════ */
     .animated-techguru {
       background: linear-gradient(to right,
-          #1e3a8a, #581c87, #db2777, #ea580c,
-          #16a34a, #dc2626, #1e3a8a);
+          #60a5fa, #c084fc, #db2777, #ea580c,
+          #16a34a, #dc2626, #60a5fa);
       background-size: 300% 100%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -1666,7 +1661,7 @@
       main.innerHTML = `
     <div class="animate-slide-in">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-white">Search Results</h2>
+        <h2 class="text-2xl font-bold text-white">Search Results</h2>
         <span class="text-sm text-slate-400">${results.length} results for "${escapeHtml(query)}"</span>
       </div>
       <div class="space-y-2">
@@ -4003,7 +3998,7 @@
           <button onclick="closeModal();updateSaleStatus('${pcEscId(sale.id)}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
             <i class="ph-bold ph-check-circle"></i> Complete Sale
           </button>
-          <button onclick="deleteSale('${pcEscId(sale.id)}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
+          <button onclick="deleteSale('${pcEscId(sale.id)}')" aria-label="Delete sale" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
             <i class="ph-bold ph-trash"></i>
           </button>
         ` : ''}
@@ -4789,6 +4784,8 @@
         document.documentElement.classList.remove('light-mode');
       }
       localStorage.setItem('pc_theme', theme);
+      var tc = document.querySelector('meta[name="theme-color"]');
+      if (tc) tc.setAttribute('content', theme === 'light' ? '#f1f5f9' : '#0a0f1a');
       const track = document.getElementById('themeTrack');
       if (track) {
         if (theme === 'light') track.classList.add('on');
@@ -5181,7 +5178,7 @@
                 <p class="text-xs text-slate-400 mt-1">Total Records</p>
               </div>
               <div class="glass-card rounded-xl p-4 text-center metric-card green">
-                <p class="text-2xl font-bold text-white">${Math.round(invValue)}</p>
+                <p class="text-2xl font-bold text-white">${'$'+Math.round(invValue).toLocaleString()}</p>
                 <p class="text-xs text-slate-400 mt-1">Inventory Value</p>
               </div>
               <div class="glass-card rounded-xl p-4 text-center metric-card amber">
@@ -5205,7 +5202,7 @@
             </div>
             <p class="text-xs text-slate-500 text-center mt-5">2026 Zempel Auto. All rights reserved.</p>
 
-            <p class="text-sm text-center mt-2 font-tracking-widest animated-techguru">Powered by TECHGURU</p>
+            <p class="text-sm text-center mt-2 tracking-widest animated-techguru">Powered by TECHGURU</p>
           </div>
 
         </div>
