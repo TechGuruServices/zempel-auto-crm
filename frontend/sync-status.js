@@ -60,8 +60,6 @@
 
   function injectBadge() {
     if (document.getElementById(BADGE_ID)) return;
-    // Find header right-side controls; fall back to body
-    var header = document.querySelector('header');
     var badge = document.createElement('button');
     badge.id = BADGE_ID;
     badge.className = 'pc-sync-badge';
@@ -71,11 +69,17 @@
       if (typeof window.forceSyncCloud === 'function') { window.forceSyncCloud(); }
       else { render(); }
     });
-    if (header) {
-      header.appendChild(badge);
+    // Prefer the dedicated header slots (desktop + mobile); fall back to header/body
+    var slot = document.getElementById('syncBadgeSlot') || document.getElementById('syncBadgeSlotMobile');
+    if (slot) {
+      slot.appendChild(badge);
     } else {
-      badge.style.cssText += ';position:fixed;top:12px;right:12px;z-index:99999;';
-      document.body.appendChild(badge);
+      var header = document.querySelector('header');
+      if (header) { header.appendChild(badge); }
+      else {
+        badge.style.cssText += ';position:fixed;top:12px;right:12px;z-index:99999;';
+        document.body.appendChild(badge);
+      }
     }
     render();
   }

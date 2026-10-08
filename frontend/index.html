@@ -840,39 +840,41 @@
 
       <!-- Top Bar -->
       <header id="appHeader"
-        class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-4 lg:px-6 py-3 sticky-header z-20">
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-2 flex-shrink-0 min-w-0">
-            <button onclick="toggleMobileNav()" class="lg:hidden p-2.5 -ml-2 text-slate-400 hover:text-white flex-shrink-0"
-              title="Open navigation menu" aria-label="Open navigation menu">
-              <i class="ph ph-list text-2xl"></i>
-            </button>
-            <img src="assets/z-auto-9.jpeg" alt="Zempel Auto" class="lg:hidden header-logo-mobile flex-shrink-0" />
-          </div>
-          <div class="relative hidden lg:block flex-none">
+        class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-6 pt-3 pb-3 sticky-header z-20">
+        <div class="flex items-center gap-2">
+          <button onclick="toggleMobileNav()" class="lg:hidden w-11 h-11 -ml-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/60 flex items-center justify-center flex-shrink-0"
+            title="Menu" aria-label="Open navigation menu">
+            <i class="ph-bold ph-list text-2xl"></i>
+          </button>
+          <img src="assets/z-auto-9.jpeg" alt="Zempel Auto" class="lg:hidden h-9 w-auto object-contain flex-shrink-0 rounded" />
+          <div class="relative hidden lg:block flex-none ml-2">
             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
             <input type="text" id="globalSearch" placeholder="Search parts, customers, vehicles..."
               class="glass-input w-80 pl-9 pr-4 py-2 rounded-lg text-sm text-white placeholder-slate-500"
               oninput="globalSearchHandler(this.value)">
           </div>
-          <div class="flex items-center gap-1 flex-shrink-0">
-            <button onclick="openQuickAdd()"
-              class="btn-primary w-11 h-11 rounded-xl text-white flex items-center justify-center flex-shrink-0"
-              title="Quick Add" aria-label="Quick Add">
-              <i class="ph-bold ph-plus text-xl"></i>
-            </button>
-            <button onclick="toggleNotifications()" class="relative w-11 h-11 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors flex items-center justify-center flex-shrink-0"
-              title="Notifications" aria-label="Notifications">
-              <i class="ph ph-bell text-2xl"></i>
-              <span id="notifBadge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-            </button>
-          </div>
+          <div class="flex-1"></div>
+          <div id="syncBadgeSlot" class="hidden sm:flex items-center flex-shrink-0"></div>
+          <button onclick="openQuickAdd()"
+            class="btn-primary w-11 h-11 rounded-xl text-white flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-600/25"
+            title="Quick Add" aria-label="Quick Add">
+            <i class="ph-bold ph-plus text-2xl"></i>
+          </button>
+          <button onclick="toggleNotifications()" class="relative w-11 h-11 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors flex items-center justify-center flex-shrink-0"
+            title="Notifications" aria-label="Notifications">
+            <i class="ph ph-bell text-2xl"></i>
+            <span id="notifBadge" class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
         </div>
-        <div class="relative mt-2.5 lg:hidden">
-          <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"></i>
-          <input type="text" id="globalSearchMobile" placeholder="Search parts, customers, vehicles..."
-            class="glass-input w-full pl-10 pr-4 py-2.5 rounded-xl text-base text-white placeholder-slate-500"
-            oninput="globalSearchHandler(this.value)">
+        <div class="lg:hidden mt-2.5">
+          <div class="relative">
+            <i class="ph-bold ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none"></i>
+            <input type="text" id="globalSearchMobile" placeholder="Search parts, customers, vehicles..."
+              class="w-full h-12 pl-11 pr-4 rounded-2xl text-[16px] text-white placeholder-slate-400 outline-none"
+              style="background:#1a2438;border:1px solid #2b3a55;"
+              oninput="globalSearchHandler(this.value)" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#2b3a55'">
+          </div>
+          <div id="syncBadgeSlotMobile" class="sm:hidden mt-2 flex items-center"></div>
         </div>
       </header>
 
