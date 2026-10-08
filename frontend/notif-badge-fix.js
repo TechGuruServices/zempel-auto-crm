@@ -49,9 +49,7 @@
         badge.classList.remove('hidden');
         // Show count if badge supports it
         var total = counts.lowStock.length + counts.pendingSales.length;
-        if (badge.textContent.trim() === '' || !isNaN(parseInt(badge.textContent))) {
-          badge.textContent = total > 9 ? '9+' : total;
-        }
+        badge.textContent = total > 9 ? '9+' : total;
       } else {
         badge.classList.add('hidden');
       }

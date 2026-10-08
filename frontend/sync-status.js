@@ -69,8 +69,12 @@
       if (typeof window.forceSyncCloud === 'function') { window.forceSyncCloud(); }
       else { render(); }
     });
-    // Prefer the dedicated header slots (desktop + mobile); fall back to header/body
-    var slot = document.getElementById('syncBadgeSlot') || document.getElementById('syncBadgeSlotMobile');
+    // Pick the slot by viewport: the desktop slot is display:none below 640px,
+    // so existence alone is not enough (badge was invisible on all phones).
+    var isMobile = window.matchMedia && window.matchMedia('(max-width: 639px)').matches;
+    var slot = isMobile
+      ? (document.getElementById('syncBadgeSlotMobile') || document.getElementById('syncBadgeSlot'))
+      : (document.getElementById('syncBadgeSlot') || document.getElementById('syncBadgeSlotMobile'));
     if (slot) {
       slot.appendChild(badge);
     } else {
@@ -97,7 +101,10 @@
       '.pc-sync-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}',
       '.pc-sync-pending .pc-sync-dot,.pc-sync-offline .pc-sync-dot{animation:pc-pulse 1.6s infinite;}',
       '@keyframes pc-pulse{0%,100%{opacity:1}50%{opacity:.35}}',
-      '@media(max-width:640px){.pc-sync-badge{font-size:10px;padding:4px 8px;}}'
+      '@media(max-width:640px){.pc-sync-badge{font-size:10px;padding:4px 8px;}}',
+      'html.light-mode .pc-sync-badge{background:rgba(255,255,255,.9);color:#334155;',
+      'border-color:rgba(100,116,139,.3);}',
+      'html.light-mode .pc-sync-badge:hover{background:rgba(241,245,249,.95);}'
     ].join('');
     document.head.appendChild(s);
   }

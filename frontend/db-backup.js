@@ -67,10 +67,10 @@
 
   // Try to inject when settings view renders
   var observer = new MutationObserver(function () {
-    if (!document.getElementById('pc-backup-btn')) {
-      clearTimeout(window._pcBackupT);
-      window._pcBackupT = setTimeout(injectButton, 800);
-    }
+    // Always re-run: injectButton() injects on Settings AND removes strays
+    // on every other view (fixes leak when navigating away from Settings).
+    clearTimeout(window._pcBackupT);
+    window._pcBackupT = setTimeout(injectButton, 800);
   });
 
   function boot() {

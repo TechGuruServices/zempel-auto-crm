@@ -126,7 +126,7 @@
       '<div class="flex items-center justify-between mb-5">' +
       '<h3 class="text-lg font-bold text-white">✏️ Edit Sale</h3>' +
       '<button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><span class="text-xl">✕</span></button></div>' +
-      '<form onsubmit="pcSaveSaleEdit(event, \'' + s.id + '\')" class="space-y-4">' +
+      '<form onsubmit="pcSaveSaleEdit(event, \'' + escId(s.id) + '\')" class="space-y-4">' +
       '<div class="grid grid-cols-2 gap-3">' +
       '<div><label class="text-xs text-slate-400 mb-1 block">Customer</label>' +
       '<select name="customerId" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">' +

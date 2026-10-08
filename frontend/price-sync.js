@@ -97,9 +97,12 @@
   // ── Per-row refresh in comparison table ──
   function addRowRefreshButtons() {
     var observer = new MutationObserver(function () {
-      // Find comparison table rows
-      var table = document.querySelector('table');
-      if (!table || !document.body.textContent.includes('Price Comparison')) return;
+      // Only on the Price Comparison view: the sidebar/mobile nav always
+      // contain the string "Price Comparison", so gate on the view key and
+      // scope to the main content table.
+      if (window.currentView !== 'comparison') return;
+      var table = document.querySelector('#mainContent table');
+      if (!table) return;
       var rows = table.querySelectorAll('tbody tr');
       rows.forEach(function (row) {
         if (row.dataset.refreshBtn) return;

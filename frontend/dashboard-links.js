@@ -16,10 +16,10 @@
 
       cards.forEach(function (card) {
         if (!card.querySelector('.mc-value')) return; // dashboard metric cards only
+        var label = card.querySelector('.font-mono');
+        if (!label) return; // never show "Tap to view" without a click handler
         card.dataset.linked = '1';
         card.style.cursor = 'pointer';
-        var label = card.querySelector('.font-mono');
-        if (!label) return;
         var text = label.textContent.trim().toUpperCase();
 
         card.addEventListener('click', function () {
