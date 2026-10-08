@@ -181,9 +181,9 @@ function renderInvoices(el) {
         </div>
       </div>
 
-      <div class="flex flex-wrap gap-2 mb-4">
+      <div class="seg mb-4" role="tablist" aria-label="Filter invoices by status">
         ${['all', 'draft', 'sent', 'paid', 'overdue', 'void'].map(f => `
-          <button onclick="_invSetFilter('${f}')" class="px-3 py-1.5 rounded-full text-xs font-semibold capitalize ${statusFilter === f ? 'bg-blue-500 text-white' : 'glass-input text-slate-300'}">${f}</button>
+          <button onclick="_invSetFilter('${f}')" class="seg-btn${statusFilter === f ? ' active' : ''}" role="tab" aria-selected="${statusFilter === f}">${f}</button>
         `).join('')}
       </div>
 

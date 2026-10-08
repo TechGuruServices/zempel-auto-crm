@@ -1,11 +1,11 @@
 /**
- * PartsCommand CRM — Service Worker v3.8.0
+ * PartsCommand CRM — Service Worker v3.4.0
  * Offline-first. API calls are network-only; app shell + core JS are
  * network-first (see NETWORK_FIRST_PATHS) so deploys are picked up
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.8.0'; // bumped 2026-10-08: Full UI redesign upgrade (Apple-style glassmorphism, responsive tablet/mobile layouts)
+const CACHE_NAME = 'partscommand-v3.7.0'; // bumped 2026-10: UI refresh (glass design system, new dashboard, tablet rail, self-hosted Inter)
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
@@ -16,6 +16,10 @@ const PRECACHE_CORE = [
   '/assets/jspdf.plugin.autotable.min.js',
   '/assets/html5-qrcode.min.js',
   '/assets/styles.css',
+  '/assets/ui-refresh.css',
+  '/assets/ui-refresh.js',
+  '/assets/fonts/inter-var.woff2',
+  '/assets/fonts/jetbrains-mono-var.woff2',
 ];
 
 // App shell HTML + core logic files that must never be served stale.
@@ -29,6 +33,8 @@ const NETWORK_FIRST_PATHS = [
   '/invoices.js',
   '/invoice-logo.js',
   '/sw_cache_update.js',
+  '/assets/ui-refresh.css',
+  '/assets/ui-refresh.js',
 ];
 
 const PRECACHE_OPTIONAL = [];

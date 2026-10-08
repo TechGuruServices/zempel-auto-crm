@@ -108,10 +108,8 @@
       clearTimeout(window._pcPushT);
       window._pcPushT = setTimeout(function () {
         if (document.getElementById('pc-push-toggle')) return;
-        // index.html has no data-view attributes: gate on the real view key
-        // and anchor to the settings render root instead.
-        if (window.currentView !== 'settings') return;
-        var settingsView = document.getElementById('mainContent');
+        // Find settings notifications section or general settings
+        var settingsView = document.querySelector('[data-view="settings"]');
         if (!settingsView) return;
 
         var toggle = document.createElement('div');

@@ -19,8 +19,7 @@
     var db = getDB();
     var items = db.inventory || [];
     // Apply current search filter if set
-    var searchInput = document.getElementById('globalSearchMobile');
-    if (!searchInput || !searchInput.offsetParent) searchInput = document.getElementById('globalSearch');
+    var searchInput = document.querySelector('input[placeholder*="earch"]');
     var q = searchInput ? searchInput.value.toLowerCase() : '';
     if (q) items = items.filter(function (i) {
       return (i.name + ' ' + i.partNumber + ' ' + (i.brand || '')).toLowerCase().indexOf(q) !== -1;

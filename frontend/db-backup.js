@@ -37,13 +37,6 @@
   }
 
   function injectButton() {
-    // Settings-only: never inject on Inventory or any other view.
-    // Also clean up a button that was injected before this guard existed.
-    if (window.currentView && window.currentView !== 'settings') {
-      var stray = document.getElementById('pc-backup-btn');
-      if (stray && stray.parentNode) stray.parentNode.removeChild(stray);
-      return;
-    }
     // Find settings export section; add backup button if not present
     if (document.getElementById('pc-backup-btn')) return;
     var settingsBtns = document.querySelectorAll('button[onclick*="export"]');
@@ -67,10 +60,10 @@
 
   // Try to inject when settings view renders
   var observer = new MutationObserver(function () {
-    // Always re-run: injectButton() injects on Settings AND removes strays
-    // on every other view (fixes leak when navigating away from Settings).
-    clearTimeout(window._pcBackupT);
-    window._pcBackupT = setTimeout(injectButton, 800);
+    if (!document.getElementById('pc-backup-btn')) {
+      clearTimeout(window._pcBackupT);
+      window._pcBackupT = setTimeout(injectButton, 800);
+    }
   });
 
   function boot() {
