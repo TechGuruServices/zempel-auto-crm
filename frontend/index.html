@@ -30,247 +30,397 @@
     }
   </script>
   <style>
+    /* ═══════════════════════════════════════════════════════════════════════
+       ZEMPEL AUTO — PartsCommand CRM  ·  Premium UI System
+       Apple-inspired glassmorphism · Smooth spring animations · Tablet-first
+       ═══════════════════════════════════════════════════════════════════════ */
+
     * {
       -webkit-tap-highlight-color: transparent;
       box-sizing: border-box;
     }
 
+    :root {
+      --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro',
+        Menlo, Monaco, Consolas, 'Courier New', monospace;
+      /* Brand palette tokens */
+      --brand-blue: #3b82f6;
+      --brand-cyan: #06b6d4;
+      --brand-surface: rgba(15, 23, 42, 0.65);
+      --brand-surface-hover: rgba(30, 41, 59, 0.75);
+      --brand-border: rgba(51, 65, 85, 0.4);
+      --brand-border-hover: rgba(59, 130, 246, 0.35);
+      --glass-blur: 20px;
+      --radius-card: 16px;
+      --radius-btn: 12px;
+      --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+      --duration-fast: 0.18s;
+      --duration-normal: 0.28s;
+    }
+
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font-sans);
       background: #0a0f1a;
       color: #e2e8f0;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
+    .font-mono, code, pre { font-family: var(--font-mono); }
 
-    ::-webkit-scrollbar-track {
-      background: #172033;
-    }
+    /* ── Scrollbar ─────────────────────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.6); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(71, 85, 105, 0.8); }
 
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 3px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-
+    /* ══════════════════════════════════════════════════════════════════════
+       GLASSMORPHISM CARDS — Apple-style frosted panels
+       ══════════════════════════════════════════════════════════════════════ */
     .glass-card {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-      -webkit-backdrop-filter: blur(12px);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(51, 65, 85, 0.5);
+      background: linear-gradient(
+        135deg,
+        rgba(30, 41, 59, 0.55) 0%,
+        rgba(15, 23, 42, 0.7) 100%
+      );
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      backdrop-filter: blur(var(--glass-blur));
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-card);
+      transition:
+        border-color var(--duration-normal) var(--ease-smooth),
+        box-shadow var(--duration-normal) var(--ease-smooth),
+        transform var(--duration-normal) var(--ease-smooth);
     }
 
+    .glass-card:hover {
+      border-color: var(--brand-border-hover);
+    }
+
+    /* ── Glass Inputs ──────────────────────────────────────────────────── */
     .glass-input {
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(51, 65, 85, 0.6);
-      transition: all 0.2s ease;
+      background: rgba(10, 15, 26, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      border-radius: var(--radius-btn);
+      transition: border-color var(--duration-fast) var(--ease-smooth),
+                  box-shadow var(--duration-fast) var(--ease-smooth);
     }
 
     .glass-input:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      border-color: var(--brand-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
       outline: none;
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       BUTTONS — Haptic-style press with gradient sheen
+       ══════════════════════════════════════════════════════════════════════ */
     .btn-primary {
-      background: linear-gradient(135deg, #3b82f6, #2563eb);
-      transition: all 0.2s ease;
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+      border-radius: var(--radius-btn);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all var(--duration-fast) var(--ease-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity var(--duration-fast);
     }
 
     .btn-primary:hover {
-      background: linear-gradient(135deg, #60a5fa, #3b82f6);
       transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.15);
     }
 
+    .btn-primary:hover::after { opacity: 1; }
+
     .btn-primary:active {
-      transform: translateY(0);
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 1px 4px rgba(37, 99, 235, 0.2);
+      transition-duration: 0.08s;
     }
 
     .btn-amber {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      transition: all 0.2s ease;
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+      border-radius: var(--radius-btn);
+      box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transition: all var(--duration-fast) var(--ease-smooth);
+      position: relative;
+      overflow: hidden;
     }
 
     .btn-amber:hover {
-      background: linear-gradient(135deg, #fbbf24, #f59e0b);
       transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.35);
+    }
+
+    .btn-amber:active {
+      transform: translateY(0) scale(0.98);
+      transition-duration: 0.08s;
     }
 
     .btn-danger {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      transition: all 0.2s ease;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+      border-radius: var(--radius-btn);
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+      transition: all var(--duration-fast) var(--ease-smooth);
     }
 
+    .btn-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-danger:active {
+      transform: translateY(0) scale(0.98);
+      transition-duration: 0.08s;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       NAVIGATION — Sidebar + Mobile
+       ══════════════════════════════════════════════════════════════════════ */
     .nav-item {
-      transition: all 0.2s ease;
+      transition: all var(--duration-normal) var(--ease-smooth);
       position: relative;
+      border-radius: 0 8px 8px 0;
     }
 
     .nav-item.active {
-      background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
-      border-left: 3px solid #3b82f6;
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.12) 0%, transparent 100%);
+      border-left: 3px solid var(--brand-blue);
+      color: #fff !important;
     }
+
+    .nav-item.active i { color: var(--brand-blue) !important; }
 
     .nav-item:hover:not(.active) {
-      background: rgba(30, 41, 59, 0.5);
+      background: rgba(30, 41, 59, 0.4);
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       METRIC CARDS — Dashboard stat cards with gradient top accent
+       ══════════════════════════════════════════════════════════════════════ */
     .metric-card {
       position: relative;
       overflow: hidden;
+      transition: transform var(--duration-normal) var(--spring),
+                  box-shadow var(--duration-normal) var(--ease-smooth),
+                  border-color var(--duration-normal) var(--ease-smooth);
     }
 
     .metric-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 3px;
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
     }
 
-    .metric-card.blue::before {
-      background: linear-gradient(90deg, #3b82f6, #06b6d4);
+    .metric-card.blue::before  { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+    .metric-card.amber::before { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    .metric-card.green::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
+    .metric-card.purple::before{ background: linear-gradient(90deg, #8b5cf6, #3b82f6); }
+
+    .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.3);
     }
 
-    .metric-card.amber::before {
-      background: linear-gradient(90deg, #f59e0b, #ef4444);
+    .metric-card:active {
+      transform: translateY(0) scale(0.98);
+      transition-duration: 0.1s;
     }
 
-    .metric-card.green::before {
-      background: linear-gradient(90deg, #10b981, #06b6d4);
+    /* Tap hint — only visible on touch devices */
+    .metric-card::after {
+      content: "›";
+      position: absolute; right: 14px; bottom: 10px;
+      font-size: 18px; color: rgba(100, 116, 139, 0.4);
+      font-weight: 300;
+      transition: color var(--duration-fast), transform var(--duration-fast);
     }
+    .metric-card:hover::after { color: rgba(100, 116, 139, 0.8); transform: translateX(2px); }
+    @media (hover: none) { .metric-card::after { color: rgba(100, 116, 139, 0.5); } }
 
-    .metric-card.purple::before {
-      background: linear-gradient(90deg, #8b5cf6, #3b82f6);
-    }
-
+    /* ══════════════════════════════════════════════════════════════════════
+       TABLE ROWS
+       ══════════════════════════════════════════════════════════════════════ */
     .table-row {
-      transition: all 0.15s ease;
+      transition: background var(--duration-fast) var(--ease-smooth);
     }
 
     .table-row:hover {
-      background: rgba(59, 130, 246, 0.08);
+      background: rgba(59, 130, 246, 0.06);
     }
 
+    .table-row:active {
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       BADGES
+       ══════════════════════════════════════════════════════════════════════ */
     .badge {
       font-size: 0.65rem;
-      padding: 2px 8px;
+      padding: 3px 10px;
       border-radius: 9999px;
       font-weight: 600;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
+      line-height: 1.4;
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       ANIMATIONS — Sophisticated entrance system (no cheap glow)
+       ══════════════════════════════════════════════════════════════════════ */
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    @keyframes fadeScale {
+      from { opacity: 0; transform: scale(0.96); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .animate-slide-in {
-      animation: slideIn 0.3s ease-out;
+      animation: slideIn 0.35s var(--ease-smooth) both;
     }
 
-    @keyframes pulse-glow {
+    /* Staggered card entrance — children animate in sequence */
+    .animate-slide-in > .grid > *,
+    .animate-slide-in > .space-y-2 > *,
+    .animate-slide-in > .space-y-3 > * {
+      animation: slideUp 0.4s var(--ease-smooth) both;
+    }
+    .animate-slide-in > .grid > *:nth-child(1),
+    .animate-slide-in > .space-y-2 > *:nth-child(1),
+    .animate-slide-in > .space-y-3 > *:nth-child(1) { animation-delay: 0.04s; }
+    .animate-slide-in > .grid > *:nth-child(2),
+    .animate-slide-in > .space-y-2 > *:nth-child(2),
+    .animate-slide-in > .space-y-3 > *:nth-child(2) { animation-delay: 0.08s; }
+    .animate-slide-in > .grid > *:nth-child(3),
+    .animate-slide-in > .space-y-2 > *:nth-child(3),
+    .animate-slide-in > .space-y-3 > *:nth-child(3) { animation-delay: 0.12s; }
+    .animate-slide-in > .grid > *:nth-child(4),
+    .animate-slide-in > .space-y-2 > *:nth-child(4),
+    .animate-slide-in > .space-y-3 > *:nth-child(4) { animation-delay: 0.16s; }
+    .animate-slide-in > .grid > *:nth-child(n+5) { animation-delay: 0.2s; }
 
-      0%,
-      100% {
-        box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-      }
-
-      50% {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-      }
+    /* Subtle breathing ring for the FAB — replaces cheap pulse-glow */
+    @keyframes fab-breathe {
+      0%, 100% { box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25); }
+      50%      { box-shadow: 0 6px 28px rgba(59, 130, 246, 0.4); }
     }
 
     .pulse-glow {
-      animation: pulse-glow 2s ease-in-out infinite;
+      animation: fab-breathe 3s ease-in-out infinite;
     }
 
+    /* Scan-line for barcode scanner */
     @keyframes scan-line {
-      0% {
-        top: 0;
-      }
-
-      50% {
-        top: 100%;
-      }
-
-      100% {
-        top: 0;
-      }
+      0%   { top: 0; }
+      50%  { top: 100%; }
+      100% { top: 0; }
     }
 
     .scan-line {
-      position: absolute;
-      left: 0;
-      right: 0;
+      position: absolute; left: 0; right: 0;
       height: 2px;
-      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      background: linear-gradient(90deg, transparent, var(--brand-blue), transparent);
       animation: scan-line 2s linear infinite;
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       MODAL — Premium overlay with smooth entrance
+       ══════════════════════════════════════════════════════════════════════ */
     .modal-overlay {
-      background: rgba(0, 0, 0, 0.7);
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
+      background: rgba(0, 0, 0, 0.6);
+      -webkit-backdrop-filter: blur(8px) saturate(150%);
+      backdrop-filter: blur(8px) saturate(150%);
     }
 
+    #modalContent {
+      animation: fadeScale 0.3s var(--ease-smooth) both;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       HEADER — Frosted bar with smooth hide/show
+       ══════════════════════════════════════════════════════════════════════ */
     .sticky-header {
       position: sticky;
       top: 0;
       z-index: 10;
     }
 
-    /* ---- Logo rendering ---- */
+    #appHeader {
+      transition: transform 0.35s var(--ease-smooth);
+      will-change: transform;
+    }
+
+    #appHeader.header-hidden {
+      transform: translateY(-110%);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       LOGO RENDERING
+       ══════════════════════════════════════════════════════════════════════ */
     .brand-logo {
       display: block;
       max-width: min(100%, 160px);
-      width: auto;
-      height: auto;
+      width: auto; height: auto;
       max-height: 80px;
-      margin: 0 auto;
+      margin: 8px auto;
       object-fit: contain;
       object-position: center center;
       transform: translateZ(0);
-      margin: 8px 0;
-      transition: all 0.3s ease;
-      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+      transition: transform 0.3s var(--ease-smooth), filter 0.3s;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+      border-radius: 8px;
+    }
+
+    .brand-logo:hover {
+      transform: translateZ(0) scale(1.02);
     }
 
     .brand-logo-overlay {
       display: block;
       max-width: min(100%, 180px);
-      width: auto;
-      height: auto;
+      width: auto; height: auto;
       max-height: 90px;
-      margin: 0 auto;
+      margin: 10px auto;
       object-fit: contain;
       object-position: center center;
       transform: translateZ(0);
-      margin: 10px 0;
       filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+      border-radius: 8px;
     }
 
     .header-logo-mobile {
-      height: 32px;
-      width: auto;
+      height: 32px; width: auto;
       object-fit: contain;
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       MOBILE NAVIGATION — Bottom bar safe area + larger tap targets
+       ══════════════════════════════════════════════════════════════════════ */
     .mobile-nav-safe-bottom {
       padding-bottom: calc(env(safe-area-inset-bottom, 8px) + 4px);
     }
@@ -279,212 +429,68 @@
       .mobile-nav {
         padding-bottom: env(safe-area-inset-bottom);
       }
-
       .main-content {
-        padding-bottom: 80px;
+        padding-bottom: 88px;
       }
     }
 
-    /* ── Light Mode Theme ───────────────────────────────────────────────── */
-    html.light-mode body {
-      background: #f1f5f9 !important;
-      color: #0f172a !important;
+    /* Tablet-first touch targets — minimum 48px for greasy-fingered mechanics */
+    @media (hover: none) {
+      button, .btn-primary, .btn-amber, .btn-danger, .btn-secondary,
+      a.nav-item, .mobile-nav-btn,
+      .rockauto-make-btn, .rockauto-year-btn, .rockauto-model-btn,
+      .rockauto-engine-btn, .rockauto-category-btn {
+        min-height: 48px;
+      }
+      .mobile-nav-btn { min-width: 60px; }
+
+      /* Bigger filter selects on tablets */
+      select.glass-input { min-height: 48px; font-size: 16px !important; }
+
+      /* Bigger stock +/- buttons */
+      .table-row button { min-width: 44px; min-height: 44px; }
     }
 
-    html.light-mode aside#sidebar {
-      background: #ffffff !important;
-      border-color: #e2e8f0 !important;
-    }
-
-    html.light-mode #mobileNavOverlay>div {
-      background: #ffffff !important;
-      border-color: #e2e8f0 !important;
-    }
-
-    html.light-mode header {
-      background: rgba(255, 255, 255, 0.93) !important;
-      border-color: #e2e8f0 !important;
-    }
-
-    html.light-mode nav.mobile-nav {
-      background: rgba(255, 255, 255, 0.97) !important;
-      border-color: #e2e8f0 !important;
-    }
-
-    html.light-mode .glass-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 250, 252, 0.99) 100%) !important;
-      border-color: rgba(203, 213, 225, 0.7) !important;
-    }
-
-    html.light-mode .glass-input {
-      background: rgba(241, 245, 249, 0.95) !important;
-      border-color: rgba(203, 213, 225, 0.9) !important;
-      color: #0f172a !important;
-    }
-
-    html.light-mode .glass-input::placeholder {
-      color: #94a3b8 !important;
-    }
-
-    html.light-mode .glass-input:focus {
-      border-color: #3b82f6 !important;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
-    }
-
-    html.light-mode #modalContent {
-      background: #ffffff !important;
-      border-color: #e2e8f0 !important;
-    }
-
-    html.light-mode .text-white {
-      color: #0f172a !important;
-    }
-
-    html.light-mode .text-slate-100,
-    html.light-mode .text-slate-200 {
-      color: #1e293b !important;
-    }
-
-    html.light-mode .text-slate-300 {
-      color: #334155 !important;
-    }
-
-    html.light-mode .text-slate-400 {
-      color: #475569 !important;
-    }
-
-    html.light-mode .text-slate-500 {
-      color: #64748b !important;
-    }
-
-    html.light-mode .bg-slate-950 {
-      background-color: #f1f5f9 !important;
-    }
-
-    html.light-mode .bg-slate-900 {
-      background-color: #ffffff !important;
-    }
-
-    html.light-mode .bg-slate-800\/50 {
-      background-color: rgba(241, 245, 249, 0.85) !important;
-    }
-
-    html.light-mode .border-slate-800 {
-      border-color: #e2e8f0 !important;
-    }
-
-    html.light-mode .border-slate-700,
-    html.light-mode .border-slate-700\/50 {
-      border-color: rgba(203, 213, 225, 0.8) !important;
-    }
-
-    html.light-mode .nav-item:hover:not(.active) {
-      background: rgba(241, 245, 249, 0.9) !important;
-    }
-
-    html.light-mode .nav-item.active {
-      background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, transparent 100%) !important;
-    }
-
-    html.light-mode .table-row:hover {
-      background: rgba(59, 130, 246, 0.05) !important;
-    }
-
-    html.light-mode ::-webkit-scrollbar-track {
-      background: #f1f5f9 !important;
-    }
-
-    html.light-mode ::-webkit-scrollbar-thumb {
-      background: #cbd5e1 !important;
-    }
-
-    html.light-mode ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8 !important;
-    }
-
-    html.light-mode select option {
-      background: #ffffff;
-      color: #0f172a;
-    }
-
-    html.light-mode .metric-card::before {
-      opacity: 0.8;
-    }
-
-    html.light-mode .brand-logo,
-    html.light-mode .brand-logo-overlay {
-      background: rgba(15, 23, 42, 0.8) !important;
-      -webkit-backdrop-filter: blur(6px) !important;
-      backdrop-filter: blur(6px) !important;
-      border-radius: 12px !important;
-      padding: 6px !important;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-    }
-
-    /* ── Toggle switch ──────────────────────────────────────────────────── */
+    /* ══════════════════════════════════════════════════════════════════════
+       TOGGLE SWITCH — iOS-style
+       ══════════════════════════════════════════════════════════════════════ */
     .toggle-track {
-      width: 48px;
-      height: 26px;
-      border-radius: 13px;
+      width: 52px; height: 28px;
+      border-radius: 14px;
       position: relative;
       cursor: pointer;
-      transition: background 0.25s ease;
+      transition: background 0.3s var(--ease-smooth);
       background: #334155;
       display: inline-flex;
       align-items: center;
       flex-shrink: 0;
-      border: none;
-      outline: none;
+      border: none; outline: none;
     }
 
-    .toggle-track.on {
-      background: #3b82f6;
-    }
+    .toggle-track.on { background: var(--brand-blue); }
 
     .toggle-thumb {
       position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 20px;
-      height: 20px;
+      top: 3px; left: 3px;
+      width: 22px; height: 22px;
       border-radius: 50%;
       background: #ffffff;
-      transition: transform 0.25s ease;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s var(--spring);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
       pointer-events: none;
     }
 
     .toggle-track.on .toggle-thumb {
-      transform: translateX(22px);
+      transform: translateX(24px);
     }
 
-    /* ── System font stack (replaces Google Fonts — works offline) ───────── */
-    :root {
-      --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-        'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro',
-        Menlo, Monaco, Consolas, 'Courier New', monospace;
-    }
-
-    body {
-      font-family: var(--font-sans);
-    }
-
-    .font-mono,
-    code,
-    pre {
-      font-family: var(--font-mono);
-    }
-
+    /* ══════════════════════════════════════════════════════════════════════
+       TECHGURU ANIMATED GRADIENT
+       ══════════════════════════════════════════════════════════════════════ */
     .animated-techguru {
       background: linear-gradient(to right,
-          #1e3a8a,
-          #581c87,
-          #db2777,
-          #ea580c,
-          #16a34a,
-          #dc2626,
-          #1e3a8a);
+          #1e3a8a, #581c87, #db2777, #ea580c,
+          #16a34a, #dc2626, #1e3a8a);
       background-size: 300% 100%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -494,109 +500,76 @@
     }
 
     @keyframes gradient-text-anim {
-      0% {
-        background-position: 0% 50%;
-      }
-
-      50% {
-        background-position: 100% 50%;
-      }
-
-      100% {
-        background-position: 0% 50%;
-      }
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
-    /* ==================== ROCKAUTO CATALOG COMPONENTS ==================== */
+    /* ══════════════════════════════════════════════════════════════════════
+       ROCKAUTO CATALOG COMPONENTS
+       ══════════════════════════════════════════════════════════════════════ */
     .rockauto-loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      padding: 3rem 1rem;
-      color: #94a3b8;
-      font-size: 0.875rem;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.75rem; padding: 3rem 1rem;
+      color: #94a3b8; font-size: 0.875rem;
     }
 
     .rockauto-spinner {
-      width: 2.25rem;
-      height: 2.25rem;
-      border: 3px solid rgba(59, 130, 246, 0.25);
-      border-top-color: #3b82f6;
+      width: 2.25rem; height: 2.25rem;
+      border: 3px solid rgba(59, 130, 246, 0.2);
+      border-top-color: var(--brand-blue);
       border-radius: 9999px;
-      animation: ra-spin 0.9s linear infinite;
+      animation: ra-spin 0.8s linear infinite;
     }
 
-    @keyframes ra-spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes ra-spin { to { transform: rotate(360deg); } }
 
     .rockauto-error {
-      text-align: center;
-      padding: 2.5rem 1rem;
-      color: #fca5a5;
-      font-size: 0.875rem;
+      text-align: center; padding: 2.5rem 1rem;
+      color: #fca5a5; font-size: 0.875rem;
     }
 
     .rockauto-retry-btn {
-      margin-top: 0.75rem;
-      padding: 0.5rem 1.25rem;
-      border-radius: 0.5rem;
+      margin-top: 0.75rem; padding: 0.6rem 1.5rem;
+      border-radius: var(--radius-btn);
       background: linear-gradient(135deg, #3b82f6, #2563eb);
-      color: #fff;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      color: #fff; font-size: 0.8125rem; font-weight: 600;
+      cursor: pointer; transition: all var(--duration-fast) var(--ease-smooth);
     }
 
     .rockauto-retry-btn:hover {
-      background: linear-gradient(135deg, #60a5fa, #3b82f6);
       transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     }
 
     .rockauto-empty {
-      text-align: center;
-      padding: 2.5rem 1rem;
-      color: #64748b;
-      font-size: 0.875rem;
+      text-align: center; padding: 2.5rem 1rem;
+      color: #64748b; font-size: 0.875rem;
     }
 
     .rockauto-notice {
-      margin: 0 0 1rem;
-      padding: 0.625rem 0.875rem;
-      border-radius: 0.5rem;
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: #fcd34d;
-      font-size: 0.75rem;
-      line-height: 1.5;
+      margin: 0 0 1rem; padding: 0.625rem 0.875rem;
+      border-radius: var(--radius-btn);
+      background: rgba(245, 158, 11, 0.06);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #fcd34d; font-size: 0.75rem; line-height: 1.5;
     }
 
     #rockauto-content h3 {
-      color: #e2e8f0;
-      font-size: 0.9375rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
+      color: #e2e8f0; font-size: 0.9375rem;
+      font-weight: 600; margin-bottom: 0.75rem;
     }
 
-    .rockauto-makes-list,
-    .rockauto-models-list,
-    .rockauto-engines-list,
-    .rockauto-categories-list,
+    .rockauto-makes-list, .rockauto-models-list,
+    .rockauto-engines-list, .rockauto-categories-list,
     .rockauto-search-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: 0.5rem;
-      list-style: none;
-      margin: 0;
-      padding: 0;
+      gap: 0.5rem; list-style: none; margin: 0; padding: 0;
     }
 
-    .rockauto-search-list {
-      grid-template-columns: 1fr;
-    }
+    .rockauto-search-list { grid-template-columns: 1fr; }
 
     .rockauto-years-grid {
       display: grid;
@@ -604,85 +577,70 @@
       gap: 0.5rem;
     }
 
-    .rockauto-make-btn,
-    .rockauto-year-btn,
-    .rockauto-model-btn,
-    .rockauto-engine-btn,
-    .rockauto-category-btn {
-      width: 100%;
-      padding: 0.625rem 0.75rem;
-      border-radius: 0.5rem;
-      background: rgba(15, 23, 42, 0.8);
-      border: 1px solid rgba(51, 65, 85, 0.6);
-      color: #cbd5e1;
-      font-size: 0.8125rem;
-      text-align: left;
-      cursor: pointer;
-      transition: all 0.15s ease;
+    .rockauto-make-btn, .rockauto-year-btn, .rockauto-model-btn,
+    .rockauto-engine-btn, .rockauto-category-btn {
+      width: 100%; padding: 0.75rem 0.875rem;
+      border-radius: var(--radius-btn);
+      background: var(--brand-surface);
+      border: 1px solid var(--brand-border);
+      color: #cbd5e1; font-size: 0.8125rem;
+      text-align: left; cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-smooth);
     }
 
     .rockauto-year-btn {
       text-align: center;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
     }
 
-    .rockauto-make-btn:hover,
-    .rockauto-year-btn:hover,
-    .rockauto-model-btn:hover,
-    .rockauto-engine-btn:hover,
+    .rockauto-make-btn:hover, .rockauto-year-btn:hover,
+    .rockauto-model-btn:hover, .rockauto-engine-btn:hover,
     .rockauto-category-btn:hover {
-      border-color: rgba(59, 130, 246, 0.5);
-      background: rgba(30, 41, 59, 0.9);
+      border-color: var(--brand-border-hover);
+      background: var(--brand-surface-hover);
       color: #fff;
       transform: translateY(-1px);
     }
 
-    .rockauto-parts-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8125rem;
+    .rockauto-make-btn:active, .rockauto-year-btn:active,
+    .rockauto-model-btn:active, .rockauto-engine-btn:active,
+    .rockauto-category-btn:active {
+      transform: translateY(0) scale(0.98);
+      transition-duration: 0.08s;
     }
 
+    .rockauto-parts-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+
     .rockauto-parts-table th {
-      text-align: left;
-      padding: 0.625rem 0.75rem;
-      color: #94a3b8;
-      font-size: 0.6875rem;
-      font-weight: 600;
-      text-transform: uppercase;
+      text-align: left; padding: 0.75rem;
+      color: #94a3b8; font-size: 0.6875rem;
+      font-weight: 600; text-transform: uppercase;
       letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      border-bottom: 1px solid rgba(51, 65, 85, 0.4);
     }
 
     .rockauto-parts-table td {
-      padding: 0.625rem 0.75rem;
-      border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(30, 41, 59, 0.5);
       color: #e2e8f0;
     }
 
     .rockauto-parts-table .rockauto-price {
-      color: #4ade80;
-      font-weight: 700;
-      font-family: 'JetBrains Mono', monospace;
+      color: #4ade80; font-weight: 700;
+      font-family: var(--font-mono);
     }
 
     .rockauto-search-item {
-      padding: 0.625rem 0.75rem;
-      border-radius: 0.5rem;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(51, 65, 85, 0.4);
-      color: #cbd5e1;
-      font-size: 0.8125rem;
+      padding: 0.75rem; border-radius: var(--radius-btn);
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(51, 65, 85, 0.35);
+      color: #cbd5e1; font-size: 0.8125rem;
     }
 
-    .rockauto-search-item span {
-      color: #64748b;
-    }
+    .rockauto-search-item span { color: #64748b; }
 
-    html.light-mode .rockauto-make-btn,
-    html.light-mode .rockauto-year-btn,
-    html.light-mode .rockauto-model-btn,
-    html.light-mode .rockauto-engine-btn,
+    html.light-mode .rockauto-make-btn, html.light-mode .rockauto-year-btn,
+    html.light-mode .rockauto-model-btn, html.light-mode .rockauto-engine-btn,
     html.light-mode .rockauto-category-btn {
       background: rgba(241, 245, 249, 0.9);
       border-color: rgba(148, 163, 184, 0.4);
@@ -692,31 +650,106 @@
     html.light-mode #rockauto-content h3 { color: #0f172a; }
     html.light-mode .rockauto-empty { color: #64748b; }
     html.light-mode .rockauto-error { color: #dc2626; }
-  
-    /* Dashboard metric cards: tappable affordance */
-    .metric-card { position: relative; }
-    .metric-card::after {
-      content: "Tap to view \203A";
-      position: absolute; right: 12px; bottom: 8px;
-      font-size: 10px; color: #64748b; font-weight: 500;
-      opacity: 0; transition: opacity .2s;
-    }
-    .metric-card:hover::after { opacity: 1; }
-    @media (hover: none) { .metric-card::after { opacity: .8; } }
-    /* 44px minimum touch targets on touch devices */
-    @media (hover: none) {
-      button, .btn-primary, .btn-secondary, a.nav-item, .mobile-nav-btn { min-height: 44px; }
-      .mobile-nav-btn { min-width: 56px; }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       LIGHT MODE THEME
+       ══════════════════════════════════════════════════════════════════════ */
+    html.light-mode body {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
     }
 
-  
-    /* Sticky header: slides away on scroll down, returns on scroll up */
-    #appHeader {
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: transform;
+    html.light-mode aside#sidebar {
+      background: rgba(255, 255, 255, 0.92) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      backdrop-filter: blur(20px) !important;
+      border-color: rgba(226, 232, 240, 0.8) !important;
     }
-    #appHeader.header-hidden {
-      transform: translateY(-110%);
+
+    html.light-mode #mobileNavOverlay>div {
+      background: rgba(255, 255, 255, 0.95) !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    html.light-mode header {
+      background: rgba(255, 255, 255, 0.88) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      border-color: rgba(226, 232, 240, 0.7) !important;
+    }
+
+    html.light-mode nav.mobile-nav {
+      background: rgba(255, 255, 255, 0.92) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      backdrop-filter: blur(20px) !important;
+      border-color: rgba(226, 232, 240, 0.7) !important;
+    }
+
+    html.light-mode .glass-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(248, 250, 252, 0.9) 100%) !important;
+      border-color: rgba(203, 213, 225, 0.6) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html.light-mode .glass-input {
+      background: rgba(241, 245, 249, 0.9) !important;
+      border-color: rgba(203, 213, 225, 0.8) !important;
+      color: #0f172a !important;
+    }
+
+    html.light-mode .glass-input::placeholder { color: #94a3b8 !important; }
+
+    html.light-mode .glass-input:focus {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+    }
+
+    html.light-mode #modalContent {
+      background: rgba(255, 255, 255, 0.95) !important;
+      border-color: rgba(226, 232, 240, 0.8) !important;
+    }
+
+    html.light-mode .text-white { color: #0f172a !important; }
+    html.light-mode .text-slate-100,
+    html.light-mode .text-slate-200 { color: #1e293b !important; }
+    html.light-mode .text-slate-300 { color: #334155 !important; }
+    html.light-mode .text-slate-400 { color: #475569 !important; }
+    html.light-mode .text-slate-500 { color: #64748b !important; }
+    html.light-mode .bg-slate-950 { background-color: #f1f5f9 !important; }
+    html.light-mode .bg-slate-900 { background-color: rgba(255, 255, 255, 0.9) !important; }
+    html.light-mode .bg-slate-800\/50 { background-color: rgba(241, 245, 249, 0.8) !important; }
+    html.light-mode .border-slate-800 { border-color: rgba(226, 232, 240, 0.8) !important; }
+    html.light-mode .border-slate-700,
+    html.light-mode .border-slate-700\/50 { border-color: rgba(203, 213, 225, 0.7) !important; }
+
+    html.light-mode .nav-item:hover:not(.active) {
+      background: rgba(241, 245, 249, 0.8) !important;
+    }
+
+    html.light-mode .nav-item.active {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.08) 0%, transparent 100%) !important;
+    }
+
+    html.light-mode .table-row:hover {
+      background: rgba(59, 130, 246, 0.04) !important;
+    }
+
+    html.light-mode ::-webkit-scrollbar-track { background: transparent !important; }
+    html.light-mode ::-webkit-scrollbar-thumb { background: rgba(203, 213, 225, 0.7) !important; }
+    html.light-mode ::-webkit-scrollbar-thumb:hover { background: #94a3b8 !important; }
+
+    html.light-mode select option { background: #ffffff; color: #0f172a; }
+
+    html.light-mode .metric-card::before { opacity: 0.75; }
+
+    html.light-mode .brand-logo,
+    html.light-mode .brand-logo-overlay {
+      background: rgba(15, 23, 42, 0.75) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      backdrop-filter: blur(8px) !important;
+      border-radius: 12px !important;
+      padding: 6px !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
     }
 
   </style>
@@ -753,9 +786,9 @@
 <script src="perf-loader.js" data-cfasync="false"></script>
 <script src="push-notify.js" data-cfasync="false"></script>
 <script src="ra-categories-fix.js" data-cfasync="false"></script>
-<script src="settings-sync-fix.js" data-cfasync="false"></script> 
-  
-  
+<script src="settings-sync-fix.js" data-cfasync="false"></script>
+
+
 
   <!-- App Container -->
   <div id="app" class="flex h-screen overflow-hidden">
@@ -1931,7 +1964,7 @@
             // Autofill Price (Default markup or 10% off competitor depending on your strategy, using original 10% discount off retail logic)
             const priceInput = document.querySelector('input[name="price"]');
             if (priceInput && (!priceInput.value || priceInput.value == 0)) {
-              // Usually retail is marked up from cost, let's set to 40% markup if it's RockAuto, 
+              // Usually retail is marked up from cost, let's set to 40% markup if it's RockAuto,
               // or just use the existing logic (lowest * 0.9) to stay competitive.
               priceInput.value = (lowest * 1.3).toFixed(2); // 30% markup from the lowest found price
             }
@@ -2184,7 +2217,7 @@
           <span class="flex items-center gap-2">
             <i class="ph ph-arrows-left-right text-cyan-400"></i> Live Competitor Prices
           </span>
-          <button onclick="fetchLiveCompetitorPrices('${pcEscId(part.partNumber)}','${pcEscId(part.brand || '')}')" 
+          <button onclick="fetchLiveCompetitorPrices('${pcEscId(part.partNumber)}','${pcEscId(part.brand || '')}')"
             class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
             <i class="ph-bold ph-arrows-clockwise"></i> Refresh
           </button>
@@ -3962,7 +3995,7 @@
 
       <div class="mb-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
         <p class="text-xs text-blue-300">
-          <i class="ph-bold ph-info"></i> 
+          <i class="ph-bold ph-info"></i>
           Adjust prices by percentage. Positive values increase, negative values decrease.
           This simulates receiving updated pricing from retailers.
         </p>
@@ -4052,12 +4085,12 @@
         if (state.model) parts.push(state.model);
         if (state.engine) parts.push(state.engine);
         if (state.categoryName) parts.push(state.categoryName);
-        
-        breadcrumbs.innerHTML = parts.length > 0 ? 
-          parts.map(p => `<span class="text-white">${p}</span>`).join(' > ') + 
-          ` <button class="px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-300 ml-2" id="btn-ra-reset"><i class="ph ph-arrow-counter-clockwise"></i> Reset</button>` 
+
+        breadcrumbs.innerHTML = parts.length > 0 ?
+          parts.map(p => `<span class="text-white">${p}</span>`).join(' > ') +
+          ` <button class="px-2 py-1 bg-slate-800 rounded hover:bg-slate-700 text-slate-300 ml-2" id="btn-ra-reset"><i class="ph ph-arrow-counter-clockwise"></i> Reset</button>`
           : '';
-          
+
         if (parts.length > 0) {
           document.getElementById('btn-ra-reset').onclick = loadMakes;
         }
@@ -4111,10 +4144,10 @@
           if (!res.ok) { RockAutoUI.showError(content, res.error || 'Could not load engines'); attachRetry(loadEngines); return; }
           RockAutoUI.renderEngines(content, res.data);
           document.querySelectorAll('.rockauto-engine-btn').forEach(btn => {
-            btn.onclick = () => { 
-              state.carcode = btn.parentElement.dataset.carcode; 
+            btn.onclick = () => {
+              state.carcode = btn.parentElement.dataset.carcode;
               state.engine = btn.textContent.split('(')[0].trim();
-              loadCategories(); 
+              loadCategories();
             };
           });
         }).catch(err => { RockAutoUI.showError(content, 'Network error loading engines'); attachRetry(loadEngines); console.error('[RockAuto] engines failed:', err); });
