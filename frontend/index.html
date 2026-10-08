@@ -827,6 +827,147 @@
 
   </style>
 
+  <style id="pc-premium-3-8">
+    /* ═══════════════════════════════════════════════════════════════════════
+       PARTSCOMMAND — Premium UI layer v3.8.0
+       Ambient gradients · gradient page titles · premium nav · sheen sweeps
+       Respects prefers-reduced-motion. No libraries, no JS changes.
+       ═══════════════════════════════════════════════════════════════════════ */
+
+    /* ── Ambient background orbs (fixed, behind all content) ─────────────── */
+    .ambient-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+    .ambient-bg::before, .ambient-bg::after {
+      content: ''; position: absolute; border-radius: 50%; filter: blur(90px);
+    }
+    .ambient-bg::before {
+      width: 480px; height: 480px; top: -160px; left: -120px;
+      background: radial-gradient(circle, rgba(59,130,246,0.20), transparent 65%);
+      animation: orb-drift-1 26s ease-in-out infinite alternate;
+    }
+    .ambient-bg::after {
+      width: 560px; height: 560px; bottom: -220px; right: -160px;
+      background: radial-gradient(circle, rgba(139,92,246,0.16), transparent 65%);
+      animation: orb-drift-2 32s ease-in-out infinite alternate;
+    }
+    @keyframes orb-drift-1 { from { transform: translate(0,0) scale(1); } to { transform: translate(60px,40px) scale(1.15); } }
+    @keyframes orb-drift-2 { from { transform: translate(0,0) scale(1.1); } to { transform: translate(-50px,-30px) scale(1); } }
+
+    /* ── Page titles: gradient ink ───────────────────────────────────────── */
+    #mainContent .animate-slide-in > div:first-child { position: relative; }
+    #mainContent .animate-slide-in > div:first-child::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -14px; height: 1px;
+      background: linear-gradient(90deg, rgba(59,130,246,0.55), rgba(6,182,212,0.35) 40%, rgba(139,92,246,0.25) 65%, transparent);
+      pointer-events: none;
+    }
+    #mainContent .animate-slide-in > div:first-child h2.text-2xl:not(:has(i)) {
+      background: linear-gradient(115deg, #ffffff 25%, #b9d4ff 55%, #7dd3fc 85%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── Top header: gradient hairline + deeper glass ─────────────────────── */
+    #appHeader { position: relative; }
+    #appHeader::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+      background: linear-gradient(90deg, transparent 2%, rgba(59,130,246,0.6) 22%, rgba(6,182,212,0.5) 50%, rgba(139,92,246,0.45) 78%, transparent 98%);
+      pointer-events: none;
+    }
+
+    /* ── Mobile bottom nav: premium active pill ──────────────────────────── */
+    .mobile-nav { box-shadow: 0 -10px 34px rgba(0,0,0,0.55); }
+    .mobile-nav::before {
+      content: ''; position: absolute; top: -1px; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5) 30%, rgba(6,182,212,0.4) 60%, transparent);
+      pointer-events: none;
+    }
+    .mobile-nav-btn { position: relative; border-radius: 14px; transition: color 0.2s ease, background 0.2s ease; }
+    .mobile-nav-btn.active { color: #fff !important; background: rgba(59,130,246,0.10); }
+    .mobile-nav-btn.active i {
+      background: linear-gradient(135deg, #7fb0ff, #22d3ee);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      filter: drop-shadow(0 0 8px rgba(59,130,246,0.55));
+    }
+    .mobile-nav-btn.active::after {
+      content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+      width: 16px; height: 3px; border-radius: 9999px;
+      background: linear-gradient(90deg, #3b82f6, #22d3ee);
+      box-shadow: 0 0 10px rgba(59,130,246,0.9);
+    }
+
+    /* ── Metric card accent bar: slow gradient drift ─────────────────────── */
+    .metric-card::before { background-size: 220% 100%; animation: accent-drift 8s ease-in-out infinite; }
+    @keyframes accent-drift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+    /* ── Buttons: sheen sweep on hover ───────────────────────────────────── */
+    .btn-primary, .btn-amber { overflow: hidden; background-size: 160% 160%; }
+    .btn-primary::before, .btn-amber::before {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 45%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: translateX(-220%) skewX(-16deg); pointer-events: none;
+    }
+    .btn-primary:hover, .btn-amber:hover { background-position: 100% 50%; }
+    .btn-primary:hover::before, .btn-amber:hover::before { animation: sheen-sweep 0.65s ease; }
+    @keyframes sheen-sweep { from { transform: translateX(-220%) skewX(-16deg); } to { transform: translateX(320%) skewX(-16deg); } }
+
+    /* ── Toasts: premium glass entrance ──────────────────────────────────── */
+    #toastContainer > div {
+      -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+      border-radius: 14px !important;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.14);
+      animation: toast-in 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes toast-in { from { opacity: 0; transform: translateX(28px) scale(0.95); } to { opacity: 1; transform: none; } }
+
+    /* ── Modal: premium backdrop + entrance ──────────────────────────────── */
+    .modal-overlay {
+      background: rgba(3,7,15,0.72) !important;
+      -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    }
+    #modalContent {
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 32px 90px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.16);
+      animation: modal-in 0.34s cubic-bezier(0.34,1.3,0.64,1) both;
+    }
+    @keyframes modal-in { from { opacity: 0; transform: translateY(18px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+    /* ── Empty states: premium illustrated placeholder ───────────────────── */
+    .empty-state { text-align: center; padding: 3rem 1.25rem; }
+    .empty-state .es-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px; border-radius: 20px; margin-bottom: 14px; font-size: 28px;
+      color: #9fc2ff;
+      background: linear-gradient(135deg, rgba(59,130,246,0.22), rgba(139,92,246,0.16));
+      border: 1px solid rgba(255,255,255,0.16);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 10px 26px rgba(0,0,0,0.4);
+    }
+    .empty-state .es-title { color: #e2e8f0; font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+    .empty-state .es-hint { color: #64748b; font-size: 0.8rem; }
+
+    /* ── Card section headers: soft icon glow ────────────────────────────── */
+    .glass-card > h3 i, .glass-card > h4 i { filter: drop-shadow(0 0 6px currentColor); }
+
+    /* ── Quick-add FAB: rotating conic ring ──────────────────────────────── */
+    .pulse-glow { position: relative; }
+    .pulse-glow::before {
+      content: ''; position: absolute; inset: -4px; border-radius: 9999px;
+      background: conic-gradient(from 0deg, rgba(59,130,246,0.7), rgba(6,182,212,0.15), rgba(139,92,246,0.7), rgba(59,130,246,0.7));
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+      animation: ring-spin 5s linear infinite; opacity: 0.8; pointer-events: none;
+    }
+    @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+    /* ── Reduced motion: respect user preference ─────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .ambient-bg { display: none; }
+    }
+  </style>
+
   <script data-cfasync="false">
     // Force-evict any stale service worker (old CACHE_NAME != current)
     if ('serviceWorker' in navigator) {
@@ -834,7 +975,7 @@
         regs.forEach(function (reg) {
           reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, { cache: 'no-store' })
             .then(function (r) { return r.text(); })
-            .then(function (t) { if (!t.includes('partscommand-v3.7.0')) reg.unregister(); })
+            .then(function (t) { if (!t.includes('partscommand-v3.8.0')) reg.unregister(); })
             .catch(function () { });
         });
       });
@@ -843,6 +984,7 @@
 </head>
 
 <body class="min-h-screen bg-slate-950"> <script src="auth.js" data-cfasync="false"></script>
+  <div class="ambient-bg" aria-hidden="true"></div>
   <script src="sync-status.js" data-cfasync="false"></script>
 <script src="offline-queue.js" data-cfasync="false"></script>
 <script src="barcode-enhancer.js" data-cfasync="false"></script>
@@ -872,7 +1014,7 @@
         <a href="#" onclick="navigate('dashboard')" title="Zempel Auto – PartsCommand CRM" class="inline-block">
           <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo" loading="eager" decoding="sync" />
         </a>
-        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.7.0
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.8.0
         </p>
       </div>
 
@@ -1034,7 +1176,7 @@
           <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo-overlay" loading="eager"
             decoding="sync" />
         </a>
-        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.7.0
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.8.0
         </p>
       </div>
       <nav class="flex-1 overflow-y-auto px-3 pb-6">
@@ -1447,7 +1589,7 @@
         <span class="text-sm text-slate-400">${results.length} results for "${escapeHtml(query)}"</span>
       </div>
       <div class="space-y-2">
-        ${results.length === 0 ? '<p class="text-slate-400 text-center py-12">No results found</p>' :
+        ${results.length === 0 ? '<div class="empty-state"><i class="ph ph-magnifying-glass es-icon"></i><p class="es-title">No results found</p><p class="es-hint">Try a different search term</p></div>' :
           results.map(r => `
             <div class="glass-card rounded-xl p-4 flex items-center justify-between cursor-pointer hover:border-blue-500/30 transition-all" onclick="navigate('${pcEscId(r.view)}')">
               <div class="flex items-center gap-3">
@@ -2995,7 +3137,7 @@
         <i class="ph ph-car text-blue-400"></i> Vehicles
       </h4>
       <div class="space-y-2 mb-5">
-        ${vehicles.length === 0 ? '<p class="text-sm text-slate-500 text-center py-4">No vehicles registered</p>' :
+        ${vehicles.length === 0 ? '<div class="empty-state"><i class="ph ph-car es-icon"></i><p class="es-title">No vehicles registered</p><p class="es-hint">Add a vehicle to get started</p></div>' :
           vehicles.map(v => `
             <div class="glass-card rounded-lg p-3 cursor-pointer hover:border-blue-500/30 transition-all" onclick="closeModal();openVehicleDetail('${pcEscId(v.id)}')">
               <div class="flex items-center justify-between">
@@ -3014,7 +3156,7 @@
         <i class="ph ph-wrench text-green-400"></i> Service History
       </h4>
       <div class="space-y-2">
-        ${sales.length === 0 ? '<p class="text-sm text-slate-500 text-center py-4">No sales records</p>' :
+        ${sales.length === 0 ? '<div class="empty-state"><i class="ph ph-receipt es-icon"></i><p class="es-title">No sales records</p><p class="es-hint">New sales will appear here</p></div>' :
           sales.map(s => `
             <div class="glass-card rounded-lg p-3">
               <div class="flex items-center justify-between mb-2">
@@ -4322,7 +4464,7 @@
           `;
       }).join('')}
       </div>
-      ${filtered.length === 0 ? '<p class="text-center text-slate-500 py-12">No audit entries</p>' : ''}
+      ${filtered.length === 0 ? '<div class="empty-state"><i class="ph ph-clipboard-text es-icon"></i><p class="es-title">No audit entries</p><p class="es-hint">Activity will be logged here</p></div>' : ''}
     </div>
   `;
     }
@@ -4577,7 +4719,7 @@
             <h2 class="text-2xl font-bold text-white">Settings</h2>
             <p class="text-sm text-slate-400">Manage preferences, exports, and app configuration</p>
           </div>
-          <span class="text-xs text-slate-500 font-mono bg-slate-800/50 px-3 py-1 rounded-full">v3.7.0</span>
+          <span class="text-xs text-slate-500 font-mono bg-slate-800/50 px-3 py-1 rounded-full">v3.8.0</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -4951,7 +5093,7 @@
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-3 text-sm">
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Application</span><span class="text-white font-medium">PartsCommand CRM</span></div>
-              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Version</span><span class="text-white font-mono">3.7.0</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Version</span><span class="text-white font-mono">3.8.0</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Built for</span><span class="text-white">Zempel Auto</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Backend</span><span class="text-white font-mono text-xs">Cloudflare Workers</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Database</span><span class="text-white font-mono text-xs">Neon PostgreSQL</span></div>
@@ -5047,7 +5189,7 @@
 
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
-      doc.text('PartsCommand CRM v3.7.0  |  ' + new Date().toLocaleString(), 42, 27);
+      doc.text('PartsCommand CRM v3.8.0  |  ' + new Date().toLocaleString(), 42, 27);
 
       if (s.bizPhone || s.bizEmail) {
         doc.setFontSize(8);
@@ -5802,7 +5944,7 @@
     }
   </script>
 
-  <!-- RockAuto Integration Modules v3.7.0 -->
+  <!-- RockAuto Integration Modules v3.8.0 -->
   <script src="rockauto-fetch.js" data-cfasync="false"></script>
   <script src="rockauto-ui.js" data-cfasync="false"></script>
   <script src="invoice-logo.js" data-cfasync="false"></script>

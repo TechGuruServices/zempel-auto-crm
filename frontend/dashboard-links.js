@@ -8,10 +8,14 @@
   function enhance() {
     // Watch for dashboard renders
     var observer = new MutationObserver(function () {
-      var cards = document.querySelectorAll('.metric-card');
+      // Only linkify dashboard metric cards — Settings "About" cards reuse
+      // .metric-card and must stay plain (no tap hint, no navigation).
+      if (window.currentView && window.currentView !== 'dashboard') return;
+      var cards = document.querySelectorAll('#mainContent .metric-card');
       if (!cards.length || cards[0].dataset.linked) return;
 
       cards.forEach(function (card) {
+        if (!card.querySelector('.mc-value')) return; // dashboard metric cards only
         card.dataset.linked = '1';
         card.style.cursor = 'pointer';
         var label = card.querySelector('.font-mono');
