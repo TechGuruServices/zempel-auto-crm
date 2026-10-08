@@ -5,7 +5,7 @@
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.6.0'; // bumped 2026-10: Zempel-branded invoice layout (invoices.js, invoice-logo.js), invoice part lookup, business profile fax/website
+const CACHE_NAME = 'partscommand-v3.6.1'; // bumped 2026-10-07: UI upgrade (tappable cards, touch targets, empty states, nav labels)
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
