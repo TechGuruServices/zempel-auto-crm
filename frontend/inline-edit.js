@@ -102,6 +102,24 @@
     if (typeof window.renderView === 'function') window.renderView();
   };
 
+  window.deleteVehicle = function (vId) {
+    var db = getDB();
+    if (!db) return;
+    var v = (db.vehicles || []).find(function (x) { return x.id === vId; });
+    if (!v) { toast('Vehicle not found', 'danger'); return; }
+    var linked = (db.sales || []).filter(function (x) { return x.vehicleId === vId; }).length;
+    var label = ((v.year || '') + ' ' + (v.make || '') + ' ' + (v.model || '')).trim() || 'this vehicle';
+    var msg = 'Delete ' + label + '?' +
+      (linked ? '\n\n' + linked + ' sale(s) are linked to it — they will be kept but unlinked.' : '');
+    if (!confirm(msg)) return;
+    db.vehicles = (db.vehicles || []).filter(function (x) { return x.id !== vId; });
+    (db.sales || []).forEach(function (x) { if (x.vehicleId === vId) x.vehicleId = ''; });
+    saveDB(db);
+    if (typeof window.closeModal === 'function') window.closeModal();
+    toast('Vehicle deleted', 'danger');
+    if (typeof window.renderView === 'function') window.renderView();
+  };
+
   // ── Edit Sale ──
   window.openEditSaleModal = function (saleId) {
     var db = getDB();
@@ -176,47 +194,5 @@
     if (typeof window.renderView === 'function') window.renderView();
   };
 
-  // ── Inject edit buttons on detail views ──
-  function injectEditButtons() {
-    // Vehicle detail: add edit button next to close
-    var vehicleHeadings = document.querySelectorAll('#modalContent h3');
-    vehicleHeadings.forEach(function (h) {
-      if (h.textContent.match(/^\d{4} /) && !h.dataset.editBtn) { // Year Make Model pattern
-        h.dataset.editBtn = '1';
-        // Find vehicle ID from the modal context
-        var btn = document.createElement('button');
-        btn.className = 'ml-2 p-1.5 text-blue-400 hover:text-blue-300 text-sm';
-        btn.innerHTML = '✏️';
-        btn.title = 'Edit vehicle';
-        btn.onclick = function () {
-          // Try to find vehicle ID from page
-          var db = getDB();
-          if (!db) return;
-          var title = h.textContent.trim();
-          var v = (db.vehicles || []).find(function (x) {
-            return (x.year + ' ' + x.make + ' ' + x.model).trim() === title;
-          });
-          if (v) { window.closeModal(); setTimeout(function () { window.openEditVehicleModal(v.id); }, 100); }
-        };
-        h.appendChild(btn);
-      }
-    });
-  }
-
-  var observer = new MutationObserver(function () {
-    clearTimeout(window._pcEditT);
-    window._pcEditT = setTimeout(injectEditButtons, 600);
-  });
-
-  function boot() {
-    observer.observe(document.body, { childList: true, subtree: true });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-
-  console.log('[InlineEdit] Initialized');
+  // NOTE: vehicle/sale detail modals now carry their own Edit/Delete buttons
 })();

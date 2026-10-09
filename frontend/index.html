@@ -1139,6 +1139,20 @@
         cust.createdDate = cust.createdDate || '';
         cust.totalSpent = Number(cust.totalSpent) || 0;
         cust.loyaltyPoints = Number(cust.loyaltyPoints) || 0;
+        cust.openingBalance = Number(cust.openingBalance) || 0;
+      });
+
+      // Total Spent is DERIVED from the completed sales ledger (+ opening
+      // balance) so it can never drift from service history — no matter how
+      // a sale was created, completed, edited, or deleted.
+      const _spentByCust = {};
+      (db.sales || []).forEach(sale => {
+        if (String(sale.status || '').toLowerCase() === 'completed' && sale.customerId) {
+          _spentByCust[sale.customerId] = (_spentByCust[sale.customerId] || 0) + (Number(sale.total) || 0);
+        }
+      });
+      db.customers.forEach(cust => {
+        cust.totalSpent = Math.round(((Number(cust.openingBalance) || 0) + (_spentByCust[cust.id] || 0)) * 100) / 100;
       });
 
       // ---- Vehicles ----
@@ -2843,8 +2857,9 @@
             <input type="number" name="loyaltyPoints" min="0" value="${Number(cust.loyaltyPoints) || 0}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
           </div>
           <div>
-            <label class="text-xs text-slate-400 mb-1 block">Total Spent ($)</label>
-            <input type="number" name="totalSpent" min="0" step="0.01" value="${Number(cust.totalSpent) || 0}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+            <label class="text-xs text-slate-400 mb-1 block">Opening Balance ($)</label>
+            <input type="number" name="openingBalance" min="0" step="0.01" value="${Number(cust.openingBalance) || 0}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+            <p class="text-[10px] text-slate-500 mt-1">Pre-existing spend — added to the total from completed sales.</p>
           </div>
         </div>
         <div>
@@ -2878,7 +2893,7 @@
       setField('address', data.address || '');
       setField('notes', data.notes || '');
       cust.loyaltyPoints = Math.max(0, Number(data.loyaltyPoints) || 0);
-      cust.totalSpent = Math.max(0, Number(data.totalSpent) || 0);
+      cust.openingBalance = Math.max(0, Number(data.openingBalance) || 0);
 
       db.auditLogs.unshift({
         id: 'LOG' + Date.now(),
@@ -3223,14 +3238,18 @@
       </h4>
       <div class="space-y-2 mb-4">
         ${(v.services || []).length === 0 ? '<p class="text-sm text-slate-500 text-center py-4">No services recorded</p>' :
-          (v.services || []).map(s => `
+          (v.services || []).map((s, si) => `
             <div class="glass-card rounded-lg p-3">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-sm font-medium text-white">${s.type}</span>
-                <span class="text-xs text-slate-400">${s.date}</span>
+                <div class="flex items-center gap-1">
+                  <span class="text-xs text-slate-400 mr-1">${s.date}</span>
+                  <button onclick="event.stopPropagation();closeModal();openEditServiceModal('${pcEscId(v.id)}', ${si})" class="p-1.5 text-blue-400 hover:text-blue-300" title="Edit service record" aria-label="Edit service record"><i class="ph-bold ph-pencil-simple"></i></button>
+                  <button onclick="event.stopPropagation();deleteServiceRecord('${pcEscId(v.id)}', ${si})" class="p-1.5 text-red-400 hover:text-red-300" title="Delete service record" aria-label="Delete service record"><i class="ph-bold ph-trash"></i></button>
+                </div>
               </div>
               <p class="text-xs text-slate-400">${s.notes || 'No notes'}</p>
-              <p class="text-sm font-bold text-green-400 mt-1">$${s.cost.toFixed(2)}</p>
+              <p class="text-sm font-bold text-green-400 mt-1">$${Number(s.cost || 0).toFixed(2)}</p>
             </div>
           `).join('')}
       </div>
@@ -3238,6 +3257,15 @@
       <button onclick="closeModal();openAddServiceModal('${pcEscId(v.id)}')" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
         <i class="ph-bold ph-plus"></i> Add Service Record
       </button>
+
+      <div class="flex gap-2 mt-3 pt-4 border-t border-slate-700/50">
+        <button onclick="closeModal();openEditVehicleModal('${pcEscId(v.id)}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-blue-300 flex items-center justify-center gap-2 hover:border-blue-400/40 transition-all">
+          <i class="ph-bold ph-pencil-simple"></i> Edit Vehicle
+        </button>
+        <button onclick="deleteVehicle('${pcEscId(v.id)}')" class="btn-danger px-5 py-3 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2">
+          <i class="ph-bold ph-trash"></i> Delete
+        </button>
+      </div>
     </div>
   `;
     }
@@ -3304,6 +3332,84 @@
       saveDB(db);
       closeModal();
       showToast('Service record added', 'success');
+      openVehicleDetail(vId);
+    }
+
+    function openEditServiceModal(vId, idx) {
+      const db = getDB();
+      const v = db.vehicles.find(vh => vh.id === vId);
+      const rec = v && (v.services || [])[idx];
+      if (!rec) { showToast('Service record not found', 'danger'); return; }
+      const esc = (x) => String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const modal = document.getElementById('modalContainer');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+      const typeOpts = ['Oil Change','Brake Service','Tire Rotation','Inspection','Engine Repair','Transmission Service','Suspension Work','Electrical Repair','AC Service','Parts Replacement','Other'];
+      content.innerHTML = `
+    <div class="p-6 overflow-y-auto max-h-[85vh]">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="ph-bold ph-pencil-simple text-blue-400"></i> Edit Service Record
+        </h3>
+        <button onclick="closeModal()" class="p-2 text-slate-400 hover:text-white"><i class="ph ph-x text-xl"></i></button>
+      </div>
+      <form onsubmit="saveServiceEdit(event, '${pcEscId(vId)}', ${idx})" class="space-y-4">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Date *</label>
+            <input type="date" name="date" required value="${esc(rec.date) || ''}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 mb-1 block">Service Type *</label>
+            <select name="type" required class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+              ${typeOpts.map(t => `<option${t === rec.type ? ' selected' : ''}>${t}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Cost *</label>
+          <input type="number" name="cost" required step="0.01" min="0" value="${Number(rec.cost) || 0}" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 mb-1 block">Notes</label>
+          <textarea name="notes" rows="3" class="glass-input w-full px-3 py-2.5 rounded-lg text-sm text-white resize-none">${esc(rec.notes)}</textarea>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3 rounded-lg text-sm font-semibold text-white">
+          <i class="ph-bold ph-floppy-disk"></i> Save Changes
+        </button>
+      </form>
+    </div>
+  `;
+    }
+
+    function saveServiceEdit(e, vId, idx) {
+      e.preventDefault();
+      const form = e.target;
+      const data = Object.fromEntries(new FormData(form));
+      const db = getDB();
+      const v = db.vehicles.find(vh => vh.id === vId);
+      const rec = v && (v.services || [])[idx];
+      if (!rec) { showToast('Service record not found', 'danger'); return; }
+      rec.date = data.date;
+      rec.type = data.type;
+      rec.cost = Math.max(0, parseFloat(data.cost) || 0);
+      rec.notes = data.notes || '';
+      saveDB(db);
+      closeModal();
+      showToast('Service record updated', 'success');
+      openVehicleDetail(vId);
+    }
+
+    function deleteServiceRecord(vId, idx) {
+      const db = getDB();
+      const v = db.vehicles.find(vh => vh.id === vId);
+      const rec = v && (v.services || [])[idx];
+      if (!rec) return;
+      if (!confirm(`Delete this service record (${rec.type || 'service'} — $${Number(rec.cost || 0).toFixed(2)})?`)) return;
+      v.services.splice(idx, 1);
+      saveDB(db);
+      closeModal();
+      showToast('Service record deleted', 'danger');
       openVehicleDetail(vId);
     }
 
@@ -3645,13 +3751,11 @@
 
       db.sales.push(newSale);
 
-      // Update customer total spent if completed
+      // Loyalty accrues on newly completed sales; Total Spent is recomputed
+      // from the sales ledger by sanitizeDB on save.
       if (_estimateStatus === 'Completed') {
         const cust = db.customers.find(c => c.id === custId);
-        if (cust) {
-          cust.totalSpent += total;
-          cust.loyaltyPoints += Math.floor(total);
-        }
+        if (cust) cust.loyaltyPoints = (Number(cust.loyaltyPoints) || 0) + Math.floor(total);
         // Update stock
         lineItems.forEach(li => {
           if (li.partNumber !== 'CUSTOM') {
@@ -3751,18 +3855,21 @@
         </div>
       </div>
 
-      <div class="flex gap-2 mt-4">
-        <button onclick="createInvoiceFromSale('${pcEscId(sale.id)}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-cyan-400 flex items-center justify-center gap-2">
+      <div class="flex flex-wrap gap-2 mt-4">
+        <button onclick="createInvoiceFromSale('${pcEscId(sale.id)}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-cyan-400 flex items-center justify-center gap-2 min-w-[140px]">
           <i class="ph-bold ph-file-text"></i> Generate Invoice
         </button>
+        <button onclick="closeModal();openEditSaleModal('${pcEscId(sale.id)}')" class="glass-input flex-1 py-3 rounded-lg text-sm font-semibold text-blue-300 flex items-center justify-center gap-2 min-w-[140px]">
+          <i class="ph-bold ph-pencil-simple"></i> Edit Sale
+        </button>
         ${String(sale.status || '').toLowerCase() === 'pending' ? `
-          <button onclick="closeModal();updateSaleStatus('${pcEscId(sale.id)}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white">
+          <button onclick="closeModal();updateSaleStatus('${pcEscId(sale.id)}', 'Completed')" class="btn-primary flex-1 py-3 rounded-lg text-sm font-semibold text-white min-w-[140px]">
             <i class="ph-bold ph-check-circle"></i> Complete Sale
           </button>
-          <button onclick="deleteSale('${pcEscId(sale.id)}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white">
-            <i class="ph-bold ph-trash"></i>
-          </button>
         ` : ''}
+        <button onclick="deleteSale('${pcEscId(sale.id)}')" class="btn-danger px-4 py-3 rounded-lg text-sm font-semibold text-white flex items-center justify-center gap-2" title="Delete sale">
+          <i class="ph-bold ph-trash"></i>
+        </button>
       </div>
     </div>
   `;
@@ -3772,15 +3879,18 @@
       const db = getDB();
       const sale = db.sales.find(s => s.id === saleId);
       if (!sale) return;
+      const wasCompleted = String(sale.status || '').toLowerCase() === 'completed';
+      const isCompleted = String(status || '').toLowerCase() === 'completed';
       sale.status = status;
-      const cust = db.customers.find(c => c.id === sale.customerId);
-      if (cust) {
-        cust.totalSpent += sale.total;
-        cust.loyaltyPoints += Math.floor(sale.total);
+      // Loyalty accrues only on the first transition to completed (no double-counts);
+      // Total Spent is recomputed from the sales ledger by sanitizeDB on save.
+      if (isCompleted && !wasCompleted) {
+        const cust = db.customers.find(c => c.id === sale.customerId);
+        if (cust) cust.loyaltyPoints = (Number(cust.loyaltyPoints) || 0) + Math.floor(Number(sale.total) || 0);
       }
       saveDB(db);
       closeModal();
-      showToast(`Sale ${saleId} completed`, 'success');
+      showToast(`Sale ${saleId} ${String(status).toLowerCase()}`, 'success');
       renderView();
     }
 
