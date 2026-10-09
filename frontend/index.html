@@ -1226,13 +1226,21 @@
         r.autozone = Number(r.autozone) || 0;
         r.advance = Number(r.advance) || 0;
         r.carquest = Number(r.carquest) || 0;
-        if (r.ourPrice == null || isNaN(Number(r.ourPrice))) {
-          r.ourPrice = Number(invByPart[r.partNumber]?.price) || 0;
+        // Our Price/Cost track the inventory record (source of truth) so the
+        // comparison grid stays in sync after live price refreshes — unless
+        // they were set by hand in the pricing modal (ourPriceManual flag).
+        const inv = invByPart[r.partNumber];
+        if (!r.ourPriceManual && inv && inv.price != null && !isNaN(Number(inv.price))) {
+          r.ourPrice = Number(inv.price);
+        } else if (r.ourPrice == null || isNaN(Number(r.ourPrice))) {
+          r.ourPrice = 0;
         } else {
           r.ourPrice = Number(r.ourPrice);
         }
-        if (r.ourCost == null || isNaN(Number(r.ourCost))) {
-          r.ourCost = Number(invByPart[r.partNumber]?.cost) || 0;
+        if (!r.ourCostManual && inv && inv.cost != null && !isNaN(Number(inv.cost))) {
+          r.ourCost = Number(inv.cost);
+        } else if (r.ourCost == null || isNaN(Number(r.ourCost))) {
+          r.ourCost = 0;
         } else {
           r.ourCost = Number(r.ourCost);
         }
@@ -3993,7 +4001,9 @@
         advance: parseFloat(data.advance) || 0,
         carquest: parseFloat(data.carquest) || 0,
         ourPrice: parseFloat(data.ourPrice),
-        ourCost: parseFloat(data.ourCost)
+        ourCost: parseFloat(data.ourCost),
+        ourPriceManual: true,
+        ourCostManual: true
       };
 
       if (existing >= 0) {
