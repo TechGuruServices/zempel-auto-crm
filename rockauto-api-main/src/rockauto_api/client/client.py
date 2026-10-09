@@ -212,7 +212,9 @@ class RockAutoClient(BaseClient):
                         continue
                     if len(parts) >= 3:
                         make = parts[2].split(",")[0]
-                        if make and len(make) > 1:
+                        # Skip URL query strings (e.g. "?LANGUAGE=DE",
+                        # "?MOBILEMENU=SHOW") - RockAuto nav links, not makes.
+                        if make and len(make) > 1 and not make.startswith("?") and "=" not in make:
                             makes.add(make.upper())
 
             sorted_makes = sorted(list(makes))
@@ -266,7 +268,8 @@ class RockAutoClient(BaseClient):
                     parts = href.split(",")
                     if len(parts) >= 3:
                         model = parts[2]
-                        if model and len(model) > 1:
+                        # Same guard as makes: skip query-string nav links.
+                        if model and len(model) > 1 and not model.startswith("?") and "=" not in model:
                             models.add(model.upper())
 
             sorted_models = sorted(list(models))
