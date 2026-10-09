@@ -711,13 +711,22 @@
     }
 
   
-    /* Sticky header: hidden at all times until summoned via #headerHandle */
+    /* Sticky header: hidden at all times until summoned via #headerHandle.
+       When hidden it collapses to zero height so it frees screen space
+       (transform alone would leave its layout box reserving space). */
     #appHeader {
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      will-change: transform;
+      max-height: 320px;
+      overflow: hidden;
+      opacity: 1;
+      transition: max-height .36s cubic-bezier(0.4,0,0.2,1), opacity .25s ease,
+                  padding-top .36s cubic-bezier(0.4,0,0.2,1), padding-bottom .36s cubic-bezier(0.4,0,0.2,1);
+      will-change: max-height;
     }
     #appHeader.header-hidden {
-      transform: translateY(-110%);
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
     }
     /* Floating summon handle: small pill pinned to the top edge. Tapping it
        slides the header in/out; it docks under the header while open. */
@@ -1414,7 +1423,7 @@
         handle.setAttribute('aria-label', 'Hide header');
         // Dock the handle just under the header's bottom edge so it can dismiss it.
         requestAnimationFrame(() => {
-          handle.style.top = Math.max(0, header.offsetHeight - 14) + 'px';
+          handle.style.top = Math.max(0, header.scrollHeight - 14) + 'px';
         });
       }
       function hideHeader() {
