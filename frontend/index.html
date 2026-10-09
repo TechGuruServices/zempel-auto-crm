@@ -711,7 +711,7 @@
     }
 
   
-    /* Sticky header: slides away on scroll down, returns on scroll up */
+    /* Sticky header: hidden at all times until summoned via #headerHandle */
     #appHeader {
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       will-change: transform;
@@ -719,6 +719,35 @@
     #appHeader.header-hidden {
       transform: translateY(-110%);
     }
+    /* Floating summon handle: small pill pinned to the top edge. Tapping it
+       slides the header in/out; it docks under the header while open. */
+    #headerHandle {
+      position: fixed;
+      top: max(10px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      width: 68px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15,23,42,.55);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
+      backdrop-filter: blur(12px) saturate(150%);
+      border: 1px solid var(--stroke);
+      color: var(--text-3);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: top .32s cubic-bezier(0.4,0,0.2,1), background .2s, color .2s;
+      box-shadow: 0 6px 18px -8px rgba(0,0,0,.6);
+    }
+    #headerHandle i { font-size: 15px; transition: transform .3s cubic-bezier(0.4,0,0.2,1); }
+    #headerHandle.is-open i { transform: rotate(180deg); }
+    #headerHandle:active { transform: translateX(-50%) scale(.94); }
+    html.light-mode #headerHandle { background: rgba(255,255,255,.72); }
 
   </style>
   <link rel="preload" href="/assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
@@ -844,7 +873,7 @@
 
       <!-- Top Bar -->
       <header id="appHeader"
-        class="px-4 lg:px-6 pt-3 pb-3 sticky-header z-20">
+        class="px-4 lg:px-6 pt-3 pb-3 sticky-header z-20 header-hidden">
         <div class="flex items-center gap-2">
           <button onclick="toggleMobileNav()" class="hd-btn hd-menu lg:hidden -ml-2 flex-shrink-0"
             title="Menu" aria-label="Open navigation menu">
@@ -877,6 +906,10 @@
           <div id="syncBadgeSlotMobile" class="sm:hidden mt-2 flex items-center"></div>
         </div>
       </header>
+      <!-- Floating summon handle: header stays hidden until the user taps this -->
+      <button id="headerHandle" aria-expanded="false" aria-controls="appHeader" aria-label="Show header">
+        <i class="ph-bold ph-caret-down"></i>
+      </button>
 
       <!-- Mobile Bottom Navigation -->
       <nav
@@ -1356,30 +1389,66 @@
     }
 
 
-    // ==================== HEADER HIDE/SHOW ON SCROLL ====================
-    // Slides the top bar away when scrolling down, brings it back on scroll up.
-    (function initHeaderScroll() {
-      let lastY = 0;
+    // ==================== HEADER: HIDDEN UNTIL SUMMONED ====================
+    // The top bar stays out of sight at all times. A small floating handle at
+    // the top edge summons it; tapping the handle again, scrolling down, or
+    // navigating to another view sends it back away. Never auto-reveals.
+    (function initHeaderToggle() {
       const header = document.getElementById('appHeader');
+      const handle = document.getElementById('headerHandle');
       const scroller = document.getElementById('mainContent');
-      if (!header || !scroller) return;
-      let ticking = false;
+      if (!header || !handle || !scroller) return;
+
+      function showHeader() {
+        header.classList.remove('header-hidden');
+        handle.classList.add('is-open');
+        handle.setAttribute('aria-expanded', 'true');
+        handle.setAttribute('aria-label', 'Hide header');
+        // Dock the handle just under the header's bottom edge so it can dismiss it.
+        requestAnimationFrame(() => {
+          handle.style.top = Math.max(0, header.offsetHeight - 14) + 'px';
+        });
+      }
+      function hideHeader() {
+        header.classList.add('header-hidden');
+        handle.classList.remove('is-open');
+        handle.setAttribute('aria-expanded', 'false');
+        handle.setAttribute('aria-label', 'Show header');
+        handle.style.top = '';
+      }
+
+      // Start hidden — no flash, no scroll-up reveal.
+      hideHeader();
+
+      handle.addEventListener('click', () => {
+        if (header.classList.contains('header-hidden')) showHeader();
+        else hideHeader();
+      });
+
+      // Scrolling down dismisses an open header. Scrolling up does NOT reveal it.
+      let lastY = 0, ticking = false;
       scroller.addEventListener('scroll', () => {
         if (ticking) return;
         ticking = true;
         requestAnimationFrame(() => {
           const y = scroller.scrollTop;
           const delta = y - lastY;
-          // Only react past 60px; ignore tiny jitters (<8px)
-          if (y > 60 && delta > 8) {
-            header.classList.add('header-hidden');
-          } else if (delta < -8 || y <= 60) {
-            header.classList.remove('header-hidden');
+          const ae = document.activeElement;
+          const typing = ae && header.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName);
+          if (!header.classList.contains('header-hidden') && delta > 8 && y > 40 && !typing) {
+            hideHeader();
           }
           lastY = y;
           ticking = false;
         });
       }, { passive: true });
+
+      // Navigating to another view re-hides the header
+      // (ui-refresh.js keeps body[data-view] in sync with navigation).
+      new MutationObserver(hideHeader).observe(document.body, {
+        attributes: true,
+        attributeFilter: ['data-view']
+      });
     })();
 
     // ==================== VIEW RENDERERS ====================
