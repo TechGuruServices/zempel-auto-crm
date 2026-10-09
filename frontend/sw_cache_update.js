@@ -1,5 +1,5 @@
 /**
- * SW Cache Update Utility v3.1.0 — Zempel Auto Parts CRM
+ * SW Cache Update Utility v3.7.1 — Zempel Auto Parts CRM
  * Coordinates cache invalidation between main thread and service worker.
  * Used by rockauto-fetch.js to bust stale KV-cached proxy responses.
  */

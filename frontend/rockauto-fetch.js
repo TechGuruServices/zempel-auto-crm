@@ -1,5 +1,5 @@
 /**
- * RockAuto Fetch Module v3.1.0
+ * RockAuto Fetch Module v3.7.1
  * Typed fetch wrapper for CF Worker proxy → RockAuto data.
  * AbortController timeout, retry, dedup, Retry-After respect.
  */

@@ -5,7 +5,7 @@
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.7.0'; // bumped 2026-10: UI refresh (glass design system, new dashboard, tablet rail, self-hosted Inter)
+const CACHE_NAME = 'partscommand-v3.7.1'; // bumped 2026-10: UI refresh (glass design system, new dashboard, tablet rail, self-hosted Inter)
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [

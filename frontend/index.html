@@ -761,7 +761,7 @@
         regs.forEach(function (reg) {
           reg.active && reg.active.scriptURL && fetch(reg.active.scriptURL, { cache: 'no-store' })
             .then(function (r) { return r.text(); })
-            .then(function (t) { if (!t.includes('partscommand-v3.7.0')) reg.unregister(); })
+            .then(function (t) { if (!t.includes('partscommand-v3.7.1')) reg.unregister(); })
             .catch(function () { });
         });
       });
@@ -799,7 +799,7 @@
         <a href="#" onclick="navigate('dashboard')" title="Zempel Auto – PartsCommand CRM" class="inline-block">
           <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo" loading="eager" decoding="sync" />
         </a>
-        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.1.0
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.7.1
         </p>
       </div>
 
@@ -961,7 +961,7 @@
           <img src="assets/z-auto-9.jpeg" alt="Zempel Auto logo" class="brand-logo-overlay" loading="eager"
             decoding="sync" />
         </a>
-        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.1.0
+        <p class="text-[9px] text-slate-500 font-mono tracking-widest mt-3 pl-px">PARTS COMMAND &nbsp;·&nbsp; CRM v3.7.1
         </p>
       </div>
       <nav class="flex-1 overflow-y-auto px-3 pb-6">
@@ -4549,7 +4549,7 @@
             <h2 class="text-2xl font-bold text-white">Settings</h2>
             <p class="text-sm text-slate-400">Manage preferences, exports, and app configuration</p>
           </div>
-          <span class="text-xs text-slate-500 font-mono bg-slate-800/50 px-3 py-1 rounded-full">v3.1.0</span>
+          <span class="text-xs text-slate-500 font-mono bg-slate-800/50 px-3 py-1 rounded-full">v3.7.1</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -4923,7 +4923,7 @@
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-8 gap-y-3 text-sm">
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Application</span><span class="text-white font-medium">PartsCommand CRM</span></div>
-              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Version</span><span class="text-white font-mono">3.0.0</span></div>
+              <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Version</span><span class="text-white font-mono">3.7.1</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Built for</span><span class="text-white">Zempel Auto</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Backend</span><span class="text-white font-mono text-xs">Cloudflare Workers</span></div>
               <div class="flex justify-between border-b border-slate-700/40 pb-2"><span class="text-slate-400">Database</span><span class="text-white font-mono text-xs">Neon PostgreSQL</span></div>
@@ -5019,7 +5019,7 @@
 
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
-      doc.text('PartsCommand CRM v3.1.0  |  ' + new Date().toLocaleString(), 42, 27);
+      doc.text('PartsCommand CRM v3.7.1  |  ' + new Date().toLocaleString(), 42, 27);
 
       if (s.bizPhone || s.bizEmail) {
         doc.setFontSize(8);
@@ -5262,7 +5262,7 @@
     // ==================== DATA MANAGEMENT ====================
     function exportFullBackup() {
       const db = getDB();
-      const backup = Object.assign({}, db, { exportedAt: new Date().toISOString(), version: '3.0.0' });
+      const backup = Object.assign({}, db, { exportedAt: new Date().toISOString(), version: '3.7.1' });
       const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -5774,7 +5774,7 @@
     }
   </script>
 
-  <!-- RockAuto Integration Modules v3.1.0 -->
+  <!-- RockAuto Integration Modules v3.7.1 -->
   <script src="rockauto-fetch.js" data-cfasync="false"></script>
   <script src="rockauto-ui.js" data-cfasync="false"></script>
   <script src="invoice-logo.js" data-cfasync="false"></script>
