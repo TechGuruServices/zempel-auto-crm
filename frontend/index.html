@@ -755,18 +755,35 @@
     html.light-mode #headerHandle { background: rgba(255,255,255,.72); }
 
   
-/* Minimal barcode scanner viewport */
-.scan-frame{position:absolute;inset:0;pointer-events:none;z-index:5}
-.sf-corner{position:absolute;width:26px;height:26px;border:3px solid rgba(251,191,36,.95)}
-.sf-tl{top:22%;left:14%;border-right:0;border-bottom:0;border-top-left-radius:10px}
-.sf-tr{top:22%;right:14%;border-left:0;border-bottom:0;border-top-right-radius:10px}
-.sf-bl{bottom:22%;left:14%;border-right:0;border-top:0;border-bottom-left-radius:10px}
-.sf-br{bottom:22%;right:14%;border-left:0;border-top:0;border-bottom-right-radius:10px}
-.sf-line{position:absolute;left:14%;right:14%;top:50%;height:2px;background:linear-gradient(90deg,transparent,rgba(251,191,36,.9),transparent);animation:sfscan 2.2s ease-in-out infinite}
-@keyframes sfscan{0%,100%{top:32%}50%{top:66%}}
+/* Barcode scanner — clean glass styling (visual only) */
+.scan-frame{position:absolute;inset:0;pointer-events:none;z-index:5;--ft:22%;--fb:22%;--fx:12%}
+/* soft dim outside the target area so the frame reads clearly */
+.scan-frame::before{content:"";position:absolute;top:var(--ft);bottom:var(--fb);left:var(--fx);right:var(--fx);border-radius:20px;box-shadow:0 0 0 100vmax rgba(8,12,24,.32)}
+.sf-corner{position:absolute;width:28px;height:28px;border:2.5px solid rgba(255,255,255,.92);filter:drop-shadow(0 1px 3px rgba(0,0,0,.35))}
+.sf-tl{top:var(--ft);left:var(--fx);border-right:0;border-bottom:0;border-top-left-radius:20px}
+.sf-tr{top:var(--ft);right:var(--fx);border-left:0;border-bottom:0;border-top-right-radius:20px}
+.sf-bl{bottom:var(--fb);left:var(--fx);border-right:0;border-top:0;border-bottom-left-radius:20px}
+.sf-br{bottom:var(--fb);right:var(--fx);border-left:0;border-top:0;border-bottom-right-radius:20px}
+.sf-line{position:absolute;left:calc(var(--fx) + 8%);right:calc(var(--fx) + 8%);top:calc((100% + var(--ft) - var(--fb)) / 2);height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:sfpulse 2.4s ease-in-out infinite}
+@keyframes sfpulse{0%,100%{opacity:.2}50%{opacity:.8}}
+#add-part-scanner-container .scan-frame{--ft:12%;--fb:30%;--fx:10%}
+#add-part-scanner-container .sf-corner{width:22px;height:22px}
 #qr-reader video{object-fit:cover!important}
 #add-part-qr-reader video{object-fit:cover!important}
-@media (prefers-reduced-motion:reduce){.sf-line{animation:none}}
+#qr-reader #qr-shaded-region,#add-part-qr-reader #qr-shaded-region{display:none!important}
+/* viewport card */
+#add-part-scanner-container,#scanModeBarcodePane>.relative,#scanModePartPane>.relative{border-radius:24px!important;border:1px solid rgba(255,255,255,.16)!important;box-shadow:0 12px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.12)}
+/* status text -> centered frosted pill */
+#scan-status,#add-part-scan-status,#ocr-status{position:absolute!important;top:auto!important;right:auto!important;left:50%!important;bottom:12px!important;transform:translateX(-50%);width:max-content;max-width:calc(100% - 24px);padding:6px 14px!important;border-radius:999px;font-size:12px!important;line-height:1.35;font-weight:500;letter-spacing:.01em;text-align:center;background:rgba(255,255,255,.14)!important;background-image:none!important;-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);border:1px solid rgba(255,255,255,.22);box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:6!important}
+#scan-status:not(.text-red-400),#add-part-scan-status:not(.text-red-400),#ocr-status:not(.text-red-400){color:#fff!important}
+#add-part-scan-status{font-size:11px!important;bottom:8px!important;padding:5px 11px!important}
+/* mode switch + close + capture -> glass controls */
+[role="tablist"][aria-label="Scan mode"]{background:rgba(255,255,255,.07)!important;border:1px solid rgba(255,255,255,.12);padding:3px!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+[role="tablist"][aria-label="Scan mode"]>button{background:transparent!important;color:rgba(226,232,240,.6)!important;font-weight:500!important;transition:background .2s,color .2s}
+[role="tablist"][aria-label="Scan mode"]>button[aria-selected="true"]{background:rgba(255,255,255,.18)!important;color:#fff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 8px rgba(0,0,0,.2)}
+button[aria-label="Close scanner"]{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.14);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+#ocr-capture-btn{background:rgba(255,255,255,.14)!important;background-image:none!important;border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 6px 18px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+@media (prefers-reduced-motion:reduce){.sf-line{animation:none;opacity:.5}}
 </style>
   <link rel="preload" href="/assets/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/assets/ui-refresh.css">
