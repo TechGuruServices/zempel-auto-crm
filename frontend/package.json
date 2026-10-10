@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx serve .",
-    "build": "mkdir -p dist && cp -r index.html manifest.json _headers *.js assets dist/",
+    "build": "node scripts/check-sw-version.js && mkdir -p dist && cp -r index.html manifest.json _headers *.js assets dist/",
     "build:win": "powershell -Command \"New-Item -ItemType Directory -Force -Path dist | Out-Null; Copy-Item index.html,manifest.json,_headers,*.js -Destination dist; Copy-Item -Recurse -Force assets dist/\"",
     "preview": "npx serve dist"
   },
