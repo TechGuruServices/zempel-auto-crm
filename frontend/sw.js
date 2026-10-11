@@ -5,7 +5,7 @@
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.7.4'; // bumped 2026-10-10: SW/index version sync, price-comparison + barcode lookup fixes
+const CACHE_NAME = 'partscommand-v3.7.5'; // bumped 2026-10-10: SW/index version sync, price-comparison + barcode lookup fixes
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
