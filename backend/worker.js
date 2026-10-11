@@ -17,6 +17,7 @@ import { z } from 'zod';
  *   GET   /sync          Pull DB (ETag support)
  *   POST  /sync          Push DB (Zod validated)
  *   GET   /prices        Hardened price lookup
+ *   GET   /barcode       UPC/EAN -> product name, brand, part number (KV-cached)
  *   OPTIONS *            CORS preflight
  *
  * Env bindings: DATABASE_URL, JWT_SECRET, ALLOWED_ORIGIN, CRM_KV
@@ -145,7 +146,7 @@ export default {
       if (url.pathname.startsWith('/v1/rockauto/')) {
         return handleRockAutoProxy(url, request, env, hdrs, ctx, clientIP);
       }
-      if (url.pathname === '/sync' || url.pathname === '/prices') {
+      if (url.pathname === '/sync' || url.pathname === '/prices' || url.pathname === '/barcode') {
         const auth = requireAuth(request, env, hdrs);
         if (auth.error) return auth.error;
         if (url.pathname === '/sync') {
@@ -154,6 +155,9 @@ export default {
         }
         if (url.pathname === '/prices' && request.method === 'GET') {
           return handlePriceLookup(url, env, hdrs, ctx);
+        }
+        if (url.pathname === '/barcode' && request.method === 'GET') {
+          return handleBarcodeLookup(url, env, hdrs, ctx);
         }
       }
 
@@ -510,6 +514,69 @@ async function handleSyncPost(request, env, hdrs, user, clientIP, ctx) {
     console.error('[POST /sync]', err);
     return json({ error: 'Sync failed', detail: err.message }, hdrs, 503);
   }
+}
+
+// ── GET /barcode (UPC/EAN -> product details, KV-cached) ─────
+// A retail barcode (UPC/EAN) is NOT a manufacturer part number, so it must
+// never be fed to the retailer price scrapers. This resolves the code to a
+// product record first; the frontend then uses the returned part number
+// (when the UPC database has one) for pricing.
+async function handleBarcodeLookup(url, env, hdrs, ctx) {
+  const code = (url.searchParams.get('code') || '').replace(/\D/g, '');
+  if (code.length < 8 || code.length > 14) {
+    return json({ error: 'A valid 8-14 digit UPC/EAN barcode is required' }, hdrs, 400);
+  }
+  const cacheKey = `upc:${code}`;
+  if (env.CRM_KV) {
+    const cached = await env.CRM_KV.get(cacheKey, 'json').catch(() => null);
+    if (cached) return json(cached, { ...hdrs, 'X-Cache': 'HIT' });
+  }
+
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 8000);
+  let out = { code, found: false, source: 'upcitemdb' };
+  let cacheTtl = 3600; // negative / throttled results: re-check hourly
+  try {
+    // Optional paid tier: wrangler secret put UPCITEMDB_KEY (falls back to the free trial endpoint).
+    const paid = !!env.UPCITEMDB_KEY;
+    const res = await fetch(
+      `https://api.upcitemdb.com/prod/${paid ? 'v1' : 'trial'}/lookup?upc=${encodeURIComponent(code)}`,
+      {
+        headers: paid
+          ? { user_key: env.UPCITEMDB_KEY, key_type: '3scale', Accept: 'application/json' }
+          : { Accept: 'application/json' },
+        signal: ctrl.signal,
+      }
+    );
+    if (res.status === 429) {
+      out = { ...out, reason: 'lookup_limit_reached' };
+    } else if (res.ok) {
+      const data = await res.json();
+      const item = data && Array.isArray(data.items) ? data.items[0] : null;
+      if (item && item.title) {
+        const model = String(item.model || '').trim();
+        out = {
+          code,
+          found: true,
+          source: 'upcitemdb',
+          name: String(item.title).trim().slice(0, 120),
+          brand: String(item.brand || '').trim(),
+          // Only trust "model" as a part number when it is not just the barcode again.
+          partNumber: model && model.replace(/\D/g, '') !== code ? model : '',
+          category: String(item.category || '').trim(),
+        };
+        cacheTtl = 60 * 60 * 24 * 30;
+      }
+    }
+  } catch (_e) {
+    out = { ...out, reason: 'lookup_unavailable' };
+  } finally {
+    clearTimeout(tid);
+  }
+  if (env.CRM_KV) {
+    ctx.waitUntil(env.CRM_KV.put(cacheKey, JSON.stringify(out), { expirationTtl: cacheTtl }).catch(() => { }));
+  }
+  return json(out, { ...hdrs, 'X-Cache': 'MISS' });
 }
 
 // ── GET /prices (Hardened, KV-cached) ────────────────────────
