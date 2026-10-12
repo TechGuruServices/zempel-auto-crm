@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /api/
+Disallow: /sync
+
+Sitemap: https://zempel-auto-crm.pages.dev/sitemap.xml
