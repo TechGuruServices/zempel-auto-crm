@@ -1,11 +1,11 @@
 /**
- * PartsCommand CRM — Service Worker v3.7.4
+ * PartsCommand CRM — Service Worker v3.7.6
  * Offline-first. API calls are network-only; app shell + core JS are
  * network-first (see NETWORK_FIRST_PATHS) so deploys are picked up
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.7.5'; // bumped 2026-10-10: SW/index version sync, price-comparison + barcode lookup fixes
+const CACHE_NAME = 'partscommand-v3.7.6'; // bumped 2026-10-10: SW/index version sync, price-comparison + barcode lookup fixes
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [
