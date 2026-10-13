@@ -1,5 +1,5 @@
 /**
- * Price Fill v1.0.0 — Zempel Auto CRM
+ * Price Fill v1.0.1 — Zempel Auto CRM
  * ---------------------------------------------------------------
  * After a barcode scan, fetches the eBay listings AVERAGE for the
  * part (via the Worker's /v1/market-price endpoint) and pre-fills the
@@ -10,8 +10,8 @@
  *  - Runs AFTER the app's own fetchPriceInfoFromBarcode (same wrap
  *    pattern as barcode-enhancer.js), so partNumber/brand fields are
  *    already populated when we build the query.
- *  - Fills Sell Price ONLY if the field is empty/0 — never overwrites
- *    a price you typed yourself.
+ *  - A scan always refreshes Sell Price with the fresh average
+ *    (explicit scan = explicit refresh). The badge shows the source.
  *  - Cost is intentionally left alone: your cost is your business.
  *  - If eBay has no listings for the part, it says so instead of
  *    inventing a number.
@@ -66,8 +66,8 @@
   function fillSellPrice(avg, count) {
     var input = sellPriceInput();
     if (!input) return false;
-    var cur = parseFloat(input.value);
-    if (input.value !== '' && !(isNaN(cur) || cur === 0)) return false; // don't clobber manual entry
+    // A scan is an explicit refresh: the fresh market average always wins,
+    // even if the field already holds a value (e.g. from an inventory record).
     input.value = Number(avg).toFixed(2);
     input.dispatchEvent(new Event('input', { bubbles: true }));
     input.dispatchEvent(new Event('change', { bubbles: true }));
@@ -108,12 +108,8 @@
         }
         var data = await res.json();
         if (data && data.count > 0 && data.average > 0) {
-          if (fillSellPrice(data.average, data.count)) {
-            toast('Sell price set from market avg ($' + Number(data.average).toFixed(2) + ')', 'success');
-          } else {
-            toast('Market avg $' + Number(data.average).toFixed(2) +
-              ' (' + data.count + ' listings) — Sell Price already filled', 'info');
-          }
+          fillSellPrice(data.average, data.count);
+          toast('Sell price set from market avg ($' + Number(data.average).toFixed(2) + ')', 'success');
         } else {
           toast('No eBay listings for this part — enter price manually', 'warning');
           console.log('[PriceFill] no market data for', partNumber);
