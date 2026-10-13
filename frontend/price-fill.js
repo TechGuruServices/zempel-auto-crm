@@ -1,7 +1,7 @@
 /**
  * Price Fill v1.0.0 — Zempel Auto CRM
  * ---------------------------------------------------------------
- * After a barcode scan, fetches the eBay sold-listings AVERAGE for the
+ * After a barcode scan, fetches the eBay listings AVERAGE for the
  * part (via the Worker's /v1/market-price endpoint) and pre-fills the
  * Sell Price field. Shows a small source badge under the field so you
  * can see it's a real market lookup, not a guess.
@@ -13,7 +13,7 @@
  *  - Fills Sell Price ONLY if the field is empty/0 — never overwrites
  *    a price you typed yourself.
  *  - Cost is intentionally left alone: your cost is your business.
- *  - If eBay has no sold listings for the part, it says so instead of
+ *  - If eBay has no listings for the part, it says so instead of
  *    inventing a number.
  *
  * INSTALL: add one <script> tag AFTER the main app scripts (and after
@@ -60,7 +60,7 @@
       input.parentNode.insertBefore(badge, input.nextSibling);
     }
     badge.textContent = 'Market avg $' + Number(avg).toFixed(2) +
-      ' · ' + count + ' eBay sold listings';
+      ' · ' + count + ' eBay listings';
   }
 
   function fillSellPrice(avg, count) {
@@ -112,10 +112,10 @@
             toast('Sell price set from market avg ($' + Number(data.average).toFixed(2) + ')', 'success');
           } else {
             toast('Market avg $' + Number(data.average).toFixed(2) +
-              ' (' + data.count + ' sold) — Sell Price already filled', 'info');
+              ' (' + data.count + ' listings) — Sell Price already filled', 'info');
           }
         } else {
-          toast('No eBay sold listings for this part — enter price manually', 'warning');
+          toast('No eBay listings for this part — enter price manually', 'warning');
           console.log('[PriceFill] no market data for', partNumber);
         }
       } catch (e) {
