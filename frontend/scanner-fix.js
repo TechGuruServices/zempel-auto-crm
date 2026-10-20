@@ -1,4 +1,4 @@
-/* Scanner Fix v1.0.0 — Zempel Auto CRM
+/* Scanner Fix v1.0.1 — Zempel Auto CRM
  *
  * The Barcode tab was missing most scans while the OCR Part# tab worked fine.
  * Root cause: html5-qrcode fell back to its JS ZXing 1D decoder (slow, misses
@@ -17,8 +17,15 @@
     return {
       fps: 15,
       qrbox: function (w, h) {
-        return { width: Math.min(640, Math.floor(w * 0.9)),
-                 height: Math.min(280, Math.floor(h * 0.4)) };
+        // html5-qrcode rejects any qrbox dimension under 50px and aborts the
+        // scan start. On short viewports (landscape phones, desktop windows)
+        // h * 0.4 dipped below 50, so clamp both dimensions to >= 60px and
+        // never larger than the viewfinder itself.
+        var width = Math.max(160, Math.min(640, Math.floor(w * 0.9)));
+        var height = Math.max(60, Math.min(280, Math.floor(h * 0.4)));
+        if (width > w) width = Math.floor(w);
+        if (height > h) height = Math.floor(h);
+        return { width: width, height: height };
       },
       aspectRatio: 1.777778,
       useBarCodeDetectorIfSupported: true,
