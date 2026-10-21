@@ -126,11 +126,19 @@ export default {
     }
 
     try {
-      // ── Rate Limiting (5 req/s per IP via KV) ──
-      if (env.CRM_KV) {
-        const rlKey = `rl:${clientIP}:${Math.floor(Date.now() / 1000)}`;
+      // ── Rate Limiting (5 req/s per IP via KV, public routes) ──
+      // v3.3.1 parity: KV free tier allows 1,000 writes/day; writing a
+      // counter on EVERY request exhausted it and took login down.
+      // Authenticated app routes skip the counter; /auth/login uses a
+      // per-minute bucket; public routes keep the per-second limiter.
+      const rlPath = url.pathname;
+      const rlSkip = rlPath === '/sync' || rlPath === '/auth/logout' || rlPath === '/auth/change-password' || rlPath.startsWith('/admin/');
+      if (env.CRM_KV && !rlSkip) {
+        const rlIsLogin = rlPath === '/auth/login';
+        const rlWindow = rlIsLogin ? Math.floor(Date.now() / 60000) : Math.floor(Date.now() / 1000);
+        const rlKey = `rl:${clientIP}:${rlWindow}`;
         const cur = parseInt(await env.CRM_KV.get(rlKey) || '0');
-        if (cur >= 5) return json({ error: 'Rate limit exceeded' }, hdrs, 429);
+        if (cur >= (rlIsLogin ? 30 : 5)) return json({ error: 'Rate limit exceeded' }, hdrs, 429);
         // FIX: KV rejects expirationTtl < 60 ("Expiration TTL must be at least 60"),
         // so the old ttl:2 put failed on EVERY request and rate limiting never
         // actually counted anything. The per-second window is encoded in the key
@@ -386,9 +394,14 @@ async function handleLogin(request, env, hdrs) {
   );
 
   if (env.CRM_KV) {
-    const sessions = await getSessions(env, userRecord.id);
-    sessions.push(token);
-    await saveSessions(env, userRecord.id, sessions);
+    try {
+      const sessions = await getSessions(env, userRecord.id);
+      sessions.push(token);
+      await saveSessions(env, userRecord.id, sessions);
+    } catch (e) {
+      console.error('[Auth] session save failed:', e);
+      return json({ error: 'Sign-in is temporarily unavailable. Please try again in a few minutes.' }, hdrs, 503);
+    }
   }
 
   return json({ token, user: { id: userRecord.id, email: userRecord.email, role: userRecord.role } }, hdrs);
