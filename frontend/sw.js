@@ -5,7 +5,7 @@
  * immediately instead of lagging a version behind.
  */
 
-const CACHE_NAME = 'partscommand-v3.7.9'; // bumped 2026-10-20: v3.7.9 unified scanner + change-password wiring (auth/perf-loader/scanner modules now network-first). v3.7.8 is reserved for the scanner qrbox-clamp fix on branch fix/scanner-qrbox-crash — do NOT reuse.
+const CACHE_NAME = 'partscommand-v3.7.10'; // bumped 2026-10-20: v3.7.9 unified scanner + change-password wiring (auth/perf-loader/scanner modules now network-first). v3.7.8 is reserved for the scanner qrbox-clamp fix on branch fix/scanner-qrbox-crash — do NOT reuse.
 const API_ORIGIN = 'https://parts-command-api.techguruofficial.workers.dev';
 
 const PRECACHE_CORE = [

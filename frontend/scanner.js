@@ -198,9 +198,17 @@
   }
 
   // ── Open / close ───────────────────────────────────────────────────────────
+  function isShown(node) {
+    // The app closes modals by hiding the container WITHOUT clearing its
+    // content, so dialog fields (qsSearch, addPartBarcode) linger invisibly
+    // for the rest of the session. Existence checks would misroute every
+    // later Dashboard/Inventory scan into those hidden forms — require the
+    // element to be actually rendered on screen instead.
+    return !!(node && node.getClientRects().length > 0);
+  }
   function detectCtx() {
-    if (el('qsSearch')) return 'sale';
-    if (el('addPartBarcode')) return 'add';
+    if (isShown(el('qsSearch'))) return 'sale';
+    if (isShown(el('addPartBarcode'))) return 'add';
     return 'lookup';
   }
 
